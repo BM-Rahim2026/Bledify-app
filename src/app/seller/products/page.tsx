@@ -4,13 +4,14 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useSeller } from "@/lib/seller";
-import { Button, Card, Empty, Field, Input, Modal, Spinner, Textarea } from "@/components/ui";
+import { Button, Card, Empty, Field, Input, Modal, Select, Spinner, Textarea } from "@/components/ui";
+import { CATEGORIES, catKey } from "@/lib/categories";
 import { PageHeader } from "@/components/PageHeader";
 
-type Product = { id: string; name: string; description: string; price_dzd: number; images: string[]; active: boolean; position: number };
+type Product = { id: string; name: string; description: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string };
 const fetchProducts = async () =>
   ((await supabase().from("products").select("*").order("position").order("created_at")).data ?? []) as Product[];
-const blank = { name: "", description: "", price_dzd: 0, images: [] as string[], active: true };
+const blank = { name: "", description: "", price_dzd: 0, images: [] as string[], active: true, category: "gateaux" };
 
 function ProductsInner() {
   const { t, formatDZD } = useI18n();
@@ -44,7 +45,7 @@ function ProductsInner() {
     e.preventDefault();
     if (!edit) return;
     setBusy(true); setErr(null);
-    const row = { name: edit.name, description: edit.description, price_dzd: edit.price_dzd, images: edit.images, active: edit.active };
+    const row = { name: edit.name, description: edit.description, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category };
     const sb = supabase();
     const { error } = edit.id
       ? await sb.from("products").update(row).eq("id", edit.id)
@@ -87,6 +88,11 @@ function ProductsInner() {
           <form onSubmit={save} className="max-h-[75dvh] space-y-3 overflow-y-auto">
             <Field label={t("product_name")}><Input required value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></Field>
             <Field label={t("price")}><Input required type="number" min={0} inputMode="numeric" value={edit.price_dzd} onChange={(e) => setEdit({ ...edit, price_dzd: Number(e.target.value) })} /></Field>
+            <Field label={t("category")}>
+              <Select value={edit.category} onChange={(e) => setEdit({ ...edit, category: e.target.value })}>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{t(catKey(c))}</option>)}
+              </Select>
+            </Field>
             <Field label={t("shop_description")}><Textarea rows={2} value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></Field>
             <div>
               <p className="mb-1 text-sm font-semibold">{t("photos")}</p>

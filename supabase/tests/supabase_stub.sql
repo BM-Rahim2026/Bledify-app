@@ -23,3 +23,15 @@ create or replace function storage.foldername(name text) returns text[] language
 grant usage on schema public to anon, authenticated, service_role;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter table auth.users add column if not exists instance_id uuid;
+alter table auth.users add column if not exists aud text;
+alter table auth.users add column if not exists role text;
+alter table auth.users add column if not exists encrypted_password text;
+alter table auth.users add column if not exists email_confirmed_at timestamptz;
+alter table auth.users add column if not exists raw_app_meta_data jsonb;
+alter table auth.users add column if not exists created_at timestamptz;
+alter table auth.users add column if not exists updated_at timestamptz;
+alter table auth.users add column if not exists confirmation_token text;
+alter table auth.users add column if not exists recovery_token text;
+alter table auth.users add column if not exists email_change_token_new text;
+alter table auth.users add column if not exists email_change text;

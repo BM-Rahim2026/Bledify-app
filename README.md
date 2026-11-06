@@ -1,11 +1,23 @@
 # Bledify
 
-Boutique en ligne + gestion des commandes en paiement à la livraison pour les
-vendeurs algériens (Facebook, Instagram). FR / AR.
+Marketplace du fait maison algérien : gâteaux traditionnels, cuisine maison,
+couture, artisanat, beauté naturelle et terroir, vendus par des femmes et des
+artisans qui travaillent depuis chez eux. Paiement à la livraison. FR / AR.
 
 **Stack:** Next.js on Vercel · Supabase (Postgres, Auth, Storage) · GitHub Actions CI.
 
+## Demo data
+Migration `0003_demo_seed.sql` adds 8 demo shops and 27 products (photos generated
+with OpenArt, hosted on cdn.openart.ai). Remove them before launch in the Supabase
+SQL editor:
+```sql
+delete from auth.users where email like '%@demo.bledify.app';
+```
+
 ## Features (V1)
+- Public marketplace: home with categories, featured products and shops; search;
+  product pages. Browsing needs no account; ordering requires sign-up / login.
+- Customer accounts: "Mes commandes", saved name / phone / address
 - Seller sign-up / login (email + password, reset by email), FR/AR with RTL
 - Shop with public link `/s/<slug>`, products with photos, prices in DA, home / stop-desk delivery fees
 - Public COD order form (58 wilayas), duplicate block (10 min), rate limits, Algerian mobile validation

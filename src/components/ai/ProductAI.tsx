@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { aiPost } from "@/lib/ai-client";
@@ -11,8 +12,9 @@ export type Listing = {
 };
 
 /** "Remplir avec l'IA": drafts title, description, category and a price range from photos + notes. */
-export function ProductAI({ name, images, onResult, onPrice }: {
-  name: string; images: string[];
+export function ProductAI({ name, images, uploading, onUpload, onResult, onPrice }: {
+  name: string; images: string[]; uploading: boolean;
+  onUpload: (files: FileList | null) => Promise<void> | void;
   onResult: (l: Listing) => void; onPrice: (price: number) => void;
 }) {
   const { t, lang, formatDZD } = useI18n();
@@ -34,8 +36,21 @@ export function ProductAI({ name, images, onResult, onPrice }: {
   return (
     <div className="space-y-2 rounded-2xl border border-brand/30 bg-brand-soft/50 p-3">
       <p className="text-xs text-muted">{t("ai_fill_hint")}</p>
+      {/* add a photo right here; it goes to the product's photos too */}
+      <div className="flex flex-wrap items-center gap-2">
+        {images.slice(0, 4).map((src) => (
+          <span key={src} className="relative h-14 w-14 overflow-hidden rounded-xl bg-sand">
+            <Image src={src} alt="" fill sizes="56px" className="object-cover" />
+          </span>
+        ))}
+        <label className={`inline-flex min-h-14 cursor-pointer items-center gap-2 rounded-xl border-2 border-dashed px-3 text-sm font-semibold ${images.length ? "border-line text-muted" : "border-brand bg-surface text-brand"}`}>
+          {uploading ? <><Spinner /> {t("uploading")}</> : <>📷 {images.length ? t("add_photo") : t("ai_add_photo")}</>}
+          <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" disabled={uploading}
+            onChange={async (e) => { await onUpload(e.target.files); e.target.value = ""; }} />
+        </label>
+      </div>
       <Input placeholder={t("ai_notes_ph")} aria-label={t("ai_notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
-      <Button type="button" className="w-full" onClick={run} disabled={busy}>
+      <Button type="button" className="w-full" onClick={run} disabled={busy || uploading}>
         {busy ? <><Spinner /> {t("ai_working")}</> : <>✨ {t("ai_fill")}</>}
       </Button>
       {err ? <p className="text-sm text-danger" role="alert">{t(err)}</p> : null}

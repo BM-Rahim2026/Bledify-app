@@ -94,6 +94,8 @@ function ProductsInner() {
             <ProductAI
               name={edit.name}
               images={edit.images}
+              uploading={uploading}
+              onUpload={upload}
               onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, category: l.category, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
               onPrice={(price) => setEdit((e) => e && { ...e, price_dzd: price })}
             />

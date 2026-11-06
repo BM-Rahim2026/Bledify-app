@@ -40,6 +40,15 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   sellers `*@demo.bledify.app`, `shops.is_demo = true`, photos on cdn.openart.ai.
   Remove before launch: `delete from auth.users where email like '%@demo.bledify.app';`
 
+## AI (sellers)
+- Claude via `@anthropic-ai/sdk`, model `claude-opus-5-5`, effort `low`, server-side
+  fallbacks on (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`). Shared setup in
+  `src/lib/server/ai.ts`; routes `/api/ai/product` (listing from photos, structured output),
+  `/api/ai/post` (Facebook/Instagram/WhatsApp post, FR/AR/Darija), `/api/ai/chat` (streamed
+  assistant at `/seller/assistant`).
+- Needs `ANTHROPIC_API_KEY`; without it the UI shows "assistante non activée".
+- Every call spends one credit via `use_ai_credit` (40/day per user, Algeria day).
+
 ## Commands
 - `npm run dev` — local dev (needs `.env.local`, see `.env.example`)
 - `npm run lint`, `npm run typecheck`

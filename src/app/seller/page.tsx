@@ -55,6 +55,13 @@ export default function Dashboard() {
             </Link>
           ))}
         </div>
+        <Link href="/seller/assistant" className="flex items-center gap-3 rounded-2xl border border-brand/30 bg-gradient-to-br from-brand-soft to-surface p-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-2xl text-white">✨</span>
+          <span className="min-w-0">
+            <span className="block font-semibold">{t("ai_assistant")}</span>
+            <span className="block text-sm text-muted">{t("ai_assistant_sub")}</span>
+          </span>
+        </Link>
         {products === 0 ? (
           <Link href="/seller/products?new=1" className="block rounded-2xl border-2 border-dashed border-brand p-4 text-center font-semibold text-brand">
             + {t("add_first_product")}

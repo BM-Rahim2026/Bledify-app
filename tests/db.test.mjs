@@ -194,3 +194,13 @@ test("stats: Algeria-time week, rates, revenue from delivered only", { skip }, a
   const [{ s: sb }] = await as(B, () => q("select public.seller_stats() s"));
   assert.equal(sb.total, 0);
 });
+
+test("AI credits: signed-in only, capped per day", { skip }, async () => {
+  assert.equal(await code(as("anon", () => q("select public.use_ai_credit(3)"))), "42501");
+  const left = [];
+  for (let i = 0; i < 3; i++) left.push((await as(A, () => q("select public.use_ai_credit(3) n")))[0].n);
+  assert.deepEqual(left, [2, 1, 0]);
+  assert.equal(await code(as(A, () => q("select public.use_ai_credit(3)"))), "P0429");
+  const [{ n }] = await as(B, () => q("select public.use_ai_credit(3) n"));
+  assert.equal(n, 2);
+});

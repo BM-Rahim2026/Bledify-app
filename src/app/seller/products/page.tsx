@@ -6,6 +6,8 @@ import { useI18n } from "@/lib/i18n";
 import { useSeller } from "@/lib/seller";
 import { Button, Card, Empty, Field, Input, Modal, Select, Spinner, Textarea } from "@/components/ui";
 import { CATEGORIES, catKey } from "@/lib/categories";
+import { ProductAI } from "@/components/ai/ProductAI";
+import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
 
 type Product = { id: string; name: string; description: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string };
@@ -22,6 +24,7 @@ function ProductsInner() {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [postFor, setPostFor] = useState<string | null>(null);
 
   const load = useCallback(() => fetchProducts().then(setList), []);
   useEffect(() => { fetchProducts().then(setList); }, []);
@@ -79,6 +82,8 @@ function ProductsInner() {
                 <p className="font-bold text-brand">{formatDZD(p.price_dzd)}</p>
               </div>
               {!p.active ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-muted">{t("hidden")}</span> : null}
+              <button type="button" aria-label={t("ai_post")} title={t("ai_post")} onClick={(e) => { e.stopPropagation(); setPostFor(p.id); }}
+                className="shrink-0 rounded-xl border border-line px-2.5 py-2 text-sm hover:border-brand">📣</button>
             </Card>
           ))}
       </div>
@@ -86,6 +91,12 @@ function ProductsInner() {
       <Modal open={!!edit} onClose={() => setEdit(null)} title={edit?.id ? t("edit_product") : t("add_product")}>
         {edit ? (
           <form onSubmit={save} className="max-h-[75dvh] space-y-3 overflow-y-auto">
+            <ProductAI
+              name={edit.name}
+              images={edit.images}
+              onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, category: l.category, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
+              onPrice={(price) => setEdit((e) => e && { ...e, price_dzd: price })}
+            />
             <Field label={t("product_name")}><Input required value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></Field>
             <Field label={t("price")}><Input required type="number" min={0} inputMode="numeric" value={edit.price_dzd} onChange={(e) => setEdit({ ...edit, price_dzd: Number(e.target.value) })} /></Field>
             <Field label={t("category")}>
@@ -117,11 +128,13 @@ function ProductsInner() {
             {err ? <p className="text-sm text-danger">{err}</p> : null}
             <div className="flex gap-2 pt-2">
               {edit.id ? <Button type="button" variant="danger" onClick={() => remove(edit.id!)}>{t("delete")}</Button> : null}
+              {edit.id ? <Button type="button" variant="secondary" onClick={() => setPostFor(edit.id!)}>📣<span className="sr-only">{t("ai_post")}</span></Button> : null}
               <Button type="submit" className="flex-1" disabled={busy || uploading}>{t("save")}</Button>
             </div>
           </form>
         ) : null}
       </Modal>
+      {postFor ? <PostGenerator productId={postFor} open onClose={() => setPostFor(null)} /> : null}
     </>
   );
 }

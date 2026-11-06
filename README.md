@@ -6,6 +6,13 @@ artisans qui travaillent depuis chez eux. Paiement à la livraison. FR / AR.
 
 **Stack:** Next.js on Vercel · Supabase (Postgres, Auth, Storage) · GitHub Actions CI.
 
+## AI assistant for sellers
+Needs `ANTHROPIC_API_KEY` in Vercel (Settings → Environment Variables), then a redeploy.
+- **Remplir avec l'IA** (product form): title, description, category and a price range from photos and notes.
+- **📣 Créer une publication**: Facebook / Instagram / WhatsApp post in French, Arabic or Darija.
+- **✨ Assistante IA** (`/seller/assistant`): pricing, photos, customer replies, refused parcels, Aïd rush…
+Each seller can use the AI 40 times per day.
+
 ## Demo data
 Migration `0003_demo_seed.sql` adds 8 demo shops and 27 products (photos generated
 with OpenArt, hosted on cdn.openart.ai). Remove them before launch in the Supabase

@@ -37,6 +37,12 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       {printing ? children : (
         <div className="mx-auto min-h-dvh max-w-2xl pb-24">
           {children}
+          {path === "/seller" || path.startsWith("/seller/assistant") ? null : (
+            <Link href="/seller/assistant" aria-label={t("ai_assistant")}
+              className="no-print fixed bottom-20 end-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-2xl text-white shadow-lg ring-4 ring-sand transition hover:scale-105">
+              ✨
+            </Link>
+          )}
           <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur">
             <ul className="mx-auto grid max-w-2xl grid-cols-5">
               {NAV.map((n) => {

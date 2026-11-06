@@ -16,13 +16,13 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
   return (
     <header className={`${overlay ? "absolute inset-x-0 top-0 z-20" : "sticky top-0 z-30 border-b border-line bg-sand/90 backdrop-blur"}`}>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <Link href="/" aria-label="Bledify" className="shrink-0"><Logo variant={overlay ? "white" : "color"} height={30} /></Link>
+        <Link href="/" aria-label="Bledify" className="shrink-0"><Logo variant={overlay ? "white" : "color"} height={30} className="h-[26px] w-auto min-[360px]:h-[30px]" /></Link>
         <nav className={`ms-6 hidden gap-5 text-sm font-semibold md:flex ${text}`}>
           <Link href="/explore" className="hover:opacity-80">{t("explore")}</Link>
           <Link href="/track" className="hover:opacity-80">{t("track_order")}</Link>
           <Link href="/signup?role=seller" className="hover:opacity-80">{t("sell_on_bledify")}</Link>
         </nav>
-        <div className="ms-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-1.5 min-[360px]:gap-2">
           <LangSwitch className={overlay ? "border-white/30 bg-white/15 backdrop-blur [&_button:not([aria-pressed=true])]:text-white" : ""} />
           {user === undefined ? null : user ? (
             <Link href="/account" className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${overlay ? "bg-white/15 text-white backdrop-blur" : "bg-surface border border-line"}`}>
@@ -34,7 +34,9 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
           ) : (
             <>
               <Link href={`/login?next=${next}`} className={`hidden rounded-full px-3 py-1.5 text-sm font-semibold sm:inline-block ${text}`}>{t("login")}</Link>
-              <Link href={`/signup?next=${next}`} className="rounded-full bg-brand px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm">{t("signup")}</Link>
+              <Link href={`/signup?next=${next}`} className="whitespace-nowrap rounded-full bg-brand px-3 py-1.5 text-sm font-semibold text-white shadow-sm min-[360px]:px-3.5">
+                <span className="min-[360px]:hidden">{t("signup_short")}</span><span className="hidden min-[360px]:inline">{t("signup")}</span>
+              </Link>
             </>
           )}
         </div>

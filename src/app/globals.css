@@ -29,6 +29,16 @@ body, input, select, textarea, button {
   font-family: var(--font-sans);
 }
 
+/* long French words / emails / names wrap instead of widening the page */
+body {
+  overflow-wrap: break-word;
+}
+h1, h2, h3 {
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: balance;
+}
+
 input, select, textarea {
   font-size: 16px; /* no zoom on iOS */
 }

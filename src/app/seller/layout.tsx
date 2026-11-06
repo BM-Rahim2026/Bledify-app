@@ -43,7 +43,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                 const active = n.href === "/seller" ? path === "/seller" : path.startsWith(n.href);
                 return (
                   <li key={n.href}>
-                    <Link href={n.href} className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold ${active ? "text-brand" : "text-muted"}`}>
+                    <Link href={n.href} className={`flex flex-col items-center gap-0.5 overflow-hidden text-ellipsis whitespace-nowrap px-0.5 py-2 text-[10px] font-semibold min-[360px]:text-[11px] ${active ? "text-brand" : "text-muted"}`}>
                       <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d={n.icon} /></svg>
                       {t(n.key)}
                     </Link>

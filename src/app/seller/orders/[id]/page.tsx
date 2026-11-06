@@ -34,7 +34,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   return (
     <>
       <PageHeader title={o.number} back="/seller/orders" action={
-        <Link href={`/seller/labels?ids=${o.id}`} className="rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold">🖨 {t("print_label")}</Link>
+        <Link href={`/seller/labels?ids=${o.id}`} aria-label={t("print_label")} className="shrink-0 whitespace-nowrap rounded-xl border border-line bg-surface px-3 py-2 text-sm font-semibold">🖨<span className="hidden sm:inline"> {t("print_label")}</span></Link>
       } />
       <div className="space-y-4 p-4">
         <Card className="space-y-3">
@@ -64,10 +64,10 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
           <h2 className="mb-2 font-semibold">{t("items")}</h2>
           <ul className="divide-y divide-line text-sm">
             {o.items.map((i, k) => (
-              <li key={k} className="flex justify-between py-2"><span>{i.name} ×{i.quantity}</span><span>{formatDZD(i.unit_price_dzd * i.quantity)}</span></li>
+              <li key={k} className="flex justify-between gap-3 py-2"><span className="min-w-0">{i.name} ×{i.quantity}</span><span className="shrink-0 whitespace-nowrap">{formatDZD(i.unit_price_dzd * i.quantity)}</span></li>
             ))}
-            <li className="flex justify-between py-2 text-muted"><span>{t("delivery_fee")}</span><span>{formatDZD(o.delivery_dzd)}</span></li>
-            <li className="flex justify-between py-2 text-base font-bold"><span>{t("to_collect")}</span><span className="text-brand">{formatDZD(o.total_dzd)}</span></li>
+            <li className="flex justify-between gap-3 py-2 text-muted"><span>{t("delivery_fee")}</span><span className="whitespace-nowrap">{formatDZD(o.delivery_dzd)}</span></li>
+            <li className="flex justify-between gap-3 py-2 text-base font-bold"><span>{t("to_collect")}</span><span className="whitespace-nowrap text-brand">{formatDZD(o.total_dzd)}</span></li>
           </ul>
           {o.note ? <p className="mt-2 rounded-lg bg-sand p-2 text-sm">{o.note}</p> : null}
         </Card>

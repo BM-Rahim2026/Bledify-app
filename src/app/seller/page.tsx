@@ -34,7 +34,7 @@ export default function Dashboard() {
     <>
       <PageHeader title={shop.name} />
       <div className="space-y-4 p-4">
-        <Card className="bg-brand text-white border-brand">
+        <div className="rounded-2xl bg-brand p-4 text-white">
           <p className="text-sm opacity-90">{t("your_link")}</p>
           <p className="mt-1 break-all font-semibold" dir="ltr">{link}</p>
           <div className="mt-3 flex gap-2">
@@ -44,7 +44,7 @@ export default function Dashboard() {
             <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold text-white underline">{t("open_shop")}</a>
           </div>
           <p className="mt-2 text-xs opacity-90">{t("share_hint")}</p>
-        </Card>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {tiles.map((x) => (
             <Link key={x.label} href={x.href}>

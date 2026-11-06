@@ -9,7 +9,7 @@ export function PageHeader({ title, back, action }: { title: string; back?: stri
           <svg viewBox="0 0 24 24" className="h-5 w-5 rtl:rotate-180" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" /></svg>
         </Link>
       ) : null}
-      <h1 className="flex-1 truncate font-display text-2xl">{title}</h1>
+      <h1 className="min-w-0 flex-1 truncate font-display text-2xl">{title}</h1>
       {action}
     </header>
   );

@@ -89,7 +89,9 @@ export function ProductView({ p }: { p: PublicProduct }) {
 
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-line bg-surface/95 p-3 backdrop-blur md:hidden">
         <Qty qty={qty} setQty={setQty} />
-        <Button className="flex-1" onClick={order}>{t("order_this")} · {formatDZD(p.price_dzd * qty)}</Button>
+        <Button className="min-w-0 flex-1 whitespace-nowrap px-3" onClick={order}>
+          {t("order_this")}<span className="opacity-80">·</span>{formatDZD(p.price_dzd * qty)}
+        </Button>
       </div>
     </div>
   );

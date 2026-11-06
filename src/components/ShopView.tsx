@@ -167,7 +167,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
               <h2 className="font-display text-2xl">{t("cart")}</h2>
               <Card className="space-y-1.5 text-sm">
                 {lines.length ? lines.map((p) => (
-                  <div key={p.id} className="flex justify-between gap-2"><span className="truncate">{p.name} ×{cart[p.id]}</span><span className="shrink-0">{formatDZD(p.price_dzd * cart[p.id])}</span></div>
+                  <div key={p.id} className="flex justify-between gap-2"><span className="truncate">{p.name} ×{cart[p.id]}</span><span className="shrink-0 whitespace-nowrap">{formatDZD(p.price_dzd * cart[p.id])}</span></div>
                 )) : <p className="text-muted">{t("cart_empty")}</p>}
                 <div className="flex justify-between text-muted"><span>{t("delivery_fee")} ({t(f.type)})</span><span>{formatDZD(fee)}</span></div>
                 <div className="flex justify-between border-t border-line pt-2 text-base font-bold"><span>{t("total")}</span><span className="text-brand">{formatDZD(subtotal + fee)}</span></div>

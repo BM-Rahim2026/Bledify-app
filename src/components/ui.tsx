@@ -17,11 +17,11 @@ export function Button({ variant = "primary", size = "md", className = "", ...p 
     danger: "bg-surface text-danger border border-line hover:bg-rose-50",
     ok: "bg-ok text-white hover:opacity-90",
   }[variant];
-  const s = size === "sm" ? "min-h-9 px-3 text-sm" : "min-h-11 px-4";
+  const s = size === "sm" ? "min-h-9 px-2.5 text-sm" : "min-h-11 px-4";
   return (
     <button
       {...p}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition disabled:opacity-50 ${v} ${s} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-xl text-center font-semibold leading-tight transition disabled:opacity-50 ${v} ${s} ${className}`}
     />
   );
 }

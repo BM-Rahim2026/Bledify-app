@@ -17,9 +17,9 @@ export function OrderCard({ order: o, onChange }: { order: Order; onChange: (o: 
             <p className="truncate text-base font-semibold">{o.customer_name}</p>
             <p className="text-xs font-semibold text-muted" dir="ltr">{o.number} · {formatDateTime(o.created_at, lang)}</p>
           </div>
-          <div className="text-end">
+          <div className="shrink-0 text-end">
             <StatusPill status={o.status} />
-            <p className="mt-1 text-base font-bold text-brand">{formatDZD(o.total_dzd)}</p>
+            <p className="mt-1 whitespace-nowrap text-base font-bold text-brand">{formatDZD(o.total_dzd)}</p>
           </div>
         </div>
         <p className="text-sm text-muted">

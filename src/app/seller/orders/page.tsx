@@ -71,7 +71,7 @@ function OrdersInner() {
   return (
     <>
       <PageHeader title={t("orders")} action={
-        <Link href="/seller/orders/new" className="rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white">+ {t("new_order")}</Link>
+        <Link href="/seller/orders/new" aria-label={t("new_order")} className="shrink-0 whitespace-nowrap rounded-xl bg-brand px-3 py-2 text-sm font-semibold text-white">+<span className="hidden sm:inline"> {t("new_order")}</span></Link>
       } />
       <div className="space-y-3 p-4">
         <Input type="search" placeholder={t("search_orders")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("search_orders")} />

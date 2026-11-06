@@ -37,9 +37,9 @@ export default function Stats() {
         </div>
         {rates.map((r) => (
           <Card key={r.id} data-testid={`os-${r.id}`}>
-            <div className="flex items-baseline justify-between">
-              <p className="font-semibold">{r.label}</p>
-              <p><span className="text-2xl font-bold">{pct(r.a, r.b)}%</span> <span className="text-sm text-muted" dir="ltr">{r.a}/{r.b}</span></p>
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="min-w-0 font-semibold">{r.label}</p>
+              <p className="shrink-0 whitespace-nowrap"><span className="text-2xl font-bold">{pct(r.a, r.b)}%</span> <span className="text-sm text-muted" dir="ltr">{r.a}/{r.b}</span></p>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand">
               <div className="h-full rounded-full bg-brand" style={{ width: `${pct(r.a, r.b)}%` }} />

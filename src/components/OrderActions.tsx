@@ -45,17 +45,17 @@ export function OrderActions({ order: o, onChange, compact = false }: {
       {isNew ? (
         <>
           <div className="grid grid-cols-2 gap-2">
-            <a href={`tel:${o.phone}`} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-ink px-3 font-semibold text-white">
+            <a href={`tel:${o.phone}`} className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-ink px-2 font-semibold text-white">
               📞 {t("call")}
             </a>
-            <a href={whatsappLink(o, shop.name, lang)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-[#25D366] px-3 font-semibold text-white">
+            <a href={whatsappLink(o, shop.name, lang)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-[#25D366] px-2 font-semibold text-white">
               💬 {t("whatsapp")}
             </a>
           </div>
           {o.status === "new" ? (
             <div>
               {!compact ? <p className="mb-1 text-xs font-semibold text-muted">{t("call_result")}</p> : null}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 [&>button]:px-1 [&>button]:text-xs [&>button]:min-[360px]:text-sm">
                 <Button size="sm" variant="ok" disabled={busy} onClick={() => callResult("confirmed")}>{t("res_confirmed")}</Button>
                 <Button size="sm" variant="secondary" disabled={busy} onClick={() => callResult("no_answer")}>{t("res_no_answer")}</Button>
                 <Button size="sm" variant="danger" disabled={busy} onClick={() => callResult("cancelled")}>{t("res_cancelled")}</Button>

@@ -11,6 +11,7 @@ import { normalizePhone, waNumber } from "@/lib/format";
 import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
+import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
 
@@ -219,7 +220,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
         </div>
 
         <footer className="mt-12 border-t border-line py-6 text-center text-sm text-muted">
-          <Link href="/" className="font-display text-lg text-brand">Bledify</Link> · <Link href="/track" className="underline">{t("track_order")}</Link>
+          <Link href="/" aria-label="Bledify" className="inline-block align-middle"><Logo height={22} /></Link> · <Link href="/track" className="underline">{t("track_order")}</Link>
         </footer>
       </div>
 

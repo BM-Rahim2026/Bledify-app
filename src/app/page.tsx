@@ -9,6 +9,7 @@ import { PublicNav } from "@/components/PublicNav";
 import { ProductGrid } from "@/components/ProductCard";
 import { ShopCard, type ShopCardData } from "@/components/ShopCard";
 import { SearchBox } from "@/components/SearchBox";
+import { Logo } from "@/components/Logo";
 
 type Home = {
   categories: { slug: string; count: number; image: string | null }[];
@@ -123,7 +124,7 @@ export default async function HomePage() {
 
       <footer className="mx-auto mt-12 max-w-6xl px-4 pb-8 text-sm text-muted">
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6">
-          <span className="font-display text-xl text-brand">Bledify</span>
+          <Logo height={26} />
           <div className="flex gap-4">
             <Link href="/track">{t("track_order")}</Link>
             <Link href="/signup?role=seller">{t("sell_on_bledify")}</Link>

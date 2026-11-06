@@ -8,6 +8,7 @@ import { formatDateTime } from "@/lib/format";
 import { wilayaLabel } from "@/lib/wilayas";
 import type { HistoryEntry, OrderItem } from "@/lib/orders";
 import { Button, Card, Field, Input, StatusPill } from "@/components/ui";
+import { Logo } from "@/components/Logo";
 import type { DictKey } from "@/lib/i18n/dict";
 
 type Tracked = {
@@ -34,7 +35,7 @@ export function TrackView() {
   return (
     <main className="mx-auto max-w-md px-4 py-6">
       <header className="mb-8 flex items-center justify-between">
-        <Link href="/" className="font-display text-2xl text-brand">Bledify</Link>
+        <Link href="/" aria-label="Bledify"><Logo height={30} /></Link>
         <LangSwitch />
       </header>
       <h1 className="mb-4 font-display text-3xl">{t("track_title")}</h1>

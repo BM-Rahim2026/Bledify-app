@@ -13,10 +13,12 @@ export const metadata: Metadata = {
   title: { default: "Bledify", template: "%s · Bledify" },
   description: "Boutique en ligne et gestion des commandes en paiement à la livraison pour les vendeurs algériens.",
   manifest: "/manifest.webmanifest",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://bledify.vercel.app"),
+  openGraph: { siteName: "Bledify", images: ["/brand/icon-512.png"] },
   appleWebApp: { capable: true, title: "Bledify", statusBarStyle: "default" },
 };
 
-export const viewport: Viewport = { themeColor: "#b4532a", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#1c4430", width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const lang = await getLang();

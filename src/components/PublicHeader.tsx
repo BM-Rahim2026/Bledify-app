@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n, LangSwitch } from "@/lib/i18n";
+import { Logo } from "@/components/Logo";
 import { displayName, useSession } from "@/lib/useSession";
 
 /** Top bar for public pages. `overlay` renders it transparent over a hero image. */
@@ -15,7 +16,7 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
   return (
     <header className={`${overlay ? "absolute inset-x-0 top-0 z-20" : "sticky top-0 z-30 border-b border-line bg-sand/90 backdrop-blur"}`}>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <Link href="/" className={`font-display text-2xl ${overlay ? "text-white" : "text-brand"}`}>Bledify</Link>
+        <Link href="/" aria-label="Bledify" className="shrink-0"><Logo variant={overlay ? "white" : "color"} height={30} /></Link>
         <nav className={`ms-6 hidden gap-5 text-sm font-semibold md:flex ${text}`}>
           <Link href="/explore" className="hover:opacity-80">{t("explore")}</Link>
           <Link href="/track" className="hover:opacity-80">{t("track_order")}</Link>

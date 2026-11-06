@@ -5,6 +5,7 @@ import { SellerProvider } from "@/lib/seller";
 import { useI18n, LangSwitch } from "@/lib/i18n";
 import { ShopForm } from "@/components/ShopForm";
 import { Spinner } from "@/components/ui";
+import { Logo } from "@/components/Logo";
 import type { DictKey } from "@/lib/i18n/dict";
 
 const NAV: { href: string; key: DictKey; icon: string }[] = [
@@ -26,7 +27,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
       onboarding={(user, done) => (
         <main className="mx-auto max-w-md px-4 py-6">
           <div className="mb-6 flex items-center justify-between">
-            <span className="font-display text-2xl text-brand">Bledify</span>
+            <Logo height={30} />
             <LangSwitch />
           </div>
           <h1 className="mb-4 font-display text-3xl">{t("setup_title")}</h1>

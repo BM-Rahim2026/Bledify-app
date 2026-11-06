@@ -5,6 +5,7 @@ import { useSeller } from "@/lib/seller";
 import { Button, Card } from "@/components/ui";
 import { PageHeader } from "@/components/PageHeader";
 import { ShopForm } from "@/components/ShopForm";
+import { LogoPicker } from "@/components/LogoPicker";
 import { useEffect } from "react";
 
 export default function Settings() {
@@ -24,6 +25,7 @@ export default function Settings() {
           <span className="font-semibold">{t("language")}</span>
           <LangSwitch />
         </Card>
+        <LogoPicker shop={shop} onSaved={reloadShop} />
         <Card><ShopForm shop={shop} ownerId={user.id} onSaved={reloadShop} /></Card>
         <Card className="flex items-center justify-between">
           <span className="truncate text-sm text-muted" dir="ltr">{user.email}</span>

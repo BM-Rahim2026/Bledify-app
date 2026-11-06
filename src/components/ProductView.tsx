@@ -10,10 +10,14 @@ import { wilayaLabel } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductGrid } from "@/components/ProductCard";
 import { Button } from "@/components/ui";
+import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 
 export type PublicProduct = {
   id: string; name: string; description: string; price_dzd: number; images: string[]; category: string;
-  shop: { name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number; delivered_count: number };
+  shop: {
+    name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number;
+    delivered_count: number; logo?: LogoConfig; logo_url?: string; category?: string | null;
+  };
   related: ProductCardData[];
 };
 
@@ -64,9 +68,7 @@ export function ProductView({ p }: { p: PublicProduct }) {
           </div>
 
           <Link href={`/s/${p.shop.slug}`} className="mt-6 flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 hover:shadow-sm">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand font-display text-xl text-white">
-              {p.shop.name.replace(/^(Les|La|Le|L'|Dar|Atelier)\s+/i, "")[0]}
-            </span>
+            <ShopLogo name={p.shop.name} logo={p.shop.logo} logoUrl={p.shop.logo_url} category={p.shop.category} size={48} />
             <div className="min-w-0 flex-1">
               <p className="text-xs text-muted">{t("sold_by")}</p>
               <p className="truncate font-semibold">{p.shop.name}</p>

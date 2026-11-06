@@ -11,12 +11,14 @@ import { normalizePhone, waNumber } from "@/lib/format";
 import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
+import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
 
 export type PublicShop = {
   id: string; name: string; slug: string; description: string; wilaya: string; whatsapp: string; cover: string;
+  logo?: LogoConfig; logo_url?: string; category?: string | null;
   delivery_home_dzd: number; delivery_desk_dzd: number; delivered_count: number;
   products: { id: string; name: string; description: string; category: string; price_dzd: number; images: string[] }[];
 };
@@ -116,8 +118,8 @@ export function ShopView({ shop }: { shop: PublicShop }) {
       </section>
       <div className="mx-auto max-w-6xl px-4">
         <div className="relative -mt-10">
-          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border-4 border-sand bg-brand font-display text-3xl text-white shadow-lg">
-            {shop.name.replace(/^(Les|La|Le|L'|Dar|Atelier)\s+/i, "")[0]}
+          <span className="inline-block rounded-3xl bg-sand p-1.5 shadow-lg">
+            <ShopLogo name={shop.name} logo={shop.logo} logoUrl={shop.logo_url} category={shop.category} size={80} />
           </span>
           <div className="mt-3">
             <h1 className="font-display text-3xl leading-tight md:text-4xl">{shop.name}</h1>

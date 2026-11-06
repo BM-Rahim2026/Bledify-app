@@ -7,7 +7,7 @@ import { WILAYAS, wilayaValue, wilayaLabel } from "@/lib/wilayas";
 import type { Shop } from "@/lib/seller";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 
-type Draft = Omit<Shop, "id" | "owner_id" | "created_at">;
+type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url">;
 
 export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
   shop?: Shop; ownerId: string; defaultEmail?: string; onSaved: () => Promise<void> | void;

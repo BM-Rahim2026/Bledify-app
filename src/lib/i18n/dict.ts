@@ -291,6 +291,11 @@ export const fr = {
   ai_refused: "L'IA n'a pas pu traiter cette demande. Reformulez-la.",
   ai_need_input: "Ajoutez une photo ou un nom de produit d'abord.",
   copy_text: "Copier le texte",
+  shop_logo: "Logo de la boutique",
+  logo_hint: "Choisissez un logo créé pour vous, ou importez le vôtre.",
+  logo_color: "Couleur",
+  logo_upload: "Importer mon logo",
+  logo_remove: "Retirer mon image",
 };
 
 export type Dict = typeof fr;
@@ -577,6 +582,11 @@ export const ar: Dict = {
   ai_refused: "لم يتمكن الذكاء الاصطناعي من معالجة هذا الطلب. أعيدي صياغته.",
   ai_need_input: "أضيفي صورة أو اسم المنتج أولًا.",
   copy_text: "نسخ النص",
+  shop_logo: "شعار المتجر",
+  logo_hint: "اختاري شعارًا صُمم لك، أو حمّلي شعارك.",
+  logo_color: "اللون",
+  logo_upload: "تحميل شعاري",
+  logo_remove: "حذف صورتي",
 };
 
 export type Lang = "fr" | "ar";

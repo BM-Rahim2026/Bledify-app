@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
 import { wilayaLabel } from "@/lib/wilayas";
+import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 
 export type ShopCardData = {
   name: string; slug: string; wilaya: string; description: string; cover: string;
   product_count: number; delivered_count: number;
+  logo?: LogoConfig; logo_url?: string; category?: string | null;
 };
 
 export function ShopCard({ s }: { s: ShopCardData }) {
@@ -16,8 +18,8 @@ export function ShopCard({ s }: { s: ShopCardData }) {
       <div className="relative h-36 bg-sand">
         {s.cover ? <Image src={s.cover} alt="" fill sizes="320px" className="object-cover transition duration-500 group-hover:scale-105" /> : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        <span className="absolute bottom-3 start-3 flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white bg-brand font-display text-xl text-white shadow">
-          {s.name.replace(/^(Les|La|Le|L'|Dar|Atelier)\s+/i, "")[0]}
+        <span className="absolute bottom-3 start-3 rounded-2xl bg-white p-1 shadow">
+          <ShopLogo name={s.name} logo={s.logo} logoUrl={s.logo_url} category={s.category} size={48} />
         </span>
       </div>
       <div className="p-4">

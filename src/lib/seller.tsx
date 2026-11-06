@@ -9,6 +9,7 @@ export type Shop = {
   phone: string; whatsapp: string; wilaya: string;
   delivery_home_dzd: number; delivery_desk_dzd: number;
   notify_email: string; notify_new_orders: boolean; created_at: string;
+  logo: { shape?: string; color?: string; content?: string }; logo_url: string;
 };
 
 type Ctx = { user: User; shop: Shop | null; reloadShop: () => Promise<void> };

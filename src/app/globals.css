@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #b4532a;
-  --color-brand-dark: #8f3f1e;
-  --color-brand-soft: #f6e6dc;
+  /* from the logo: green #1C4430, terracotta #CA826F */
+  --color-brand: #1c4430;
+  --color-brand-dark: #12301f;
+  --color-brand-soft: #f6e7e2;
+  --color-accent: #ca826f;
+  --color-accent-dark: #a85c49;
   --color-ink: #1f2421;
   --color-muted: #6b6560;
   --color-line: #e6dfd5;

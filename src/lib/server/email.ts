@@ -22,7 +22,7 @@ export async function sendNewOrderEmail(m: OrderMail): Promise<boolean> {
     <p><b>${esc(m.customer)}</b> · ${esc(m.phone)} · ${esc(wilayaLabel(m.wilaya, m.lang))}</p>
     <p>${m.items.map((i) => `${esc(i.name)} ×${i.quantity}`).join("<br>")}</p>
     <p style="font-size:18px"><b>${esc(formatDZD(m.total))}</b></p>
-    <p><a href="${esc(m.siteUrl)}/seller/orders/${esc(m.orderId)}" style="background:#b4532a;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">${esc(translate(m.lang, "see_orders"))}</a></p>
+    <p><a href="${esc(m.siteUrl)}/seller/orders/${esc(m.orderId)}" style="background:#1c4430;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none">${esc(translate(m.lang, "see_orders"))}</a></p>
   </div>`;
   try {
     const r = await fetch("https://api.resend.com/emails", {

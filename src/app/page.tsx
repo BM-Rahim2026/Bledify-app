@@ -38,7 +38,7 @@ export default async function HomePage() {
         <PublicHeader overlay />
         <div className="mx-auto flex min-h-[88svh] max-w-6xl flex-col justify-end px-4 pb-12 pt-28 md:min-h-[640px] md:justify-center md:pb-16">
           <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-            ✦ {t("why_handmade")} · {t("why_cod")}
+            <span className="h-2 w-2 rotate-45 rounded-[2px] bg-accent" aria-hidden /> {t("why_handmade")} · {t("why_cod")}
           </span>
           <h1 className="max-w-2xl font-display text-[2.6rem] leading-[1.05] text-white drop-shadow md:text-6xl">{t("home_hero_title")}</h1>
           <p className="mt-4 max-w-xl text-base text-white/90 md:text-lg">{t("home_hero_sub")}</p>
@@ -112,12 +112,12 @@ export default async function HomePage() {
         ) : null}
 
         {/* seller CTA */}
-        <section className="relative mt-14 overflow-hidden rounded-3xl bg-ink px-6 py-10 text-white md:px-12 md:py-14">
-          <div className="absolute -end-16 -top-16 h-64 w-64 rounded-full bg-brand/40 blur-3xl" />
+        <section className="relative mt-14 overflow-hidden rounded-3xl bg-brand px-6 py-10 text-white md:px-12 md:py-14">
+          <div className="absolute -end-16 -top-16 h-64 w-64 rounded-full bg-accent/40 blur-3xl" />
           <div className="relative max-w-xl">
             <h2 className="font-display text-3xl md:text-4xl">{t("sell_title")}</h2>
             <p className="mt-3 text-white/80">{t("sell_sub")}</p>
-            <Link href="/signup?role=seller" className="mt-6 inline-flex rounded-xl bg-brand px-5 py-3 font-semibold text-white hover:bg-brand-dark">{t("sell_cta")}</Link>
+            <Link href="/signup?role=seller" className="mt-6 inline-flex rounded-xl bg-white px-5 py-3 font-semibold text-brand hover:bg-sand">{t("sell_cta")}</Link>
           </div>
         </section>
       </main>

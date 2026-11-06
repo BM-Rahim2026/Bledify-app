@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #b4532a;
+  --color-brand-dark: #8f3f1e;
+  --color-brand-soft: #f6e6dc;
+  --color-ink: #1f2421;
+  --color-muted: #6b6560;
+  --color-line: #e6dfd5;
+  --color-sand: #f7f3ec;
+  --color-surface: #ffffff;
+  --color-ok: #15803d;
+  --color-danger: #be123c;
+  --font-display: var(--font-dm-serif), var(--font-naskh), serif;
+  --font-sans: var(--font-jakarta), var(--font-noto-arabic), system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: var(--color-sand);
+  color: var(--color-ink);
+}
+
+/* Arabic letters must connect: every text element inherits one font stack. */
+body, input, select, textarea, button {
+  font-family: var(--font-sans);
+}
+
+input, select, textarea {
+  font-size: 16px; /* no zoom on iOS */
+}
+
+@media print {
+  .no-print { display: none !important; }
+  html, body { background: #fff; }
+  @page { size: A6; margin: 6mm; }
+}

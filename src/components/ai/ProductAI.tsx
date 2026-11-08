@@ -7,7 +7,7 @@ import { Button, Input, Spinner } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
 
 export type Listing = {
-  name: string; description: string; story: string; category: string;
+  name: string; description: string; story: string; category: string; subcategory?: string | null;
   price_min_dzd: number; price_max_dzd: number; price_note: string; tips: string[];
 };
 

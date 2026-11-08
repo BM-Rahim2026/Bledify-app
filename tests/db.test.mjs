@@ -375,3 +375,22 @@ test("payouts: commission, hold period, refunds, payouts", { skip }, async () =>
   [{ b }] = await as(A, () => q("select public.seller_balance() b"));
   assert.equal(b.available, 230);
 });
+
+test("subcategories: must belong to the category; filter; same list as src/lib/categories.ts", { skip }, async () => {
+  await q("update public.products set category='food', subcategory='trad_cakes' where id=$1", [p1]);
+  assert.equal(await code(q("update public.products set subcategory='rugs' where id=$1", [p1])), "23514");
+  assert.equal(await code(q("update public.products set category='home' where id=$1", [p1])), "23514"); // trad_cakes is not a home subcategory
+  const [{ r }] = await as("anon", () => q("select public.public_products(p_category=>'food', p_sub=>'trad_cakes') r"));
+  assert.ok(r.some((x) => x.id === p1 && x.subcategory === "trad_cakes"));
+  const [{ r: none }] = await as("anon", () => q("select public.public_products(p_category=>'food', p_sub=>'breads') r"));
+  assert.ok(!none.some((x) => x.id === p1));
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../src/lib/categories.ts", import.meta.url), "utf8");
+  const block = src.slice(src.indexOf("SUBCATEGORIES: Record"), src.indexOf("};", src.indexOf("SUBCATEGORIES: Record")));
+  for (const m of block.matchAll(/(\w+): \[([^\]]*)\]/g)) {
+    const ts = [...m[2].matchAll(/"(\w+)"/g)].map((x) => x[1]);
+    const [{ s }] = await q("select public.subcategories_of($1) s", [m[1]]);
+    assert.deepEqual(s, ts, m[1]);
+  }
+  await q("update public.products set subcategory=null where id=$1", [p1]);
+});

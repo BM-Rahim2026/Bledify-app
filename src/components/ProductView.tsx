@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { addToCart } from "@/lib/cart";
-import { CAT_TINT, catKey, type ProductCardData } from "@/lib/categories";
+import { CAT_TINT, catKey, subKey, type ProductCardData } from "@/lib/categories";
 import { wilayaLabel } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ProductGrid } from "@/components/ProductCard";
@@ -19,7 +19,7 @@ import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/compone
 
 export type PublicProduct = {
   id: string; name: string; description: string; story?: string; tags?: string[]; price_dzd: number; images: string[]; category: string;
-  pay_cod?: boolean; pay_card?: boolean; deposit_pct?: number;
+  pay_cod?: boolean; pay_card?: boolean; deposit_pct?: number; subcategory?: string | null;
   shop: {
     name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number;
     delivered_count: number; logo?: LogoConfig; logo_url?: string; category?: string | null;
@@ -60,7 +60,10 @@ export function ProductView({ p }: { p: PublicProduct }) {
         </div>
 
         <div className="px-4 pt-5 md:px-0 md:pt-0">
-          <Link href={`/explore?category=${p.category}`} className="text-sm font-semibold text-brand">{t(catKey(p.category))}</Link>
+          <p className="text-sm font-semibold text-brand">
+            <Link href={`/explore?category=${p.category}`}>{t(catKey(p.category))}</Link>
+            {p.subcategory ? <> <span className="text-muted">›</span> <Link href={`/explore?category=${p.category}&sub=${p.subcategory}`}>{t(subKey(p.subcategory))}</Link></> : null}
+          </p>
           <div className="mt-1 flex items-start justify-between gap-3">
             <h1 className="font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
             <FavoriteButton kind="product" id={p.id} />

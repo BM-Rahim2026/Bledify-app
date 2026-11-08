@@ -28,7 +28,7 @@ const fr: Docs = {
       "Vous êtes responsable de votre mot de passe. Un compte utilisé pour des commandes fictives ou abusives peut être suspendu.",
     ] },
     { h: "3. Produits acceptés", p: [
-      "Seuls les produits fabriqués à la main en Algérie sont acceptés : pâtisserie, cuisine, couture, artisanat, décoration, produits du terroir, articles pour les fêtes et mariages.",
+      "Seuls les produits fabriqués à la main en Algérie sont acceptés : pâtisserie, cuisine, couture, artisanat, décoration, produits de la ferme, articles pour les fêtes et mariages, cosmétiques naturels.",
       "Sont interdits notamment : produits importés, électronique, contrefaçons, médicaments, armes, et tout produit interdit par la loi algérienne. Bledify peut retirer une annonce sans préavis.",
     ] },
     { h: "4. Commande", p: [
@@ -149,7 +149,7 @@ const ar: Docs = {
       "حماية كلمة السر مسؤولية صاحب الحساب. الحساب الذي يُستعمل في طلبات وهمية أو مسيئة قد يُوقف.",
     ] },
     { h: "3. المنتجات المقبولة", p: [
-      "تُقبل فقط المنتجات المصنوعة يدويًا في الجزائر: الحلويات، الأكل، الخياطة، الحرف، الديكور، المنتجات الفلاحية المحلية، ولوازم الأعراس والمناسبات.",
+      "تُقبل فقط المنتجات المصنوعة يدويًا في الجزائر: الحلويات، الأكل، الخياطة، الحرف، الديكور، المنتجات الفلاحية، ولوازم الأعراس والمناسبات.",
       "يُمنع خاصة: المنتجات المستوردة، الإلكترونيات، المقلّدة، الأدوية، الأسلحة، وكل منتوج يمنعه القانون الجزائري. يمكن لـ Bledify حذف أي إعلان دون إشعار.",
     ] },
     { h: "4. الطلب", p: [

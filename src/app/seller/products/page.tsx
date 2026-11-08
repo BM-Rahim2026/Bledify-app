@@ -5,15 +5,15 @@ import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useSeller } from "@/lib/seller";
 import { Button, Card, Empty, Field, Input, Modal, Select, Spinner, Textarea } from "@/components/ui";
-import { CATEGORIES, COLLECTIONS, catKey, colKey } from "@/lib/categories";
+import { CATEGORIES, COLLECTIONS, SUBCATEGORIES, catKey, colKey, subKey, type Category } from "@/lib/categories";
 import { ProductAI } from "@/components/ai/ProductAI";
 import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
 
-type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; tags: string[]; pay_cod: boolean; pay_card: boolean; deposit_pct: number };
+type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; subcategory: string | null; tags: string[]; pay_cod: boolean; pay_card: boolean; deposit_pct: number };
 const fetchProducts = async () =>
   ((await supabase().from("products").select("*").order("position").order("created_at")).data ?? []) as Product[];
-const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", tags: [] as string[], pay_cod: true, pay_card: true, deposit_pct: 0 };
+const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", subcategory: null as string | null, tags: [] as string[], pay_cod: true, pay_card: true, deposit_pct: 0 };
 
 function ProductsInner() {
   const { t, formatDZD } = useI18n();
@@ -48,7 +48,7 @@ function ProductsInner() {
     e.preventDefault();
     if (!edit) return;
     setBusy(true); setErr(null);
-    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, tags: edit.tags, pay_cod: edit.pay_cod || !edit.pay_card, pay_card: edit.pay_card || edit.deposit_pct > 0, deposit_pct: edit.deposit_pct };
+    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, subcategory: edit.subcategory && SUBCATEGORIES[edit.category as Category]?.includes(edit.subcategory) ? edit.subcategory : null, tags: edit.tags, pay_cod: edit.pay_cod || !edit.pay_card, pay_card: edit.pay_card || edit.deposit_pct > 0, deposit_pct: edit.deposit_pct };
     const sb = supabase();
     const { error } = edit.id
       ? await sb.from("products").update(row).eq("id", edit.id)
@@ -96,14 +96,20 @@ function ProductsInner() {
               images={edit.images}
               uploading={uploading}
               onUpload={upload}
-              onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, story: l.story || e.story, category: l.category, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
+              onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, story: l.story || e.story, category: l.category, subcategory: l.subcategory ?? null, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
               onPrice={(price) => setEdit((e) => e && { ...e, price_dzd: price })}
             />
             <Field label={t("product_name")}><Input required value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></Field>
             <Field label={t("price")}><Input required type="number" min={0} inputMode="numeric" value={edit.price_dzd} onChange={(e) => setEdit({ ...edit, price_dzd: Number(e.target.value) })} /></Field>
             <Field label={t("category")}>
-              <Select value={edit.category} onChange={(e) => setEdit({ ...edit, category: e.target.value })}>
+              <Select value={edit.category} onChange={(e) => setEdit({ ...edit, category: e.target.value, subcategory: null })}>
                 {CATEGORIES.map((c) => <option key={c} value={c}>{t(catKey(c))}</option>)}
+              </Select>
+            </Field>
+            <Field label={t("subcategory")}>
+              <Select value={edit.subcategory ?? ""} onChange={(e) => setEdit({ ...edit, subcategory: e.target.value || null })}>
+                <option value="">{t("subcategory_choose")}</option>
+                {(SUBCATEGORIES[edit.category as Category] ?? []).map((s) => <option key={s} value={s}>{t(subKey(s))}</option>)}
               </Select>
             </Field>
             <Field label={t("shop_description")}><Textarea rows={2} value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></Field>

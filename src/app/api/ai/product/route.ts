@@ -3,13 +3,17 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { AI_BETAS, AI_MODEL, BLEDIFY_CONTEXT, LANG_NAME, aiErrorResponse, aiGate, allowedImage } from "@/lib/server/ai";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, SUBCATEGORIES, type Category } from "@/lib/categories";
+
+const ALL_SUBS = Object.values(SUBCATEGORIES).flat() as [string, ...string[]];
+const SUB_LIST = CATEGORIES.map((c) => `${c}: ${SUBCATEGORIES[c].join(", ")}`).join("\n");
 
 const Listing = z.object({
   name: z.string().describe("Short product title, max 70 characters, includes quantity/size when relevant"),
   description: z.string().describe("2-4 short sentences: what it is, how it is made at home, ingredients/materials, size or quantity, how to order or keep it"),
   story: z.string().describe("2-3 warm sentences telling the product's story: who makes it, where in Algeria, how, and what makes it special. Only use facts the seller gave or that are visible; otherwise keep it general and true."),
   category: z.enum(CATEGORIES),
+  subcategory: z.enum(ALL_SUBS).describe("One subcategory that belongs to the chosen category"),
   price_min_dzd: z.number().int(),
   price_max_dzd: z.number().int(),
   price_note: z.string().describe("One sentence explaining the suggested price range"),
@@ -37,7 +41,9 @@ export async function POST(req: NextRequest) {
 Seller's product name (may be empty): ${name || "(none)"}
 Seller's notes (may be empty): ${notes || "(none)"}
 
-Write "name", "description" and "story" in ${LANG_NAME[lang]}. Categories: food (cakes, home cooking), fashion (clothing, couture, jewellery), crafts (pottery, copper, embroidery, handmade objects), home (rugs, decor, household textiles), terroir (olive oil, honey, dates, cheese, spices), occasions (bridal trousseau, henna trays, wedding favours, gifts), beauty (homemade natural cosmetics: soaps, liquid hand soap, oils, rose water, henna powder, clay and ghassoul masks, hair and skin care). Keep the seller's own words and facts; do not invent ingredients, sizes or claims you cannot see or read. Warm, simple, trustworthy tone for Algerian buyers; no emojis in the name, at most one in the description. Suggest a realistic retail price range in DA for this kind of homemade product in Algeria in 2026. Write "price_note" and "tips" in ${LANG_NAME[lang]} too.`,
+Write "name", "description" and "story" in ${LANG_NAME[lang]}. Categories: food (cakes, home cooking), fashion (clothing, couture, hijabs, bags, shoes), crafts (pottery, copper, jewellery, embroidery, weaving, leather, wood), home (rugs, decor, household textiles), terroir (olive oil, honey, dates, cheese, spices), occasions (bridal trousseau, henna trays, wedding favours, gifts), beauty (homemade natural cosmetics: soaps, liquid hand soap, oils, rose water, henna powder, clay and ghassoul masks, hair and skin care). Keep the seller's own words and facts; do not invent ingredients, sizes or claims you cannot see or read. Warm, simple, trustworthy tone for Algerian buyers; no emojis in the name, at most one in the description. Suggest a realistic retail price range in DA for this kind of homemade product in Algeria in 2026. Write "price_note" and "tips" in ${LANG_NAME[lang]} too.
+Subcategories (pick one belonging to the chosen category):
+${SUB_LIST}`,
     },
   ];
 
@@ -52,7 +58,10 @@ Write "name", "description" and "story" in ${LANG_NAME[lang]}. Categories: food 
       messages: [{ role: "user", content }],
     });
     if (res.stop_reason === "refusal" || !res.parsed_output) return NextResponse.json({ error: "ai_refused" }, { status: 422 });
-    return NextResponse.json(res.parsed_output);
+    const out = res.parsed_output;
+    // keep the subcategory only if it belongs to the chosen category
+    const sub = SUBCATEGORIES[out.category as Category].includes(out.subcategory) ? out.subcategory : null;
+    return NextResponse.json({ ...out, subcategory: sub });
   } catch (e) {
     return aiErrorResponse(e);
   }

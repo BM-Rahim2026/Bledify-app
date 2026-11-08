@@ -8,6 +8,18 @@ export type Category = (typeof CATEGORIES)[number];
 export const COLLECTIONS = ["mariage", "ramadan", "aid", "ete"] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
+// Subcategories per category (same list as public.subcategories_of() in SQL; a DB test checks it).
+export const SUBCATEGORIES: Record<Category, readonly string[]> = {
+  food: ["trad_cakes", "modern_cakes", "savory", "breads", "couscous_pasta", "dishes", "jams_sweets", "chocolate", "trays_boxes", "catering"],
+  fashion: ["women_traditional", "modern_modest", "hijabs", "men", "kids_babies", "knitting", "bags_accessories", "shoes", "tailoring"],
+  crafts: ["pottery", "copper", "jewelry", "embroidery", "weaving", "basketry", "leather", "wood", "calligraphy", "instruments"],
+  home: ["rugs", "linens", "cushions", "tableware", "utensils", "lighting", "wall_decor", "candles_incense", "baskets_storage", "furniture"],
+  terroir: ["olive_oil", "honey", "dates", "produce", "eggs", "dairy", "grains", "spices_herbs", "dried_fruits_nuts", "processed", "plants_seeds"],
+  occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "event_decor", "birth_circumcision", "custom_gifts", "rental"],
+  beauty: ["soaps", "oils", "face", "hair", "hammam_body", "perfumes", "khol_swak", "baby_mom", "men_beard", "gift_sets"],
+};
+export const subKey = (s: string) => `sub_${s}` as DictKey;
+
 export const catKey = (c: string) => `cat_${c}` as DictKey;
 export const catSubKey = (c: string) => `cat_${c}_sub` as DictKey;
 export const colKey = (c: string) => `col_${c}` as DictKey;
@@ -51,6 +63,7 @@ export const HERO_IMAGE = "/home/hero-baskets.webp";
 
 export type ProductCardData = {
   id: string; name: string; price_dzd: number; image: string; category: string; tags?: string[];
+  subcategory?: string | null;
   shop_id?: string; shop_name: string; shop_slug: string; shop_wilaya: string;
   shop_verified?: boolean; rating?: number | string | null; review_count?: number;
 };

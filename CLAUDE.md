@@ -35,7 +35,7 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
 
 ## Marketplace
 - Categories (fixed list, `src/lib/categories.ts` + SQL check, since 0006): food, fashion,
-  crafts, home, terroir, occasions. Seasonal collections = `products.tags`
+  crafts, home, terroir, occasions, beauty (natural/homemade cosmetics, 0009). Seasonal collections = `products.tags`
   (mariage, ramadan, aid, ete) → `/explore?collection=`. `products.story` = short maker story.
 - Home follows the mockup: ivory/olive/gold, hero carousel, category grid, seasonal offers,
   trust strip, 5-tab bottom nav (`PublicNav`: home, categories, explore, cart, account).

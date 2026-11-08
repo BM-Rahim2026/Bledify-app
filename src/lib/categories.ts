@@ -1,7 +1,7 @@
 import type { DictKey } from "@/lib/i18n/dict";
 
-// The 6 permanent categories (same list as the SQL check constraint).
-export const CATEGORIES = ["food", "fashion", "crafts", "home", "terroir", "occasions"] as const;
+// The 7 permanent categories (same list as the SQL check constraint).
+export const CATEGORIES = ["food", "fashion", "crafts", "home", "terroir", "occasions", "beauty"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 // Seasonal collections: products are tagged by their seller.
@@ -22,6 +22,7 @@ export const CATEGORY_IMAGE: Record<Category, string> = {
   home: CDN + "0217939605758289aa9d0b0344e85196ac345634277259cf9e848_0_1793960582191_2297ec01.jpeg",
   terroir: CDN + "0217939608397643cb8a93f7287826a4278aac7f0d089f936dfed_0_1793960846705_aac1fbc9.jpeg",
   occasions: CDN + "0217940604268800958c43c09b2d8895d306984ebab65852238f8_0_1794060433346_7cdbed34.jpeg",
+  beauty: CDN + "021794132841655fdccfc102ca12157f94275e78054dc3b3071be_0_1794132848694_40a305af.jpeg",
 };
 
 export const COLLECTION_IMAGE: Record<Collection, string> = {
@@ -42,7 +43,7 @@ export const HERO_SLIDES = [
 /** Soft background behind images while they load. */
 export const CAT_TINT: Record<string, string> = {
   food: "bg-amber-100", fashion: "bg-rose-100", crafts: "bg-stone-200",
-  home: "bg-orange-100", terroir: "bg-lime-100", occasions: "bg-yellow-50",
+  home: "bg-orange-100", terroir: "bg-lime-100", occasions: "bg-yellow-50", beauty: "bg-pink-50",
 };
 
 // kept for the old hero image references

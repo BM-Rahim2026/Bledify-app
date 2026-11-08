@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
-import { CATEGORIES, CATEGORY_IMAGE, COLLECTIONS, COLLECTION_ICON, COLLECTION_IMAGE, CAT_TINT, catKey, colKey } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_IMAGE, COLLECTIONS, COLLECTION_ICON, COLLECTION_IMAGE, CAT_TINT, catKey, catSubKey, colKey } from "@/lib/categories";
 import { Icon } from "@/components/Icon";
 
 /** Section title with the gold line and Bledify diamond. */
@@ -22,18 +22,23 @@ export function SectionTitle({ title, href, linkLabel }: { title: string; href?:
 export function CategoryGrid({ fallback }: { fallback?: Record<string, string | null> }) {
   const { t } = useI18n();
   return (
-    <div className="grid grid-cols-3 gap-2.5 md:grid-cols-6 md:gap-4">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-4 md:grid-cols-4 md:gap-x-4">
       {CATEGORIES.map((c) => (
-        <Link key={c} href={`/explore?category=${c}`} className="group overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
-          <span className={`relative block aspect-[4/3] overflow-hidden ${CAT_TINT[c]}`}>
-            <Image src={CATEGORY_IMAGE[c] || fallback?.[c] || ""} alt="" fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover transition duration-500 group-hover:scale-105" />
+        <Link key={c} href={`/explore?category=${c}`} className="group block">
+          <span className={`relative block aspect-[4/3] overflow-hidden rounded-2xl shadow-sm ${CAT_TINT[c]}`}>
+            <Image src={CATEGORY_IMAGE[c] || fallback?.[c] || ""} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
+            <span className="absolute start-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-ivory/90 text-brand shadow-sm">
+              <Icon name={c} className="h-4.5 w-4.5" />
+            </span>
           </span>
-          <span className="flex min-h-12 items-center justify-center gap-1.5 bg-gold-soft/60 px-1.5 py-2 text-center">
-            <Icon name={c} className="h-4 w-4 shrink-0 text-brand" />
-            <span className="text-[11.5px] font-semibold leading-tight text-ink md:text-sm">{t(catKey(c))}</span>
-          </span>
+          <span className="mt-2 block font-display text-[17px] leading-tight text-ink">{t(catKey(c))}</span>
+          <span className="mt-0.5 block text-xs leading-snug text-muted">{t(catSubKey(c))}</span>
         </Link>
       ))}
+      <Link href="/categories" className="group flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gold/60 bg-gold-soft/40 text-center">
+        <Icon name="grid" className="h-7 w-7 text-brand" />
+        <span className="px-2 text-sm font-semibold text-brand">{t("all_categories")}</span>
+      </Link>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export function ShopCard({ s }: { s: ShopCardData }) {
       </div>
       <div className="p-4">
         <p className="flex items-center gap-1.5 font-semibold"><span className="truncate">{s.name}</span>{s.verified ? <VerifiedBadge compact /> : null}</p>
-        <p className="text-xs text-muted">{wilayaLabel(s.wilaya, lang).replace(/^\d+ - /, "")} · {t("products_count", { n: s.product_count })}</p>
+        <p className="text-xs text-muted">{wilayaLabel(s.wilaya, lang).replace(/^\d+ - /, "")} · {s.product_count === 1 ? t("products_count_one") : t("products_count", { n: s.product_count })}</p>
         {s.review_count ? <div className="mt-1"><RatingSummary rating={s.rating} count={s.review_count} /></div> : null}
         <p className="mt-2 line-clamp-2 text-sm text-muted">{s.description}</p>
         {s.delivered_count > 0 ? (

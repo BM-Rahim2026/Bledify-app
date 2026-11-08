@@ -53,9 +53,9 @@ export function ProductGrid({ items, priorityCount = 0 }: { items: ProductCardDa
 }
 
 /** Horizontal row of product tiles (home page "Nos choix"). */
-export function ProductRow({ items }: { items: ProductCardData[] }) {
+export function ProductRow({ items, inset = "-mx-4 px-4" }: { items: ProductCardData[]; inset?: string }) {
   return (
-    <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2">
+    <div className={`no-scrollbar flex snap-x gap-3 overflow-x-auto pb-2 ${inset}`}>
       {items.map((p) => <div key={p.id} className="w-[46%] shrink-0 snap-start sm:w-56"><ProductCard p={p} /></div>)}
     </div>
   );

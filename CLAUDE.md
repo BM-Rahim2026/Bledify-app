@@ -37,7 +37,8 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
 - Categories (fixed list, `src/lib/categories.ts` + SQL check, since 0006): food, fashion,
   crafts, home, terroir ("Produits de la ferme"), occasions, beauty (natural cosmetics, 0009), jewelry ("Bijoux & accessoires", 0013). Subcategories
   (0011): `products.subcategory`, list in `SUBCATEGORIES` (categories.ts) = SQL `subcategories_of()` (test checks),
-  labels `sub_<key>` in dict; explore `?category=&sub=`. Seasonal collections = `products.tags`
+  labels `sub_<key>` in dict; explore `?category=&sub=` (subcategory dropdown; with a sub,
+  results grouped by shop via `public_sellers()` (0014), `&view=products` for the plain grid). Seasonal collections = `products.tags`
   (mariage, ramadan, aid, ete) → `/explore?collection=`. `products.story` = short maker story.
 - Home follows the mockup: ivory/olive/gold, hero carousel, category grid, seasonal offers,
   trust strip, 5-tab bottom nav (`PublicNav`: home, categories, explore, cart, account).

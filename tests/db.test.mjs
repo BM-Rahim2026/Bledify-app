@@ -394,3 +394,17 @@ test("subcategories: must belong to the category; filter; same list as src/lib/c
   }
   await q("update public.products set subcategory=null where id=$1", [p1]);
 });
+
+test("sellers by subcategory: shops with their matching products only", { skip }, async () => {
+  await q("update public.products set category='food', subcategory='trad_cakes', active=true where id=$1", [p1]);
+  await q("update public.products set category='food', subcategory='breads', active=true where id=$1", [p2]);
+  const [{ r }] = await as("anon", () => q("select public.public_sellers('food','trad_cakes') r"));
+  const mine = r.find((s) => s.slug === "shop-a");
+  assert.ok(mine);
+  assert.deepEqual(mine.products.map((p) => p.id), [p1]);
+  assert.equal(mine.product_count, 1);
+  assert.ok(!("phone" in mine) && !("whatsapp" in mine));
+  const [{ r: none }] = await as("anon", () => q("select public.public_sellers('food','chocolate') r"));
+  assert.ok(!none.some((s) => s.slug === "shop-a"));
+  await q("update public.products set subcategory=null where id in ($1,$2)", [p1, p2]);
+});

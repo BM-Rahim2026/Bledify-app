@@ -8,6 +8,8 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicNav } from "@/components/PublicNav";
 import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
+import { SubcategorySelect } from "@/components/explore/SubcategorySelect";
+import { SellerResults, type SellerResult } from "@/components/explore/SellerResults";
 
 export const metadata: Metadata = { title: "Explorer" };
 const PAGE = 24;
@@ -19,11 +21,16 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const q = one(sp.q).slice(0, 60);
   const subs = category ? SUBCATEGORIES[category as Category] : [];
   const sub = subs.includes(one(sp.sub)) ? one(sp.sub) : "";
+  // with a subcategory, results are grouped by shop unless "all products" is chosen
+  const view = sub && one(sp.view) !== "products" ? "shops" : "products";
   const collection = COLLECTIONS.includes(one(sp.collection) as never) ? one(sp.collection) : "";
   const limit = Math.min(PAGE * Math.max(1, parseInt(one(sp.n) || "1", 10) || 1), 120);
   const { t } = await getT();
 
-  const items: ProductCardData[] = isConfigured
+  const sellers: SellerResult[] = isConfigured && view === "shops"
+    ? ((await anonSupabase().rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null })).data ?? [])
+    : [];
+  const items: ProductCardData[] = isConfigured && view === "products"
     ? ((await anonSupabase().rpc("public_products", { p_category: category || null, p_q: q || null, p_limit: limit + 1, p_offset: 0, p_tag: collection || null, p_sub: sub || null })).data ?? [])
     : [];
   const counts: Record<string, number> = isConfigured && category
@@ -32,10 +39,11 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const subOrder = [...subs].sort((a, b) => Number(!counts[a]) - Number(!counts[b]));
   const more = items.length > limit;
 
-  const href = (c: string, col = collection, s = "") => {
+  const href = (c: string, col = collection, s = "", v = "") => {
     const p = new URLSearchParams();
     if (c) p.set("category", c);
     if (c && s) p.set("sub", s);
+    if (c && s && v) p.set("view", v);
     if (col) p.set("collection", col);
     if (q) p.set("q", q);
     return `/explore${p.size ? `?${p}` : ""}`;
@@ -49,7 +57,7 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
         {sub ? <Link href={href(category)} className="-mt-3 mb-3 inline-block text-sm font-semibold text-brand">{t(catKey(category))}</Link> : null}
         <SearchBox initial={q} category={category} />
         <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
-          {["", ...CATEGORIES].map((c) => (
+          {["", ...(category ? [category] : []), ...CATEGORIES.filter((c) => c !== category)].map((c) => (
             <Link key={c || "all"} href={href(c)}
               className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ${c === category ? "bg-ink text-white" : "border border-line bg-surface"}`}>
               {c ? t(catKey(c)) : t("all")}
@@ -57,13 +65,14 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
           ))}
         </div>
         {subs.length ? (
-          <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
-            {subOrder.map((s) => (
-              <Link key={s} href={href(category, collection, s === sub ? "" : s)}
-                className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${s === sub ? "border-brand bg-brand text-white" : counts[s] ? "border-brand/40 bg-brand-soft/60 text-ink" : "border-line bg-surface text-muted"}`}>
-                {t(subKey(s))}{counts[s] ? <span className="ms-1 opacity-70">{counts[s]}</span> : null}
-              </Link>
-            ))}
+          <SubcategorySelect value={sub}
+            options={subOrder.map((k) => ({ key: k, label: t(subKey(k)), count: counts[k] ?? 0 }))}
+            hrefFor={Object.fromEntries([["", href(category)], ...subs.map((k) => [k, href(category, collection, k)])])} />
+        ) : null}
+        {sub ? (
+          <div className="mt-3 inline-flex rounded-full border border-line bg-surface p-0.5 text-sm font-semibold">
+            <Link href={href(category, collection, sub)} className={`rounded-full px-3 py-1 ${view === "shops" ? "bg-brand text-white" : "text-muted"}`}>{t("view_by_shop")}</Link>
+            <Link href={href(category, collection, sub, "products")} className={`rounded-full px-3 py-1 ${view === "products" ? "bg-brand text-white" : "text-muted"}`}>{t("view_all_products")}</Link>
           </div>
         ) : null}
         <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -75,7 +84,7 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
           ))}
         </div>
         <div className="mt-6">
-          {items.length ? <ProductGrid items={items.slice(0, limit)} priorityCount={4} /> : (
+          {view === "shops" ? <SellerResults sellers={sellers} /> : items.length ? <ProductGrid items={items.slice(0, limit)} priorityCount={4} /> : (
             <p className="py-20 text-center text-muted">{t("no_results")}</p>
           )}
         </div>

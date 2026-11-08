@@ -458,3 +458,16 @@ test("admin: only the team can list, approve proposals and save offers", { skip 
   await q("delete from public.offer_entries where id=$1", [e.id]);
   await q("delete from public.admins");
 });
+
+test("admin by email: only once the address is confirmed", { skip }, async () => {
+  const C = "00000000-0000-0000-0000-00000000000c";
+  await q("insert into public.admin_emails (email) values ('team@test.dz') on conflict do nothing");
+  await q("insert into auth.users (id, email) values ($1, 'Team@test.dz')", [C]);
+  const isAdmin = async () => (await as(C, () => q("select public.is_admin() a")))[0].a;
+  assert.equal(await isAdmin(), false); // not confirmed yet
+  await q("update auth.users set email_confirmed_at = now() where id=$1", [C]);
+  assert.equal(await isAdmin(), true);
+  assert.equal(await code(as(C, () => q("insert into public.admin_emails (email) values ('x@y.dz')"))), "42501");
+  await q("delete from auth.users where id=$1", [C]);
+  await q("delete from public.admin_emails where email='team@test.dz'");
+});

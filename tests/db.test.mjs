@@ -549,3 +549,62 @@ test("seller applications: new shops wait for approval, hidden until then", { sk
   await q("delete from public.admins");
   await q("delete from auth.users where id=$1", [D]);
 });
+
+test("admin v2: reports, disputes, blocked accounts, review queue, log, analytics", { skip }, async () => {
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  // a buyer reports a product (reason must fit the kind)
+  const [{ rid }] = await as(A, () => q("select public.submit_report('product', $1, 'imported', 'Vient de Chine') rid", [p1]));
+  assert.equal(await code(as(A, () => q("select public.submit_report('product', $1, 'damaged')", [p1]))), "22023");
+  assert.equal(await code(as("anon", () => q("select public.submit_report('product', $1, 'scam')", [p1]))), "42501");
+  // order disputes only by the buyer, once delivered/shipped
+  const o = await placeOrder({ phone: "0550000900", ip: "" });
+  await q("update public.orders set customer_id=$1 where id=$2", [A, o.id]);
+  assert.equal(await code(as(A, () => q("select public.submit_report('order', $1, 'not_received')", [o.id]))), "P0409"); // still new
+  for (const st of ["confirmed", "shipped"]) await as(A, () => q("select public.set_order_status($1,$2)", [o.id, st]));
+  assert.equal(await code(as(B, () => q("select public.submit_report('order', $1, 'not_received')", [o.id]))), "P0002"); // not the buyer
+  await as(A, () => q("select public.submit_report('order', $1, 'not_received', 'Rien reçu')", [o.id]));
+  assert.equal(await code(as(A, () => q("select public.submit_report('order', $1, 'damaged')", [o.id]))), "P0409"); // already open
+  const [{ r }] = await as(B, () => q("select public.admin_reports('open') r"));
+  assert.ok(r.some((x) => x.id === Number(rid) && x.target.name === "Tapis"));
+  await as(B, () => q("select public.admin_resolve_report($1, 'resolved', 'Produit masqué')", [rid]));
+  const [{ mine }] = await as(A, () => q("select public.my_reports() mine"));
+  assert.equal(mine.find((x) => x.id === Number(rid)).status, "resolved");
+  // blocked accounts
+  assert.equal(await code(as(A, () => q("select public.admin_set_user_blocked($1, true)", [B]))), "42501");
+  await as(B, () => q("select public.admin_set_user_blocked($1, true, 'Commandes fictives')", [A]));
+  const [{ m }] = await as(A, () => q("select public.my_block() m"));
+  assert.equal(m.reason, "Commandes fictives");
+  const [{ c }] = await as(B, () => q("select public.admin_customers('', 'blocked') c"));
+  assert.ok(c.some((x) => x.id === A));
+  await as(B, () => q("select public.admin_set_user_blocked($1, false)", [A]));
+  // review queue: a product edited by an unverified shop needs a new check
+  await q("update public.shops set verified=false, status='approved' where id=$1", [shopA]);
+  await as(A, () => q("update public.products set description='Nouvelle description' where id=$1", [p1]));
+  let [{ rq }] = await as(B, () => q("select public.admin_review_queue() rq"));
+  assert.ok(rq.some((x) => x.id === p1));
+  await as(B, () => q("select public.admin_mark_reviewed($1::uuid[])", [[p1]]));
+  [{ rq }] = await as(B, () => q("select public.admin_review_queue() rq"));
+  assert.ok(!rq.some((x) => x.id === p1));
+  // the log records admin actions only
+  const [{ log }] = await as(B, () => q("select public.admin_audit_log() log"));
+  assert.ok(log.some((x) => x.target_type === "reports" && x.action === "resolved"));
+  assert.ok(log.some((x) => x.target_type === "products" && x.target_id === p1));
+  const before = log.length;
+  await as(A, () => q("update public.products set description='Encore' where id=$1", [p1])); // a shop's own change
+  const [{ log: log2 }] = await as(B, () => q("select public.admin_audit_log() log"));
+  assert.equal(log2.length, before);
+  // notes, search, analytics, counts
+  await as(B, () => q("select public.admin_add_note('shop', $1, 'Appelée le 3 nov.')", [shopA]));
+  const [{ n }] = await as(B, () => q("select public.admin_notes('shop', $1) n", [shopA]));
+  assert.equal(n[0].body, "Appelée le 3 nov.");
+  const [{ s }] = await as(B, () => q("select public.admin_search('TEST') s"));
+  assert.ok(s.shops.some((x) => x.id === shopA));
+  const [{ an }] = await as(B, () => q("select public.admin_analytics(30) an"));
+  assert.equal(an.daily.length, 30);
+  assert.ok("gmv" in an.current && "gmv" in an.previous && "no_photo" in an.catalog);
+  const [{ cnt }] = await as(B, () => q("select public.admin_counts() cnt"));
+  assert.ok("reports" in cnt && "review_queue" in cnt);
+  assert.equal(await code(as(A, () => q("select public.admin_analytics(30)"))), "42501");
+  await q("delete from public.admins");
+  await q("update public.products set reviewed_at=now() where shop_id=$1", [shopA]);
+});

@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/format";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { RatingSummary, VerifiedBadge } from "@/components/trust/Trust";
 import { Button, Card, Field, Input, Spinner } from "@/components/ui";
-import { Pill, Section, Stat, adminCall, useAdminRpc } from "@/components/admin/AdminUI";
+import { NotesAndLog, Pill, Section, Stat, adminCall, useAdminRpc } from "@/components/admin/AdminUI";
 import type { DictKey } from "@/lib/i18n/dict";
 
 type Shop = {
@@ -131,6 +131,7 @@ export default function AdminShop() {
           {msg !== null ? <p className={`text-sm ${msg ? "text-ok" : "text-danger"}`}>{t(msg ? "saved" : "error")}</p> : null}
         </Card>
       </Section>
+      <NotesAndLog type="shop" id={s.id} logType="shops" />
     </div>
   );
 }

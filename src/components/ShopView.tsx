@@ -14,6 +14,7 @@ import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { ReportButton } from "@/components/ReportButton";
 import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
@@ -280,7 +281,7 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
         <div className="mt-12 max-w-2xl"><ReviewList reviews={shop.reviews ?? []} rating={shop.rating} count={shop.review_count} showProduct /></div>
 
         <footer className="mt-12 border-t border-line py-6 text-center text-sm text-muted">
-          <Link href="/" aria-label="Bledify" className="inline-block align-middle"><Logo height={22} /></Link> · <Link href="/track" className="underline">{t("track_order")}</Link> · <Link href="/confiance" className="underline">{t("trust_title")}</Link>
+          <Link href="/" aria-label="Bledify" className="inline-block align-middle"><Logo height={22} /></Link> · <Link href="/track" className="underline">{t("track_order")}</Link> · <Link href="/confiance" className="underline">{t("trust_title")}</Link> · <ReportButton kind="shop" targetId={shop.id} />
         </footer>
       </div>
 

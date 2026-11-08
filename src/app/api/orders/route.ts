@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
 
   const { data: auth } = await (await serverSupabase()).auth.getUser();
   if (!auth.user) return NextResponse.json({ error: "login_to_order" }, { status: 401 });
+  // accounts blocked by the Bledify team cannot order
+  const { data: blocked } = await db.from("blocked_users").select("user_id").eq("user_id", auth.user.id).maybeSingle();
+  if (blocked) return NextResponse.json({ error: "account_blocked" }, { status: 403 });
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return NextResponse.json({ error: "error" }, { status: 400 }); }

@@ -7,7 +7,7 @@ import { formatDateTime } from "@/lib/format";
 import { wilayaLabel } from "@/lib/wilayas";
 import { payLabel, type HistoryEntry, type OrderItem } from "@/lib/orders";
 import { Button, Card, Field, Input, Spinner, StatusPill } from "@/components/ui";
-import { Pill, Section, adminCall, useAdminRpc } from "@/components/admin/AdminUI";
+import { NotesAndLog, Pill, Section, adminCall, useAdminRpc } from "@/components/admin/AdminUI";
 import type { DictKey } from "@/lib/i18n/dict";
 
 type Order = {
@@ -102,6 +102,7 @@ export default function AdminOrder() {
           </ol>
         </Card>
       </Section>
+      <NotesAndLog type="order" id={o.id} logType="orders" />
     </div>
   );
 }

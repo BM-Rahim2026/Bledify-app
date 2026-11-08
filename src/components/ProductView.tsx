@@ -13,6 +13,7 @@ import { ProductGrid } from "@/components/ProductCard";
 import { Button } from "@/components/ui";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { ReportButton } from "@/components/ReportButton";
 import { offerTitle, type Offer } from "@/lib/offers";
 import { minFee, type DeliveryZones } from "@/lib/delivery";
 import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
@@ -110,6 +111,7 @@ export function ProductView({ p, offers = [] }: { p: PublicProduct; offers?: Off
             </div>
             <span className="text-sm font-semibold text-brand">{t("view_shop")} →</span>
           </Link>
+          <div className="mt-2 text-end"><ReportButton kind="product" targetId={p.id} /></div>
         </div>
       </main>
 

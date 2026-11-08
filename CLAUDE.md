@@ -83,6 +83,16 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   `src/components/admin/AdminUI.tsx`. Moderation: `shops.suspended`, `products.blocked` (+ `seller_active` =
   the shop's own choice); trigger `products_moderation` forces `active = false` while blocked/suspended.
 
+## Admin v2 (0020)
+- Back office layout: grouped sidebar with to-do badges (`admin_counts`), global search (`admin_search`),
+  `DataTable` (sort, paginate, CSV export, bulk select), period analytics (`admin_analytics`: KPIs vs previous
+  period, daily charts in `src/components/admin/Charts.tsx`, top shops / categories / products, catalog health).
+- Trust & safety: `reports` (buyers' `submit_report` on product / shop, and order disputes within 7 days of
+  delivery; `my_reports`), queue at `/admin/reports`; listing review queue (`products.reviewed_at`, reset when a
+  shop edits a listing; shops not verified) at `/admin/review`; blocked accounts (`blocked_users`, checked in
+  `/api/orders`); internal notes (`admin_notes`); automatic action log (`admin_audit`, written by triggers only
+  when `require_admin()` marked the request) at `/admin/journal`.
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

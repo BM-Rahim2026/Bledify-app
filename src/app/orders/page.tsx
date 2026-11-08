@@ -11,6 +11,7 @@ import { Card, Spinner, StatusPill } from "@/components/ui";
 import type { OrderItem } from "@/lib/orders";
 import { Icon } from "@/components/Icon";
 import { Stars } from "@/components/trust/Trust";
+import { ReportButton } from "@/components/ReportButton";
 
 type MyOrder = {
   id: string; number: string; status: string; items: OrderItem[]; total_dzd: number; created_at: string;
@@ -25,6 +26,10 @@ export default function MyOrders() {
   const [banner, setBanner] = useState<"paid" | "checking" | "failed" | null>(null);
   const [paying, setPaying] = useState<string | null>(null);
   const load = () => supabase().rpc("my_orders").then(({ data }) => setOrders((data ?? []) as MyOrder[]));
+  const [reports, setReports] = useState<Record<string, { status: string; resolution: string }> | null>(null);
+  const loadReports = () => supabase().rpc("my_reports").then(({ data }) => setReports(Object.fromEntries(
+    ((data ?? []) as { kind: string; target_id: string; status: string; resolution: string }[]).filter((r) => r.kind === "order").map((r) => [r.target_id, r]))));
+  useEffect(() => { queueMicrotask(() => void loadReports()); }, []);
 
   // back from the payment page: record the result now (the webhook may arrive later)
   useEffect(() => {
@@ -79,6 +84,11 @@ export default function MyOrders() {
                   <p className="mt-1 font-bold">{formatDZD(o.total_dzd)}</p>
                   {o.tracking_number ? <p className="text-xs font-semibold text-amber-800" dir="ltr">{o.carrier} {o.tracking_number}</p> : null}
                   <PaymentLine o={o} />
+                  {reports?.[o.id] ? (
+                    <p className="mt-1 text-xs font-semibold text-amber-800">{t(reports[o.id].status === "open" ? "report_status_open" : "report_status_closed")}{reports[o.id].resolution ? ` · ${reports[o.id].resolution}` : ""}</p>
+                  ) : o.status === "shipped" || o.status === "delivered" ? (
+                    <div className="mt-1"><ReportButton kind="order" targetId={o.id} onDone={() => void loadReports()} /></div>
+                  ) : null}
                   {o.status === "new" && (o.payment_status === "pending" || o.payment_status === "failed") && o.amount_online_dzd ? (
                     <button type="button" disabled={paying === o.id} onClick={() => pay(o)} className="mt-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
                       {paying === o.id ? t("pay_redirecting") : t("pay_now", { amount: formatDZD(o.amount_online_dzd) })}

@@ -40,7 +40,9 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   labels `sub_<key>` in dict; explore `?category=&sub=` (subcategory dropdown; with a sub,
   results grouped by shop via `public_sellers()` (0014), `&view=products` for the plain grid). Offers (0015): `offers` table run by the team
   (kind seasonal | special, fr/ar titles, image, active) → `/explore?collection=<slug>`. Shops propose products
-  (`offer_entries`, always 'pending'); the team approves with `review_offer_entry()`. `products.tags` =
+  (`offer_entries`, always 'pending'); the team approves at `/admin/offers` (admin RPCs `admin_offer_entries`, `admin_review_offer_entry`,
+  `admin_offers`, `admin_save_offer`; 0016) or with `review_offer_entry()`. Admins = rows of `public.admins`
+  (added by SQL only), checked by `is_admin()` inside every admin function. `products.tags` =
   approved entries of active offers, written by the database only (shops cannot set it). `products.story` = short maker story.
 - Home follows the mockup: ivory/olive/gold, hero carousel, category grid, seasonal offers,
   trust strip, 5-tab bottom nav (`PublicNav`: home, categories, explore, cart, account).

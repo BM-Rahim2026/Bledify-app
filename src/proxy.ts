@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
 
-// Refreshes the Supabase session cookie and keeps /seller behind login.
+// Refreshes the Supabase session cookie and keeps /seller, /admin and the buyer pages behind login.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return response;
@@ -19,7 +19,7 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getUser();
-  const gated = ["/seller", "/account", "/orders"].some((p) => request.nextUrl.pathname.startsWith(p));
+  const gated = ["/seller", "/admin", "/account", "/orders"].some((p) => request.nextUrl.pathname.startsWith(p));
   if (!data.user && gated) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -30,5 +30,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/seller/:path*", "/account", "/orders", "/s/:path*", "/login", "/signup", "/auth/:path*", "/api/orders", "/api/ai/:path*"],
+  matcher: ["/seller/:path*", "/admin/:path*", "/account", "/orders", "/s/:path*", "/login", "/signup", "/auth/:path*", "/api/orders", "/api/ai/:path*"],
 };

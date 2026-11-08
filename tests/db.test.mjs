@@ -434,3 +434,27 @@ test("offers: shops propose, only the team approves; approved products appear on
   await as(A, () => q("delete from public.offer_entries where id=$1", [e.id]));
   assert.equal(await onOffer(), false);
 });
+
+test("admin: only the team can list, approve proposals and save offers", { skip }, async () => {
+  const [e] = await as(A, () => q("insert into public.offer_entries (offer_slug, product_id, shop_id) values ('aid',$1,$2) returning id", [p1, shopA]));
+  assert.equal(await code(as(A, () => q("select public.admin_offer_entries()"))), "42501");
+  assert.equal(await code(as(A, () => q("select public.admin_review_offer_entry($1, true)", [e.id]))), "42501");
+  assert.equal(await code(as("anon", () => q("select public.admin_offers()"))), "42501");
+  const [{ a }] = await as(A, () => q("select public.is_admin() a"));
+  assert.equal(a, false);
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  const [{ r }] = await as(B, () => q("select public.admin_offer_entries('pending') r"));
+  const row = r.find((x) => x.id === Number(e.id));
+  assert.equal(row.product.id, p1);
+  assert.equal(row.shop.slug, "shop-a");
+  await as(B, () => q("select public.admin_review_offer_entry($1, false, 'Photo floue')", [e.id]));
+  const [st] = await q("select status, note from public.offer_entries where id=$1", [e.id]);
+  assert.deepEqual([st.status, st.note], ["rejected", "Photo floue"]);
+  await as(B, () => q(`select public.admin_save_offer('{"slug":"fete-meres","kind":"special","title_fr":"Fête des mères","title_ar":"عيد الأم","active":false}')`));
+  const [{ o }] = await as(B, () => q("select public.admin_offers() o"));
+  assert.ok(o.some((x) => x.slug === "fete-meres" && x.kind === "special" && x.active === false));
+  assert.equal(await code(as(A, () => q("insert into public.admins (user_id) values ($1)", [A]))), "42501");
+  await q("delete from public.offers where slug='fete-meres'");
+  await q("delete from public.offer_entries where id=$1", [e.id]);
+  await q("delete from public.admins");
+});

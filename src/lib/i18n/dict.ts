@@ -97,8 +97,8 @@ export const fr = {
   shop_name: "Nom de la boutique",
   shop_slug: "Adresse du lien",
   shop_description: "Description",
-  shop_phone: "Téléphone",
-  shop_whatsapp: "WhatsApp (affiché aux clients)",
+  shop_phone: "Téléphone (privé)",
+  shop_whatsapp: "WhatsApp (privé)",
   shop_wilaya: "Wilaya de la boutique",
   delivery_home: "Livraison à domicile",
   delivery_desk: "Livraison stop-desk",
@@ -406,6 +406,8 @@ export const fr = {
   legal_updated: "Mise à jour : {date}",
   order_consent: "En commandant, vous acceptez nos conditions d'achat.",
   learn_more: "En savoir plus",
+  phone_private_hint: "Vos numéros restent privés : seule l'équipe Bledify les voit, pour vérifier votre identité. Ils ne sont jamais affichés aux clients.",
+  err_phone_in_text: "Les numéros de téléphone ne sont pas autorisés dans les textes publics (nom, description, histoire). Les clients passent commande sur Bledify.",
   reviews_show_all: "Voir plus d'avis",
 };
 
@@ -507,8 +509,8 @@ export const ar: Dict = {
   shop_name: "اسم المتجر",
   shop_slug: "عنوان الرابط",
   shop_description: "الوصف",
-  shop_phone: "الهاتف",
-  shop_whatsapp: "واتساب (يظهر للزبائن)",
+  shop_phone: "الهاتف (خاص)",
+  shop_whatsapp: "واتساب (خاص)",
   shop_wilaya: "ولاية المتجر",
   delivery_home: "التوصيل إلى المنزل",
   delivery_desk: "التوصيل إلى المكتب (ستوب ديسك)",
@@ -807,6 +809,8 @@ export const ar: Dict = {
   legal_updated: "آخر تحديث: {date}",
   order_consent: "إرسال الطلب يعني الموافقة على شروط الشراء.",
   learn_more: "معرفة المزيد",
+  phone_private_hint: "الأرقام تبقى خاصة: يراها فريق Bledify فقط للتحقق من الهوية، ولا تظهر أبدًا للزبائن.",
+  err_phone_in_text: "أرقام الهاتف غير مسموحة في النصوص العامة (الاسم، الوصف، الحكاية). الطلب يتم عبر Bledify.",
   reviews_show_all: "عرض المزيد من الآراء",
 };
 

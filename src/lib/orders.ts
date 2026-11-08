@@ -42,6 +42,7 @@ export function errorKey(e: { code?: string; message?: string } | null | undefin
   if (e.code === "P0429") return "err_rate";
   if (e.message === "INVALID_PHONE") return "err_phone";
   if (e.message === "NO_DELIVERY") return "err_no_delivery";
+  if (e.message === "PHONE_IN_TEXT") return "err_phone_in_text";
   if (e.code === "P0002") return "err_not_found";
   return "error";
 }

@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/lib/useSession";
 import { readCart, writeCart, type Cart } from "@/lib/cart";
-import { normalizePhone, waNumber } from "@/lib/format";
+import { normalizePhone } from "@/lib/format";
 import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -21,7 +21,7 @@ import { minFee, quote, type DeliveryZones } from "@/lib/delivery";
 import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
 
 export type PublicShop = {
-  id: string; name: string; slug: string; description: string; wilaya: string; whatsapp: string; cover: string;
+  id: string; name: string; slug: string; description: string; wilaya: string; cover: string;
   logo?: LogoConfig; logo_url?: string; category?: string | null;
   delivery_home_dzd: number; delivery_desk_dzd: number; delivered_count: number;
   delivery_zones?: DeliveryZones | null; verified?: boolean;
@@ -149,9 +149,6 @@ export function ShopView({ shop }: { shop: PublicShop }) {
           <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
           <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(minFee(shop)) })}</span>
-          {shop.whatsapp ? (
-            <a href={`https://wa.me/${waNumber(shop.whatsapp)}`} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366]/15 px-2.5 py-1 text-[#128C4B]">WhatsApp</a>
-          ) : null}
         </div>
 
         <div className="mt-8 md:grid md:grid-cols-[1fr_380px] md:gap-8">

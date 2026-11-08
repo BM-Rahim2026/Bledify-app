@@ -7,6 +7,7 @@ import { WILAYAS, wilayaValue, wilayaLabel } from "@/lib/wilayas";
 import type { Shop } from "@/lib/seller";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 import { ZoneEditor } from "@/components/ZoneEditor";
+import { Icon } from "@/components/Icon";
 import { defaultZones, ZONES, type DeliveryZones, type ZoneRate } from "@/lib/delivery";
 
 type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url" | "verified">;
@@ -41,7 +42,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
       : await sb.from("shops").insert(row);
     setBusy(false);
     if (error) {
-      setMsg({ ok: false, text: error.code === "23505" ? t("slug_taken") : t("error") });
+      setMsg({ ok: false, text: error.code === "23505" ? t("slug_taken") : error.message === "PHONE_IN_TEXT" ? t("err_phone_in_text") : t("error") });
       return;
     }
     setMsg({ ok: true, text: t("saved") });
@@ -67,6 +68,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
         <Field label={t("shop_phone")}><Input type="tel" dir="ltr" value={d.phone} onChange={(e) => set("phone", e.target.value)} /></Field>
         <Field label={t("shop_whatsapp")}><Input type="tel" dir="ltr" value={d.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} /></Field>
       </div>
+      <p className="-mt-2 flex gap-1.5 text-xs text-muted"><Icon name="shield" className="h-4 w-4 shrink-0 text-brand" />{t("phone_private_hint")}</p>
       <Field label={t("shop_wilaya")}>
         <Select value={d.wilaya} onChange={(e) => set("wilaya", e.target.value)}>
           <option value="">{t("choose_wilaya")}</option>

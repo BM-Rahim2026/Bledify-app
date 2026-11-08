@@ -47,6 +47,9 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   the team only (SQL/service role; a trigger ignores seller changes). Delivery by zone:
   `shops.delivery_zones` {local, nord, hauts, sud, grand_sud: {home, desk, days_min, days_max, off}},
   `wilaya_zone()` mirrors `src/lib/delivery.ts` (test checks), `place_order` uses `delivery_quote()`.
+- Seller phone/WhatsApp are private (team only, KYC): never returned by public functions or shown
+  to buyers; buyers reach shops through Bledify. Phone numbers in shop/product public texts are
+  rejected by a trigger (`has_phone`, error `PHONE_IN_TEXT`, 0008).
 - Policies (drafts, need a lawyer): `src/lib/legal.ts` (fr + ar, fill OPERATOR), pages `/confiance`
   and `/legal/[doc]`.
 - Public browse via SECURITY DEFINER RPCs: `public_home`, `public_products`,

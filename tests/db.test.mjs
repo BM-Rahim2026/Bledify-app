@@ -278,3 +278,26 @@ test("wilaya zones agree with src/lib/delivery.ts", { skip }, async () => {
   const [{ z }] = await q("select public.wilaya_zone('31 - Oran', '31 - Oran') z");
   assert.equal(z, "local");
 });
+
+test("seller phone numbers stay private", { skip }, async () => {
+  await q("update public.shops set phone='0770 11 22 33', whatsapp='0661998877' where id=$1", [shopA]);
+  const pub = await as("anon", () => q(
+    `select public.get_public_shop('shop-a')::text a, public.public_product($1)::text b, public.public_home()::text c,
+            public.public_products()::text d, public.public_cart(array[$1]::uuid[])::text e`, [p1]));
+  const all = Object.values(pub[0]).join(" ");
+  assert.ok(!/0770|0661998877|whatsapp|"phone"/.test(all), "a public function leaks a seller number");
+  assert.equal((await as("anon", () => q("select phone from public.shops"))).length, 0);
+  const theirs = await as(B, () => q("select count(*)::int n from public.shops where id=$1", [shopA]));
+  assert.equal(theirs[0].n, 0);
+});
+
+test("no phone numbers in public shop and product texts", { skip }, async () => {
+  for (const txt of ["Appelez le 0661 23 45 67", "واتساب 0551-23-45-67", "+213 6 61 23 45 67", "contact: 00213661234567"]) {
+    assert.equal(await code(as(A, () => q("update public.products set description=$2 where id=$1", [p1, txt]))), "22023", txt);
+  }
+  assert.equal(await code(as(A, () => q("update public.shops set description='Tel 0770112233' where id=$1", [shopA]))), "22023");
+  assert.equal(await code(as(A, () => q("update public.products set story='WhatsApp 0661 234 567 merci' where id=$1", [p1]))), "22023");
+  // ordinary numbers are fine
+  await as(A, () => q("update public.products set description='Boîte de 30 pièces, 2500 DA, commande 48 h avant, 1 kg' where id=$1", [p1]));
+  await as(A, () => q("update public.shops set description='Depuis 2015, 058 wilayas' where id=$1", [shopA]));
+});

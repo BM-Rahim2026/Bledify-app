@@ -54,7 +54,7 @@ function ProductsInner() {
       ? await sb.from("products").update(row).eq("id", edit.id)
       : await sb.from("products").insert({ ...row, shop_id: shop.id, position: list?.length ?? 0 });
     setBusy(false);
-    if (error) { setErr(t("error")); return; }
+    if (error) { setErr(error.message === "PHONE_IN_TEXT" ? t("err_phone_in_text") : t("error")); return; }
     setEdit(null);
     void load();
   }

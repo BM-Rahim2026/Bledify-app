@@ -52,6 +52,7 @@ const fr: Docs = {
     { h: "1. Données collectées", p: [
       "Compte : nom, e-mail, mot de passe (chiffré). Commande : nom, téléphone, wilaya, commune, adresse, produits commandés. Boutiques : informations de la boutique et photos des produits.",
       "Nous ne collectons aucune donnée bancaire.",
+      "Les numéros de téléphone des boutiques servent uniquement à l'équipe Bledify (vérification d'identité). Ils ne sont jamais affichés aux clients.",
     ] },
     { h: "2. Pourquoi", p: [
       "Pour traiter les commandes (confirmation par téléphone, livraison), lutter contre les fausses commandes, afficher les avis et améliorer le service.",
@@ -75,7 +76,7 @@ const fr: Docs = {
       "Vérifiez le colis devant le livreur quand c'est possible. Si le colis est ouvert, abîmé ou ne correspond pas, vous pouvez le refuser : vous ne payez rien.",
     ] },
     { h: "2. Produit non conforme ou défectueux", p: [
-      "Signalez le problème dans les 4 jours ouvrables suivant la réception, avec des photos, via la boutique (téléphone ou WhatsApp) ou le contact Bledify.",
+      "Signalez le problème dans les 4 jours ouvrables suivant la réception, avec des photos, depuis « Mes commandes » ou via le contact Bledify.",
       "La boutique propose, au choix de l'acheteur : un échange, une réparation ou un remboursement. Les frais de retour d'un produit non conforme sont à la charge de la boutique. Le remboursement intervient au plus tard 15 jours après la réception du retour.",
     ] },
     { h: "3. Produits alimentaires et sur mesure", p: [
@@ -95,6 +96,7 @@ const fr: Docs = {
     ] },
     { h: "2. Annonces", p: [
       "Photos réelles de ses propres produits, description et prix exacts, ingrédients ou matières principales, et allergènes pour l'alimentaire. Uniquement des produits faits main en Algérie : pas d'importation, pas de revente.",
+      "Aucun numéro de téléphone, lien ou contact dans les textes publics (nom, description, histoire) : les commandes passent par Bledify. Les numéros de la boutique restent privés et ne servent qu'à l'équipe Bledify.",
     ] },
     { h: "3. Commandes", p: [
       "Appeler l'acheteur pour confirmer dans les 24 heures, préparer et expédier dans le délai annoncé, et mettre à jour le statut de la commande (confirmée, expédiée, livrée).",
@@ -124,10 +126,10 @@ const fr: Docs = {
       "Le numéro de suivi du transporteur apparaît dans « Mes commandes » dès l'expédition. Vous pouvez aussi suivre une commande avec son numéro et votre téléphone.",
     ] },
     { h: "4. Colis perdu ou en retard", p: [
-      "Au-delà de 7 jours après le délai annoncé, contactez la boutique puis Bledify. La boutique se charge de la réclamation auprès du transporteur ; si le colis est perdu, vous ne payez rien.",
+      "Au-delà de 7 jours après le délai annoncé, contactez Bledify avec votre numéro de commande : nous relançons la boutique, qui se charge de la réclamation auprès du transporteur ; si le colis est perdu, vous ne payez rien.",
     ] },
     { h: "5. Litiges", p: [
-      "1) Contactez la boutique. 2) Sans réponse sous 3 jours, écrivez à Bledify avec votre numéro de commande et des photos. 3) Bledify propose une solution sous 7 jours. Si le désaccord persiste, vous gardez la possibilité de saisir les services de la protection du consommateur ou le tribunal compétent.",
+      "1) Écrivez à Bledify avec votre numéro de commande et des photos. 2) Bledify contacte la boutique (ses coordonnées ne sont pas publiques). 3) Bledify propose une solution sous 7 jours. Si le désaccord persiste, vous gardez la possibilité de saisir les services de la protection du consommateur ou le tribunal compétent.",
     ] },
   ],
 };
@@ -167,6 +169,7 @@ const ar: Docs = {
     { h: "1. المعطيات التي نجمعها", p: [
       "الحساب: الاسم، البريد، كلمة السر (مشفّرة). الطلب: الاسم، الهاتف، الولاية، البلدية، العنوان، المنتجات. المتاجر: معلومات المتجر وصور المنتجات.",
       "لا نجمع أي معطيات بنكية.",
+      "أرقام هواتف المتاجر يستعملها فريق Bledify فقط (التحقق من الهوية)، ولا تظهر أبدًا للزبائن.",
     ] },
     { h: "2. لماذا", p: [
       "لمعالجة الطلبيات (التأكيد بالهاتف، التوصيل)، ومحاربة الطلبات الوهمية، وعرض التقييمات، وتحسين الخدمة.",
@@ -190,7 +193,7 @@ const ar: Docs = {
       "يُستحسن تفقّد الطرد أمام عامل التوصيل إن أمكن. الطرد المفتوح أو المتضرر أو غير المطابق يمكن رفضه دون دفع أي شيء.",
     ] },
     { h: "2. منتوج غير مطابق أو معيب", p: [
-      "يجب الإبلاغ عن المشكل خلال 4 أيام عمل من الاستلام، مع صور، عبر المتجر (هاتف أو واتساب) أو عبر Bledify.",
+      "يجب الإبلاغ عن المشكل خلال 4 أيام عمل من الاستلام، مع صور، من صفحة «طلباتي» أو عبر Bledify.",
       "يقترح المتجر، حسب اختيار المشتري: استبدالًا أو تصليحًا أو استرجاع المبلغ. مصاريف إرجاع المنتوج غير المطابق على المتجر. يُسترجع المبلغ في أجل أقصاه 15 يومًا من استلام المنتوج المُرجع.",
     ] },
     { h: "3. المأكولات والمنتجات حسب الطلب", p: [
@@ -210,6 +213,7 @@ const ar: Docs = {
     ] },
     { h: "2. الإعلانات", p: [
       "صور حقيقية لمنتجات المتجر نفسه، وصف وسعر صحيحان، المكونات أو المواد الأساسية، ومسببات الحساسية بالنسبة للأكل. منتجات مصنوعة يدويًا في الجزائر فقط: لا استيراد ولا إعادة بيع.",
+      "لا أرقام هاتف ولا روابط ولا وسائل اتصال في النصوص العامة (الاسم، الوصف، الحكاية): الطلبات تمر عبر Bledify. أرقام المتجر تبقى خاصة ولا يستعملها إلا فريق Bledify.",
     ] },
     { h: "3. الطلبيات", p: [
       "الاتصال بالمشتري للتأكيد خلال 24 ساعة، التحضير والإرسال في المدة المعلنة، وتحديث حالة الطلبية (مؤكدة، مُرسلة، مُسلّمة).",
@@ -239,10 +243,10 @@ const ar: Docs = {
       "رقم تتبع شركة التوصيل يظهر في «طلبياتي» بمجرد الإرسال. يمكنك أيضًا تتبع الطلبية برقمها ورقم هاتفك.",
     ] },
     { h: "4. طرد ضائع أو متأخر", p: [
-      "بعد 7 أيام من انتهاء المدة المعلنة، يجب الاتصال بالمتجر ثم بـ Bledify. المتجر يتكفل بالشكوى لدى شركة التوصيل، وإذا ضاع الطرد لا يُدفع أي شيء.",
+      "بعد 7 أيام من انتهاء المدة المعلنة، يجب التواصل مع Bledify برقم الطلبية: نتصل بالمتجر الذي يتكفل بالشكوى لدى شركة التوصيل، وإذا ضاع الطرد لا يُدفع أي شيء.",
     ] },
     { h: "5. النزاعات", p: [
-      "1) التواصل مع المتجر. 2) إذا لم يرد خلال 3 أيام، مراسلة Bledify برقم الطلبية وصور. 3) تقترح Bledify حلًا خلال 7 أيام. إذا استمر الخلاف، يبقى حق اللجوء قائمًا إلى مصالح حماية المستهلك أو المحكمة المختصة.",
+      "1) مراسلة Bledify برقم الطلبية وصور. 2) تتصل Bledify بالمتجر (أرقامه غير منشورة). 3) تقترح Bledify حلًا خلال 7 أيام. إذا استمر الخلاف، يبقى حق اللجوء قائمًا إلى مصالح حماية المستهلك أو المحكمة المختصة.",
     ] },
   ],
 };

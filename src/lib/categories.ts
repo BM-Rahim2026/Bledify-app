@@ -15,7 +15,7 @@ export const SUBCATEGORIES: Record<Category, readonly string[]> = {
   crafts: ["pottery", "copper", "jewelry", "embroidery", "weaving", "basketry", "leather", "wood", "calligraphy", "instruments"],
   home: ["rugs", "linens", "cushions", "tableware", "utensils", "lighting", "wall_decor", "candles_incense", "baskets_storage", "furniture"],
   terroir: ["olive_oil", "honey", "dates", "produce", "eggs", "dairy", "grains", "spices_herbs", "dried_fruits_nuts", "processed", "plants_seeds"],
-  occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "event_decor", "birth_circumcision", "custom_gifts", "rental"],
+  occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "event_decor", "birth_circumcision", "custom_gifts"],
   beauty: ["soaps", "oils", "face", "hair", "hammam_body", "perfumes", "khol_swak", "baby_mom", "men_beard", "gift_sets"],
 };
 export const subKey = (s: string) => `sub_${s}` as DictKey;

@@ -5,7 +5,8 @@ import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useSeller } from "@/lib/seller";
 import { Button, Card, Empty, Field, Input, Modal, Select, Spinner, Textarea } from "@/components/ui";
-import { CATEGORIES, COLLECTIONS, SUBCATEGORIES, catKey, colKey, subKey, type Category } from "@/lib/categories";
+import { CATEGORIES, SUBCATEGORIES, catKey, subKey, type Category } from "@/lib/categories";
+import { OfferRequests } from "@/components/seller/OfferRequests";
 import { ProductAI } from "@/components/ai/ProductAI";
 import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
@@ -48,7 +49,7 @@ function ProductsInner() {
     e.preventDefault();
     if (!edit) return;
     setBusy(true); setErr(null);
-    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, subcategory: edit.subcategory && SUBCATEGORIES[edit.category as Category]?.includes(edit.subcategory) ? edit.subcategory : null, tags: edit.tags, pay_cod: edit.pay_cod || !edit.pay_card, pay_card: edit.pay_card || edit.deposit_pct > 0, deposit_pct: edit.deposit_pct };
+    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, subcategory: edit.subcategory && SUBCATEGORIES[edit.category as Category]?.includes(edit.subcategory) ? edit.subcategory : null, pay_cod: edit.pay_cod || !edit.pay_card, pay_card: edit.pay_card || edit.deposit_pct > 0, deposit_pct: edit.deposit_pct };
     const sb = supabase();
     const { error } = edit.id
       ? await sb.from("products").update(row).eq("id", edit.id)
@@ -116,21 +117,7 @@ function ProductsInner() {
             <Field label={t("story_label")} hint={t("story_hint")}>
               <Textarea rows={3} value={edit.story} onChange={(e) => setEdit({ ...edit, story: e.target.value })} />
             </Field>
-            <fieldset>
-              <legend className="mb-1 text-sm font-semibold">{t("collections_label")}</legend>
-              <div className="flex flex-wrap gap-2">
-                {COLLECTIONS.map((c) => {
-                  const on = edit.tags.includes(c);
-                  return (
-                    <button key={c} type="button" aria-pressed={on}
-                      onClick={() => setEdit({ ...edit, tags: on ? edit.tags.filter((x) => x !== c) : [...edit.tags, c] })}
-                      className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${on ? "border-brand bg-brand text-white" : "border-line bg-surface"}`}>
-                      {t(colKey(c))}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
+            <OfferRequests productId={edit.id} shopId={shop?.id} />
             <fieldset className="space-y-2 rounded-xl border border-line p-3">
               <legend className="px-1 text-sm font-semibold">{t("seller_pay_options")}</legend>
               {(["pay_cod", "pay_card"] as const).map((k) => (

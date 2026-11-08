@@ -4,9 +4,7 @@ import type { DictKey } from "@/lib/i18n/dict";
 export const CATEGORIES = ["food", "fashion", "crafts", "home", "terroir", "occasions", "beauty", "jewelry"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
-// Seasonal collections: products are tagged by their seller.
-export const COLLECTIONS = ["mariage", "ramadan", "aid", "ete"] as const;
-export type Collection = (typeof COLLECTIONS)[number];
+// Offers (seasonal / special) live in the database: see src/lib/offers.ts.
 
 // Subcategories per category (same list as public.subcategories_of() in SQL; a DB test checks it).
 export const SUBCATEGORIES: Record<Category, readonly string[]> = {
@@ -23,7 +21,6 @@ export const subKey = (s: string) => `sub_${s}` as DictKey;
 
 export const catKey = (c: string) => `cat_${c}` as DictKey;
 export const catSubKey = (c: string) => `cat_${c}_sub` as DictKey;
-export const colKey = (c: string) => `col_${c}` as DictKey;
 
 const CDN = "https://cdn.openart.ai/openart-ai/production/2026-11/create-image/MhvcIzM5LOm6TNPRGEXK/";
 
@@ -39,14 +36,7 @@ export const CATEGORY_IMAGE: Record<Category, string> = {
   jewelry: CDN + "02179414478470799b13dab45b2d10982c2cf34f4d4639da2e831_0_1794144791611_4118750e.jpeg",
 };
 
-export const COLLECTION_IMAGE: Record<Collection, string> = {
-  mariage: CDN + "02179406042452634cac430b5ac258905380d809540adb4c12c16_0_1794060430735_f7b59461.jpeg",
-  ramadan: "/home/season-ramadan.webp",
-  aid: "/home/season-aid.webp",
-  ete: "/home/season-ete.webp",
-};
 
-export const COLLECTION_ICON: Record<Collection, string> = { mariage: "occasions", ramadan: "moon", aid: "gift", ete: "sun" };
 
 export const HERO_SLIDES = [
   { image: "/home/hero-baskets.webp", title: "hero1_title", sub: "hero1_sub", href: "/explore" },

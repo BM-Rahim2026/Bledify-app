@@ -13,7 +13,7 @@ import { ProductGrid } from "@/components/ProductCard";
 import { Button } from "@/components/ui";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
-import { colKey } from "@/lib/categories";
+import { offerTitle, type Offer } from "@/lib/offers";
 import { minFee, type DeliveryZones } from "@/lib/delivery";
 import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
 
@@ -29,7 +29,7 @@ export type PublicProduct = {
   reviews?: Review[]; rating?: number | string | null; review_count?: number;
 };
 
-export function ProductView({ p }: { p: PublicProduct }) {
+export function ProductView({ p, offers = [] }: { p: PublicProduct; offers?: Offer[] }) {
   const { t, lang, formatDZD } = useI18n();
   const router = useRouter();
   const [img, setImg] = useState(0);
@@ -79,8 +79,8 @@ export function ProductView({ p }: { p: PublicProduct }) {
           </div>
           {p.tags?.length ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
-              {p.tags.map((tag) => (
-                <Link key={tag} href={`/explore?collection=${tag}`} className="rounded-full border border-gold/50 bg-gold-soft/60 px-2.5 py-0.5 text-xs font-semibold">{t(colKey(tag))}</Link>
+              {offers.filter((o) => p.tags?.includes(o.slug)).map((o) => (
+                <Link key={o.slug} href={`/explore?collection=${o.slug}`} className="rounded-full border border-gold/50 bg-gold-soft/60 px-2.5 py-0.5 text-xs font-semibold">{offerTitle(o, lang)}</Link>
               ))}
             </div>
           ) : null}

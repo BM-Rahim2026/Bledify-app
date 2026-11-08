@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { anonSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { getT } from "@/lib/i18n/server";
-import { CATEGORIES, COLLECTIONS, SUBCATEGORIES, catKey, colKey, subKey, type Category, type ProductCardData } from "@/lib/categories";
+import { CATEGORIES, SUBCATEGORIES, catKey, subKey, type Category, type ProductCardData } from "@/lib/categories";
+import { getOffers } from "@/lib/server/offers";
+import { offerTitle } from "@/lib/offers";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicNav } from "@/components/PublicNav";
 import { ProductGrid } from "@/components/ProductCard";
@@ -23,9 +25,11 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const sub = subs.includes(one(sp.sub)) ? one(sp.sub) : "";
   // with a subcategory, results are grouped by shop unless "all products" is chosen
   const view = sub && one(sp.view) !== "products" ? "shops" : "products";
-  const collection = COLLECTIONS.includes(one(sp.collection) as never) ? one(sp.collection) : "";
+  const offers = await getOffers();
+  const offer = offers.find((o) => o.slug === one(sp.collection));
+  const collection = offer ? offer.slug : "";
   const limit = Math.min(PAGE * Math.max(1, parseInt(one(sp.n) || "1", 10) || 1), 120);
-  const { t } = await getT();
+  const { t, lang } = await getT();
 
   const sellers: SellerResult[] = isConfigured && view === "shops"
     ? ((await anonSupabase().rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null })).data ?? [])
@@ -53,7 +57,7 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
     <div className="min-h-dvh">
       <PublicHeader />
       <main className="mx-auto max-w-6xl px-4 py-5">
-        <h1 className="mb-4 font-display text-3xl">{collection ? t(colKey(collection)) : sub ? t(subKey(sub)) : category ? t(catKey(category)) : q ? t("results_for", { q }) : t("explore")}</h1>
+        <h1 className="mb-4 font-display text-3xl">{offer ? offerTitle(offer, lang) : sub ? t(subKey(sub)) : category ? t(catKey(category)) : q ? t("results_for", { q }) : t("explore")}</h1>
         {sub ? <Link href={href(category)} className="-mt-3 mb-3 inline-block text-sm font-semibold text-brand">{t(catKey(category))}</Link> : null}
         <SearchBox initial={q} category={category} />
         <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
@@ -76,10 +80,10 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
           </div>
         ) : null}
         <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
-          {COLLECTIONS.map((c) => (
+          {offers.map((o) => o.slug).map((c) => (
             <Link key={c} href={href(category, c === collection ? "" : c)}
               className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${c === collection ? "border-gold bg-gold text-white" : "border-gold/50 bg-gold-soft/50 text-ink"}`}>
-              {t(colKey(c))}
+              {offerTitle(offers.find((o) => o.slug === c)!, lang)}
             </Link>
           ))}
         </div>

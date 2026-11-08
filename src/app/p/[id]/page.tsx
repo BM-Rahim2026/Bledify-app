@@ -4,6 +4,7 @@ import { cache } from "react";
 import { anonSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { ProductView, type PublicProduct } from "@/components/ProductView";
+import { getOffers } from "@/lib/server/offers";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
@@ -26,5 +27,5 @@ export async function generateMetadata({ params }: PageProps<"/p/[id]">): Promis
 export default async function ProductPage({ params }: PageProps<"/p/[id]">) {
   const p = await getProduct((await params).id);
   if (!p) notFound();
-  return <ProductView p={p} />;
+  return <ProductView p={p} offers={await getOffers()} />;
 }

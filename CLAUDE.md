@@ -38,8 +38,10 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   crafts, home, terroir ("Produits de la ferme"), occasions, beauty (natural cosmetics, 0009), jewelry ("Bijoux & accessoires", 0013). Subcategories
   (0011): `products.subcategory`, list in `SUBCATEGORIES` (categories.ts) = SQL `subcategories_of()` (test checks),
   labels `sub_<key>` in dict; explore `?category=&sub=` (subcategory dropdown; with a sub,
-  results grouped by shop via `public_sellers()` (0014), `&view=products` for the plain grid). Seasonal collections = `products.tags`
-  (mariage, ramadan, aid, ete) → `/explore?collection=`. `products.story` = short maker story.
+  results grouped by shop via `public_sellers()` (0014), `&view=products` for the plain grid). Offers (0015): `offers` table run by the team
+  (kind seasonal | special, fr/ar titles, image, active) → `/explore?collection=<slug>`. Shops propose products
+  (`offer_entries`, always 'pending'); the team approves with `review_offer_entry()`. `products.tags` =
+  approved entries of active offers, written by the database only (shops cannot set it). `products.story` = short maker story.
 - Home follows the mockup: ivory/olive/gold, hero carousel, category grid, seasonal offers,
   trust strip, 5-tab bottom nav (`PublicNav`: home, categories, explore, cart, account).
 - Cart is local (`src/lib/cart.ts`, one cart per shop, `public_cart` for prices); each shop's

@@ -2,7 +2,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n";
-import { CATEGORIES, CATEGORY_IMAGE, COLLECTIONS, COLLECTION_ICON, COLLECTION_IMAGE, CAT_TINT, catKey, catSubKey, colKey } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_IMAGE, CAT_TINT, catKey, catSubKey } from "@/lib/categories";
+import { offerTitle, type Offer } from "@/lib/offers";
 import { Icon } from "@/components/Icon";
 
 /** Section title with the gold line and Bledify diamond. */
@@ -43,19 +44,19 @@ export function CategoryGrid({ fallback }: { fallback?: Record<string, string | 
   );
 }
 
-/** Seasonal banners: Mariée, Ramadan, Aïd, Été. */
-export function SeasonalOffers() {
-  const { t } = useI18n();
+/** Offer banners (seasonal or special), as created by the Bledify team. */
+export function OfferBanners({ offers }: { offers: Offer[] }) {
+  const { t, lang } = useI18n();
   return (
     <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-4 md:px-0">
-      {COLLECTIONS.map((c) => (
-        <Link key={c} href={`/explore?collection=${c}`} className="group relative h-40 w-[72%] shrink-0 snap-start overflow-hidden rounded-2xl shadow-sm md:w-auto">
-          <Image src={COLLECTION_IMAGE[c]} alt="" fill sizes="(max-width: 768px) 72vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />
+      {offers.map((o) => (
+        <Link key={o.slug} href={`/explore?collection=${o.slug}`} className="group relative h-40 w-[72%] shrink-0 snap-start overflow-hidden rounded-2xl bg-sand shadow-sm md:w-auto">
+          {o.image ? <Image src={o.image} alt="" fill sizes="(max-width: 768px) 72vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" /> : null}
           <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <span className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
             <span>
-              <span className="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-brand"><Icon name={COLLECTION_ICON[c]} className="h-4 w-4" /></span>
-              <span className="block font-display text-xl leading-tight text-white">{t(colKey(c))}</span>
+              <span className="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-brand"><Icon name={o.icon} className="h-4 w-4" /></span>
+              <span className="block font-display text-xl leading-tight text-white">{offerTitle(o, lang)}</span>
             </span>
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-brand">
               {t("discover_more")} <Icon name="arrow" className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -64,6 +65,25 @@ export function SeasonalOffers() {
         </Link>
       ))}
     </div>
+  );
+}
+
+/** "Offres saisonnières" and, when the team adds some, "Offres spéciales". */
+export function OffersSections({ offers }: { offers: Offer[] }) {
+  const { t } = useI18n();
+  const groups = [
+    { key: "seasonal_offers", items: offers.filter((o) => o.kind === "seasonal") },
+    { key: "special_offers", items: offers.filter((o) => o.kind === "special") },
+  ] as const;
+  return (
+    <>
+      {groups.filter((g) => g.items.length).map((g) => (
+        <section key={g.key}>
+          <SectionTitle title={t(g.key)} />
+          <OfferBanners offers={g.items} />
+        </section>
+      ))}
+    </>
   );
 }
 

@@ -6,12 +6,13 @@ import { CATEGORIES, CATEGORY_IMAGE, CAT_TINT, SUBCATEGORIES, catKey, catSubKey,
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicNav } from "@/components/PublicNav";
 import { Icon } from "@/components/Icon";
-import { SeasonalOffers, SectionTitle } from "@/components/home/Sections";
+import { OffersSections, SectionTitle } from "@/components/home/Sections";
+import { getOffers } from "@/lib/server/offers";
 
 export const metadata: Metadata = { title: "Catégories" };
 
 export default async function CategoriesPage() {
-  const { t } = await getT();
+  const [{ t }, offers] = await Promise.all([getT(), getOffers()]);
   return (
     <div className="min-h-dvh bg-ivory">
       <PublicHeader />
@@ -41,10 +42,7 @@ export default async function CategoriesPage() {
             ))}
           </div>
         </section>
-        <section>
-          <SectionTitle title={t("seasonal_offers")} />
-          <SeasonalOffers />
-        </section>
+        <OffersSections offers={offers} />
       </main>
       <PublicNav />
     </div>

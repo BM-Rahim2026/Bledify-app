@@ -9,7 +9,8 @@ import { ProductRow } from "@/components/ProductCard";
 import { ShopCard, type ShopCardData } from "@/components/ShopCard";
 import { Logo } from "@/components/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
-import { CategoryGrid, SeasonalOffers, SectionTitle, TrustStrip } from "@/components/home/Sections";
+import { CategoryGrid, OffersSections, SectionTitle, TrustStrip } from "@/components/home/Sections";
+import { getOffers } from "@/lib/server/offers";
 
 type Home = { categories: { slug: string; image: string | null }[]; featured: ProductCardData[]; shops: ShopCardData[] };
 
@@ -21,7 +22,7 @@ async function getHome(): Promise<Home> {
 }
 
 export default async function HomePage() {
-  const [{ t }, home] = await Promise.all([getT(), getHome()]);
+  const [{ t }, home, offers] = await Promise.all([getT(), getHome(), getOffers()]);
   const fallback = Object.fromEntries(home.categories.map((c) => [c.slug, c.image]));
 
   return (
@@ -35,10 +36,7 @@ export default async function HomePage() {
           <CategoryGrid fallback={fallback} />
         </section>
 
-        <section>
-          <SectionTitle title={t("seasonal_offers")} />
-          <SeasonalOffers />
-        </section>
+        <OffersSections offers={offers} />
 
         <TrustStrip />
 

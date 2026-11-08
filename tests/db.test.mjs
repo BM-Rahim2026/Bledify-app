@@ -408,3 +408,29 @@ test("sellers by subcategory: shops with their matching products only", { skip }
   assert.ok(!none.some((s) => s.slug === "shop-a"));
   await q("update public.products set subcategory=null where id in ($1,$2)", [p1, p2]);
 });
+
+test("offers: shops propose, only the team approves; approved products appear on the offer", { skip }, async () => {
+  const onOffer = async () => (await as("anon", () => q("select public.public_products(p_tag=>'ramadan') r")))[0].r.some((x) => x.id === p1);
+  // shops cannot tag products themselves
+  await as(A, () => q("update public.products set tags='{ramadan}' where id=$1", [p1]));
+  assert.equal(await onOffer(), false);
+  // a proposal is pending, whatever status the shop sends
+  const [e] = await as(A, () => q("insert into public.offer_entries (offer_slug, product_id, shop_id, status) values ('ramadan',$1,$2,'approved') returning id, status", [p1, shopA]));
+  assert.equal(e.status, "pending");
+  assert.equal(await onOffer(), false);
+  assert.equal(await code(as(A, () => q("update public.offer_entries set status='approved' where id=$1", [e.id]))), "42501");
+  assert.equal(await code(as(B, () => q("insert into public.offer_entries (offer_slug, product_id, shop_id) values ('aid',$1,$2)", [p1, shopA]))), "42501");
+  assert.equal(await code(as(A, () => q("select public.review_offer_entry($1, true)", [e.id]))), "42501");
+  // the team approves
+  await as("service", () => q("select public.review_offer_entry($1, true, 'ok')", [e.id]));
+  assert.equal(await onOffer(), true);
+  // closing the offer removes it from products; reopening brings it back
+  await q("update public.offers set active=false where slug='ramadan'");
+  assert.equal(await onOffer(), false);
+  assert.equal(await code(as(A, () => q("insert into public.offer_entries (offer_slug, product_id, shop_id) values ('ramadan',$1,$2)", [p2, shopA]))), "22023");
+  await q("update public.offers set active=true where slug='ramadan'");
+  assert.equal(await onOffer(), true);
+  // withdrawing removes it
+  await as(A, () => q("delete from public.offer_entries where id=$1", [e.id]));
+  assert.equal(await onOffer(), false);
+});

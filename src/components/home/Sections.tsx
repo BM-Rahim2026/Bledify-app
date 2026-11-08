@@ -35,10 +35,10 @@ export function CategoryGrid({ fallback }: { fallback?: Record<string, string | 
           <span className="mt-0.5 block text-xs leading-snug text-muted">{t(catSubKey(c))}</span>
         </Link>
       ))}
-      <Link href="/categories" className="group flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gold/60 bg-gold-soft/40 text-center">
+      {CATEGORIES.length % 2 ? <Link href="/categories" className="group flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gold/60 bg-gold-soft/40 text-center">
         <Icon name="grid" className="h-7 w-7 text-brand" />
         <span className="px-2 text-sm font-semibold text-brand">{t("all_categories")}</span>
-      </Link>
+      </Link> : null}
     </div>
   );
 }

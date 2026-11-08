@@ -35,7 +35,7 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
 
 ## Marketplace
 - Categories (fixed list, `src/lib/categories.ts` + SQL check, since 0006): food, fashion,
-  crafts, home, terroir ("Produits de la ferme"), occasions, beauty (natural cosmetics, 0009). Subcategories
+  crafts, home, terroir ("Produits de la ferme"), occasions, beauty (natural cosmetics, 0009), jewelry ("Bijoux & accessoires", 0013). Subcategories
   (0011): `products.subcategory`, list in `SUBCATEGORIES` (categories.ts) = SQL `subcategories_of()` (test checks),
   labels `sub_<key>` in dict; explore `?category=&sub=`. Seasonal collections = `products.tags`
   (mariage, ramadan, aid, ete) → `/explore?collection=`. `products.story` = short maker story.

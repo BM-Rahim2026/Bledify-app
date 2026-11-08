@@ -1,7 +1,7 @@
 import type { DictKey } from "@/lib/i18n/dict";
 
-// The 7 permanent categories (same list as the SQL check constraint).
-export const CATEGORIES = ["food", "fashion", "crafts", "home", "terroir", "occasions", "beauty"] as const;
+// The 8 permanent categories (same list as the SQL check constraint).
+export const CATEGORIES = ["food", "fashion", "crafts", "home", "terroir", "occasions", "beauty", "jewelry"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 // Seasonal collections: products are tagged by their seller.
@@ -11,12 +11,13 @@ export type Collection = (typeof COLLECTIONS)[number];
 // Subcategories per category (same list as public.subcategories_of() in SQL; a DB test checks it).
 export const SUBCATEGORIES: Record<Category, readonly string[]> = {
   food: ["trad_cakes", "modern_cakes", "savory", "breads", "couscous_pasta", "dishes", "jams_sweets", "chocolate", "trays_boxes", "catering"],
-  fashion: ["women_traditional", "modern_modest", "hijabs", "men", "kids_babies", "knitting", "bags_accessories", "shoes", "tailoring"],
-  crafts: ["pottery", "copper", "jewelry", "embroidery", "weaving", "basketry", "leather", "wood", "calligraphy", "instruments"],
+  fashion: ["women_traditional", "modern_modest", "hijabs", "men", "kids_babies", "knitting", "shoes", "tailoring"],
+  crafts: ["pottery", "copper", "embroidery", "weaving", "basketry", "leather", "wood", "calligraphy", "instruments"],
   home: ["rugs", "linens", "cushions", "tableware", "utensils", "lighting", "wall_decor", "candles_incense", "baskets_storage", "furniture"],
   terroir: ["olive_oil", "honey", "dates", "produce", "eggs", "dairy", "grains", "spices_herbs", "dried_fruits_nuts", "processed", "plants_seeds"],
   occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "event_decor", "birth_circumcision", "custom_gifts"],
   beauty: ["soaps", "oils", "face", "hair", "hammam_body", "perfumes", "khol_swak", "baby_mom", "men_beard", "gift_sets"],
+  jewelry: ["silver_traditional", "fantasy", "beads_stones", "personalized", "bags", "hair_accessories", "belts", "small_accessories", "jewelry_boxes"],
 };
 export const subKey = (s: string) => `sub_${s}` as DictKey;
 
@@ -35,6 +36,7 @@ export const CATEGORY_IMAGE: Record<Category, string> = {
   terroir: CDN + "0217939608397643cb8a93f7287826a4278aac7f0d089f936dfed_0_1793960846705_aac1fbc9.jpeg",
   occasions: CDN + "0217940604268800958c43c09b2d8895d306984ebab65852238f8_0_1794060433346_7cdbed34.jpeg",
   beauty: CDN + "021794132841655fdccfc102ca12157f94275e78054dc3b3071be_0_1794132848694_40a305af.jpeg",
+  jewelry: CDN + "02179414478470799b13dab45b2d10982c2cf34f4d4639da2e831_0_1794144791611_4118750e.jpeg",
 };
 
 export const COLLECTION_IMAGE: Record<Collection, string> = {
@@ -55,7 +57,7 @@ export const HERO_SLIDES = [
 /** Soft background behind images while they load. */
 export const CAT_TINT: Record<string, string> = {
   food: "bg-amber-100", fashion: "bg-rose-100", crafts: "bg-stone-200",
-  home: "bg-orange-100", terroir: "bg-lime-100", occasions: "bg-yellow-50", beauty: "bg-pink-50",
+  home: "bg-orange-100", terroir: "bg-lime-100", occasions: "bg-yellow-50", beauty: "bg-pink-50", jewelry: "bg-amber-50",
 };
 
 // kept for the old hero image references

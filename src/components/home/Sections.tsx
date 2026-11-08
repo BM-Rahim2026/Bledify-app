@@ -72,13 +72,13 @@ export function TrustStrip() {
     { icon: "heart", label: t("trust_favorites") },
   ];
   return (
-    <div className="grid grid-cols-4 divide-x divide-line rounded-2xl border border-line bg-surface py-3 shadow-sm rtl:divide-x-reverse">
+    <Link href="/confiance" aria-label={t("trust_title")} className="grid grid-cols-4 divide-x divide-line rounded-2xl border border-line bg-surface py-3 shadow-sm rtl:divide-x-reverse">
       {items.map((x) => (
         <div key={x.icon} className="flex flex-col items-center gap-1.5 px-1 text-center">
           <Icon name={x.icon} className="h-6 w-6 text-brand" />
           <span className="text-[11px] font-semibold leading-tight text-ink md:text-sm">{x.label}</span>
         </div>
       ))}
-    </div>
+    </Link>
   );
 }

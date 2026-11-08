@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { ShopForm } from "@/components/ShopForm";
 import { LogoPicker } from "@/components/LogoPicker";
 import { useEffect } from "react";
+import { Icon } from "@/components/Icon";
 
 export default function Settings() {
   const { t, lang } = useI18n();
@@ -25,6 +26,15 @@ export default function Settings() {
           <span className="font-semibold">{t("language")}</span>
           <LangSwitch />
         </Card>
+        {shop ? (
+          <Card className={`flex gap-3 ${shop.verified ? "border-brand/30 bg-brand-soft/40" : ""}`}>
+            <Icon name="shield" className={`h-6 w-6 shrink-0 ${shop.verified ? "text-brand" : "text-muted"}`} />
+            <div>
+              <p className="font-semibold">{shop.verified ? t("verified_status_yes") : t("verified_status_no")}</p>
+              {shop.verified ? null : <p className="mt-0.5 text-sm text-muted">{t("verified_status_how")}</p>}
+            </div>
+          </Card>
+        ) : null}
         <LogoPicker shop={shop} onSaved={reloadShop} />
         <Card><ShopForm shop={shop} ownerId={user.id} onSaved={reloadShop} /></Card>
         <Card className="flex items-center justify-between">

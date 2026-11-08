@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import type { DeliveryZones } from "@/lib/delivery";
 
 export type Shop = {
   id: string; owner_id: string; name: string; slug: string; description: string;
@@ -10,6 +11,7 @@ export type Shop = {
   delivery_home_dzd: number; delivery_desk_dzd: number;
   notify_email: string; notify_new_orders: boolean; created_at: string;
   logo: { shape?: string; color?: string; content?: string }; logo_url: string;
+  verified: boolean; delivery_zones: DeliveryZones | null;
 };
 
 type Ctx = { user: User; shop: Shop | null; reloadShop: () => Promise<void> };

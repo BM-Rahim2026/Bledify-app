@@ -72,9 +72,10 @@ export default async function HomePage() {
         <div className="flex flex-col items-center gap-3 border-t border-line pt-6 text-center">
           <Logo height={28} />
           <p className="text-gold">{t("tagline_short")}</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
             <Link href="/track">{t("track_order")}</Link>
             <Link href="/signup?role=seller">{t("sell_on_bledify")}</Link>
+            <Link href="/confiance">{t("trust_title")}</Link>
           </div>
         </div>
       </footer>

@@ -14,14 +14,18 @@ import { Button } from "@/components/ui";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { colKey } from "@/lib/categories";
+import { minFee, type DeliveryZones } from "@/lib/delivery";
+import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
 
 export type PublicProduct = {
   id: string; name: string; description: string; story?: string; tags?: string[]; price_dzd: number; images: string[]; category: string;
   shop: {
     name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number;
     delivered_count: number; logo?: LogoConfig; logo_url?: string; category?: string | null;
+    delivery_zones?: DeliveryZones | null; verified?: boolean; rating?: number | string | null; review_count?: number;
   };
   related: ProductCardData[];
+  reviews?: Review[]; rating?: number | string | null; review_count?: number;
 };
 
 export function ProductView({ p }: { p: PublicProduct }) {
@@ -60,11 +64,12 @@ export function ProductView({ p }: { p: PublicProduct }) {
             <h1 className="font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
             <FavoriteButton kind="product" id={p.id} />
           </div>
+          {p.review_count ? <a href="#reviews" className="mt-1 inline-block"><RatingSummary rating={p.rating} count={p.review_count} size="md" /></a> : null}
           <p className="mt-3 text-3xl font-bold text-brand">{formatDZD(p.price_dzd)}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
             <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
             <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
-            <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(Math.min(p.shop.delivery_desk_dzd, p.shop.delivery_home_dzd)) })}</span>
+            <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(minFee(p.shop)) })}</span>
           </div>
           {p.tags?.length ? (
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -91,7 +96,7 @@ export function ProductView({ p }: { p: PublicProduct }) {
             <ShopLogo name={p.shop.name} logo={p.shop.logo} logoUrl={p.shop.logo_url} category={p.shop.category} size={48} />
             <div className="min-w-0 flex-1">
               <p className="text-xs text-muted">{t("sold_by")}</p>
-              <p className="truncate font-semibold">{p.shop.name}</p>
+              <p className="flex items-center gap-1.5 font-semibold"><span className="truncate">{p.shop.name}</span>{p.shop.verified ? <VerifiedBadge compact /> : null}</p>
               <p className="text-xs text-muted">
                 {wilayaLabel(p.shop.wilaya, lang).replace(/^\d+ - /, "")}
                 {p.shop.delivered_count ? ` · ✓ ${t("delivered_count", { n: p.shop.delivered_count })}` : ""}
@@ -101,6 +106,11 @@ export function ProductView({ p }: { p: PublicProduct }) {
           </Link>
         </div>
       </main>
+
+      <div id="reviews" className="mx-auto mt-10 max-w-6xl scroll-mt-20 px-4">
+        <ReviewList reviews={p.reviews ?? []} rating={p.rating} count={p.review_count} />
+        <Link href="/confiance" className="mt-2 inline-block text-sm font-semibold text-brand">{t("trust_title")} →</Link>
+      </div>
 
       {p.related.length ? (
         <section className="mx-auto mt-10 max-w-6xl px-4">

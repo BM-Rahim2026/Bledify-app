@@ -5,11 +5,13 @@ import { useI18n } from "@/lib/i18n";
 import { wilayaLabel } from "@/lib/wilayas";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { RatingSummary, VerifiedBadge } from "@/components/trust/Trust";
 
 export type ShopCardData = {
   name: string; slug: string; wilaya: string; description: string; cover: string;
   product_count: number; delivered_count: number;
   logo?: LogoConfig; logo_url?: string; category?: string | null; id?: string;
+  verified?: boolean; rating?: number | string | null; review_count?: number;
 };
 
 export function ShopCard({ s }: { s: ShopCardData }) {
@@ -25,8 +27,9 @@ export function ShopCard({ s }: { s: ShopCardData }) {
         </span>
       </div>
       <div className="p-4">
-        <p className="truncate font-semibold">{s.name}</p>
+        <p className="flex items-center gap-1.5 font-semibold"><span className="truncate">{s.name}</span>{s.verified ? <VerifiedBadge compact /> : null}</p>
         <p className="text-xs text-muted">{wilayaLabel(s.wilaya, lang).replace(/^\d+ - /, "")} · {t("products_count", { n: s.product_count })}</p>
+        {s.review_count ? <div className="mt-1"><RatingSummary rating={s.rating} count={s.review_count} /></div> : null}
         <p className="mt-2 line-clamp-2 text-sm text-muted">{s.description}</p>
         {s.delivered_count > 0 ? (
           <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-ok">

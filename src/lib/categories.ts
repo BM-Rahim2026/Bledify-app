@@ -51,4 +51,5 @@ export const HERO_IMAGE = "/home/hero-baskets.webp";
 export type ProductCardData = {
   id: string; name: string; price_dzd: number; image: string; category: string; tags?: string[];
   shop_id?: string; shop_name: string; shop_slug: string; shop_wilaya: string;
+  shop_verified?: boolean; rating?: number | string | null; review_count?: number;
 };

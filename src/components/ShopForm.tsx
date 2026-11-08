@@ -6,8 +6,10 @@ import { slugify } from "@/lib/format";
 import { WILAYAS, wilayaValue, wilayaLabel } from "@/lib/wilayas";
 import type { Shop } from "@/lib/seller";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
+import { ZoneEditor } from "@/components/ZoneEditor";
+import { defaultZones, ZONES, type DeliveryZones, type ZoneRate } from "@/lib/delivery";
 
-type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url">;
+type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url" | "verified">;
 
 export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
   shop?: Shop; ownerId: string; defaultEmail?: string; onSaved: () => Promise<void> | void;
@@ -18,6 +20,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
     phone: shop?.phone ?? "", whatsapp: shop?.whatsapp ?? "", wilaya: shop?.wilaya ?? "",
     delivery_home_dzd: shop?.delivery_home_dzd ?? 600, delivery_desk_dzd: shop?.delivery_desk_dzd ?? 400,
     notify_email: shop?.notify_email ?? defaultEmail ?? "", notify_new_orders: shop?.notify_new_orders ?? true,
+    delivery_zones: shop?.delivery_zones ?? defaultZones(shop?.delivery_home_dzd ?? 600, shop?.delivery_desk_dzd ?? 400),
   });
   const [slugTouched, setSlugTouched] = useState(Boolean(shop));
   const [busy, setBusy] = useState(false);
@@ -27,7 +30,11 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true); setMsg(null);
-    const row = { ...d, slug: slugify(d.slug || d.name), owner_id: ownerId };
+    // flat fees = the cheapest zone (used for "Livraison dès …")
+    const zones: DeliveryZones = Object.fromEntries(ZONES.map((z) => [z, d.delivery_zones?.[z]]).filter(([, v]) => v));
+    const open = Object.values(zones).filter((z): z is ZoneRate => Boolean(z && !z.off));
+    const flat = open.length ? { delivery_home_dzd: Math.min(...open.map((z) => z.home)), delivery_desk_dzd: Math.min(...open.map((z) => z.desk)) } : {};
+    const row = { ...d, ...flat, delivery_zones: zones, slug: slugify(d.slug || d.name), owner_id: ownerId };
     const sb = supabase();
     const { error } = shop
       ? await sb.from("shops").update(row).eq("id", shop.id)
@@ -66,14 +73,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
           {WILAYAS.map((w) => <option key={w.code} value={wilayaValue(w)}>{wilayaLabel(wilayaValue(w), lang)}</option>)}
         </Select>
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label={`${t("delivery_home")} (DA)`}>
-          <Input type="number" min={0} inputMode="numeric" value={d.delivery_home_dzd} onChange={(e) => set("delivery_home_dzd", Number(e.target.value))} />
-        </Field>
-        <Field label={`${t("delivery_desk")} (DA)`}>
-          <Input type="number" min={0} inputMode="numeric" value={d.delivery_desk_dzd} onChange={(e) => set("delivery_desk_dzd", Number(e.target.value))} />
-        </Field>
-      </div>
+      <ZoneEditor value={d.delivery_zones ?? {}} onChange={(z) => set("delivery_zones", z)} />
       <Field label={t("notify_email")}>
         <Input type="email" dir="ltr" value={d.notify_email} onChange={(e) => set("notify_email", e.target.value)} />
       </Field>

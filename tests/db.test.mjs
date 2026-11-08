@@ -165,7 +165,7 @@ test("tracking by number + phone only", { skip }, async () => {
 });
 
 test("stats: Algeria-time week, rates, revenue from delivered only", { skip }, async () => {
-  await db.query("truncate public.orders, public.order_attempts");
+  await db.query("truncate public.orders, public.order_attempts cascade");
   const mk = async (phone, statuses) => {
     const o = await placeOrder({ phone, ip: "" });
     for (const s of statuses) await as(A, () => q("select public.set_order_status($1,$2)", [o.id, s]));
@@ -217,4 +217,64 @@ test("favourites: own rows only; product xor shop", { skip }, async () => {
   const theirs = await as(B, () => q("select count(*)::int n from public.favorites"));
   assert.equal(theirs[0].n, 0);
   assert.equal(await code(as(B, () => q("insert into public.favorites (user_id, shop_id) values ($1, $2)", [A, shopA]))), "42501");
+});
+
+test("reviews: only the buyer, only after delivery, one per product (edit)", { skip }, async () => {
+  const o = await placeOrder({ phone: "0550000300", ip: "" });
+  await db.query("update public.orders set customer_id=$1 where id=$2", [B, o.id]);
+  const review = (user, rating = 5, product = p1) =>
+    as(user, () => q("select public.submit_review($1,$2,$3,'Très bien') r", [o.id, product, rating]));
+  assert.equal(await code(review(B)), "P0409"); // not delivered yet
+  for (const s of ["confirmed", "shipped", "delivered"]) await as(A, () => q("select public.set_order_status($1,$2)", [o.id, s]));
+  assert.equal(await code(review(A)), "P0002"); // not the buyer
+  assert.equal(await code(review("anon")), "42501");
+  assert.equal(await code(review(B, 6)), "22023");
+  assert.equal(await code(review(B, 5, p2)), "22023"); // not in this order
+  await review(B, 3);
+  await review(B, 4);
+  const [{ n, rating, author }] = await q("select count(*)::int n, max(rating) rating, max(author) author from public.reviews where order_id=$1", [o.id]);
+  assert.deepEqual([n, rating, author], [1, 4, "Karim T."]);
+  const [{ p }] = await as("anon", () => q("select public.public_product($1) p", [p1]));
+  assert.equal(p.review_count, 1);
+  assert.equal(Number(p.rating), 4);
+  assert.equal(p.reviews[0].comment, "Très bien");
+  assert.equal(await code(as("anon", () => q("select * from public.reviews"))), "42501");
+  const [{ m }] = await as(B, () => q("select public.my_orders() m"));
+  assert.equal(m.find((x) => x.id === o.id).reviews[p1].rating, 4);
+});
+
+test("verified badge: the seller cannot set it, the team can", { skip }, async () => {
+  await as(A, () => q("update public.shops set verified = true, name = 'TEST Shop' where id=$1", [shopA]));
+  let [{ verified }] = await q("select verified from public.shops where id=$1", [shopA]);
+  assert.equal(verified, false);
+  await q("update public.shops set verified = true where id=$1", [shopA]);
+  const [row] = await q("select verified, verified_at from public.shops where id=$1", [shopA]);
+  assert.equal(row.verified, true);
+  assert.ok(row.verified_at);
+  await as(A, () => q("update public.shops set verified = false where id=$1", [shopA]));
+  [{ verified }] = await q("select verified from public.shops where id=$1", [shopA]);
+  assert.equal(verified, true);
+});
+
+test("delivery zones: fee by zone, closed zones refused, bad config rejected", { skip }, async () => {
+  const zones = { local: { home: 300, desk: 200 }, nord: { home: 600, desk: 400 }, sud: { home: 1100, desk: 800, days_min: 3, days_max: 6 }, grand_sud: { off: true } };
+  await as(A, () => q("update public.shops set wilaya='31 - Oran', delivery_zones=$2 where id=$1", [shopA, JSON.stringify(zones)]));
+  assert.equal((await placeOrder({ phone: "0550000400", wilaya: "31 - Oran", ip: "" })).delivery_dzd, 200);
+  assert.equal((await placeOrder({ phone: "0550000401", wilaya: "47 - Ghardaïa", type: "home", ip: "" })).delivery_dzd, 1100);
+  assert.equal((await placeOrder({ phone: "0550000402", wilaya: "19 - Sétif", ip: "" })).delivery_dzd, 400); // hauts not set: flat fee
+  assert.equal(await code(placeOrder({ phone: "0550000403", wilaya: "11 - Tamanrasset", ip: "" })), "22023");
+  assert.equal(await code(as(A, () => q("update public.shops set delivery_zones='{\"mars\":{\"home\":1,\"desk\":1}}' where id=$1", [shopA]))), "23514");
+  assert.equal(await code(as(A, () => q("update public.shops set delivery_zones='{\"nord\":{\"home\":\"x\",\"desk\":1}}' where id=$1", [shopA]))), "23514");
+  await as(A, () => q("update public.shops set delivery_zones=null, wilaya='' where id=$1", [shopA]));
+});
+
+test("wilaya zones agree with src/lib/delivery.ts", { skip }, async () => {
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../src/lib/delivery.ts", import.meta.url), "utf8");
+  const block = src.slice(src.indexOf("ZONE_OF"), src.indexOf("};", src.indexOf("ZONE_OF")));
+  const ts = Object.fromEntries([...block.matchAll(/(\d+): "(\w+)"/g)].map((m) => [Number(m[1]), m[2]]));
+  const rows = await q("select n, public.wilaya_zone(lpad(n::text, 2, '0') || ' - X', '99 - Y') z from generate_series(1, 58) n");
+  for (const { n, z } of rows) assert.equal(z, ts[n] ?? "nord", `wilaya ${n}`);
+  const [{ z }] = await q("select public.wilaya_zone('31 - Oran', '31 - Oran') z");
+  assert.equal(z, "local");
 });

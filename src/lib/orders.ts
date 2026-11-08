@@ -41,6 +41,7 @@ export function errorKey(e: { code?: string; message?: string } | null | undefin
   if (e.code === "P0409" || e.message === "DUPLICATE_ORDER") return e.message === "DUPLICATE_ORDER" ? "err_duplicate" : "err_not_new";
   if (e.code === "P0429") return "err_rate";
   if (e.message === "INVALID_PHONE") return "err_phone";
+  if (e.message === "NO_DELIVERY") return "err_no_delivery";
   if (e.code === "P0002") return "err_not_found";
   return "error";
 }

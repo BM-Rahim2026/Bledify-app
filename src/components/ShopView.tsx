@@ -17,11 +17,15 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
+import { minFee, quote, type DeliveryZones } from "@/lib/delivery";
+import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
 
 export type PublicShop = {
   id: string; name: string; slug: string; description: string; wilaya: string; whatsapp: string; cover: string;
   logo?: LogoConfig; logo_url?: string; category?: string | null;
   delivery_home_dzd: number; delivery_desk_dzd: number; delivered_count: number;
+  delivery_zones?: DeliveryZones | null; verified?: boolean;
+  rating?: number | string | null; review_count?: number; reviews?: Review[];
   products: { id: string; name: string; description: string; category: string; price_dzd: number; images: string[] }[];
 };
 
@@ -57,7 +61,8 @@ export function ShopView({ shop }: { shop: PublicShop }) {
 
   const lines = shop.products.filter((p) => cart[p.id] > 0);
   const subtotal = lines.reduce((s, p) => s + p.price_dzd * cart[p.id], 0);
-  const fee = f.type === "desk" ? shop.delivery_desk_dzd : shop.delivery_home_dzd;
+  const q = f.wilaya ? quote(shop, f.wilaya) : null;
+  const fee = q ? (q.off ? 0 : f.type === "desk" ? q.desk : q.home) : 0;
   const wilayas = useMemo(() => WILAYAS.map((w) => ({ v: wilayaValue(w), l: wilayaLabel(wilayaValue(w), lang) })), [lang]);
   const next = encodeURIComponent(`${path}#order`);
 
@@ -66,6 +71,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
     setErr(null);
     if (!lines.length) { setErr(t("cart_empty")); return; }
     if (!normalizePhone(f.phone)) { setErr(t("err_phone")); return; }
+    if (q?.off) { setErr(t("err_no_delivery")); return; }
     setBusy(true);
     try {
       const res = await fetch("/api/orders", {
@@ -128,6 +134,10 @@ export function ShopView({ shop }: { shop: PublicShop }) {
               <h1 className="font-display text-3xl leading-tight md:text-4xl">{shop.name}</h1>
               <FavoriteButton kind="shop" id={shop.id} />
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {shop.verified ? <VerifiedBadge /> : null}
+              <RatingSummary rating={shop.rating} count={shop.review_count} />
+            </div>
             <p className="text-sm text-muted">
               {shop.wilaya ? wilayaLabel(shop.wilaya, lang).replace(/^\d+ - /, "") : null}
               {shop.delivered_count > 0 ? <span className="text-ok"> · ✓ {t("delivered_count", { n: shop.delivered_count })}</span> : null}
@@ -138,7 +148,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
           <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
-          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("desk")} {formatDZD(shop.delivery_desk_dzd)} · {t("home")} {formatDZD(shop.delivery_home_dzd)}</span>
+          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(minFee(shop)) })}</span>
           {shop.whatsapp ? (
             <a href={`https://wa.me/${waNumber(shop.whatsapp)}`} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366]/15 px-2.5 py-1 text-[#128C4B]">WhatsApp</a>
           ) : null}
@@ -177,7 +187,8 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                 {lines.length ? lines.map((p) => (
                   <div key={p.id} className="flex justify-between gap-2"><span className="truncate">{p.name} ×{cart[p.id]}</span><span className="shrink-0 whitespace-nowrap">{formatDZD(p.price_dzd * cart[p.id])}</span></div>
                 )) : <p className="text-muted">{t("cart_empty")}</p>}
-                <div className="flex justify-between text-muted"><span>{t("delivery_fee")} ({t(f.type)})</span><span>{formatDZD(fee)}</span></div>
+                <div className="flex justify-between text-muted"><span>{t("delivery_fee")} ({t(f.type)})</span><span>{q ? (q.off ? "—" : formatDZD(fee)) : t("delivery_from", { price: formatDZD(minFee(shop)) })}</span></div>
+                {q?.days_min != null && q.days_max != null && !q.off ? <p className="text-xs text-muted">{t("delivery_days", { min: q.days_min, max: q.days_max })}</p> : null}
                 <div className="flex justify-between border-t border-line pt-2 text-base font-bold"><span>{t("total")}</span><span className="text-brand">{formatDZD(subtotal + fee)}</span></div>
                 <p className="flex items-center gap-1 pt-1 text-xs font-semibold text-ok"><Icon name="cash" className="h-4 w-4" />{t("cod")}</p>
               </Card>
@@ -204,6 +215,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                     </Select>
                   </Field>
                   <Field label={t("commune")}><Input required value={f.commune} onChange={(e) => setF({ ...f, commune: e.target.value })} /></Field>
+                  {q?.off ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t("err_no_delivery")}</p> : !q ? <p className="text-xs text-muted">{t("delivery_choose_wilaya")}</p> : null}
                   <fieldset>
                     <legend className="mb-1 text-sm font-semibold">{t("delivery")}</legend>
                     <div className="grid grid-cols-2 gap-2">
@@ -211,7 +223,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                         <label key={k} className={`cursor-pointer rounded-xl border p-3 text-sm ${f.type === k ? "border-brand bg-brand-soft" : "border-line bg-surface"}`}>
                           <input type="radio" name="type" className="sr-only" checked={f.type === k} onChange={() => setF({ ...f, type: k })} />
                           <span className="block font-semibold">{t(k)}</span>
-                          <span className="text-muted">{formatDZD(k === "desk" ? shop.delivery_desk_dzd : shop.delivery_home_dzd)}</span>
+                          <span className="text-muted">{q && !q.off ? formatDZD(k === "desk" ? q.desk : q.home) : "—"}</span>
                         </label>
                       ))}
                     </div>
@@ -219,15 +231,18 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                   {f.type === "home" ? <Field label={t("address")}><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></Field> : null}
                   <Field label={`${t("note")} (${t("optional")})`}><Textarea rows={2} maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></Field>
                   {err ? <p className="rounded-xl bg-rose-50 p-3 text-sm text-danger" role="alert">{err}</p> : null}
-                  <Button type="submit" className="w-full text-lg" disabled={busy}>{busy ? t("sending") : `${t("place_order")} · ${formatDZD(subtotal + fee)}`}</Button>
+                  <Link href="/confiance" className="block text-center text-xs text-muted underline">{t("order_consent")}</Link>
+                  <Button type="submit" className="w-full text-lg" disabled={busy || Boolean(q?.off)}>{busy ? t("sending") : `${t("place_order")} · ${formatDZD(subtotal + fee)}`}</Button>
                 </form>
               )}
             </div>
           </aside>
         </div>
 
+        <div className="mt-12 max-w-2xl"><ReviewList reviews={shop.reviews ?? []} rating={shop.rating} count={shop.review_count} showProduct /></div>
+
         <footer className="mt-12 border-t border-line py-6 text-center text-sm text-muted">
-          <Link href="/" aria-label="Bledify" className="inline-block align-middle"><Logo height={22} /></Link> · <Link href="/track" className="underline">{t("track_order")}</Link>
+          <Link href="/" aria-label="Bledify" className="inline-block align-middle"><Logo height={22} /></Link> · <Link href="/track" className="underline">{t("track_order")}</Link> · <Link href="/confiance" className="underline">{t("trust_title")}</Link>
         </footer>
       </div>
 

@@ -39,6 +39,13 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
 - Cart is local (`src/lib/cart.ts`, one cart per shop, `public_cart` for prices); each shop's
   order is still placed on `/s/[slug]#order`. Favourites: `favorites` table (product xor shop,
   RLS own rows), `src/lib/favorites.ts`, `my_favorites()`, page `/favorites`.
+- Trust (0007): `reviews` (one per order+product, only the buyer of a delivered order, via
+  `submit_review`; no direct table access; `hidden` = team moderation). `shops.verified` is set by
+  the team only (SQL/service role; a trigger ignores seller changes). Delivery by zone:
+  `shops.delivery_zones` {local, nord, hauts, sud, grand_sud: {home, desk, days_min, days_max, off}},
+  `wilaya_zone()` mirrors `src/lib/delivery.ts` (test checks), `place_order` uses `delivery_quote()`.
+- Policies (drafts, need a lawyer): `src/lib/legal.ts` (fr + ar, fill OPERATOR), pages `/confiance`
+  and `/legal/[doc]`.
 - Public browse via SECURITY DEFINER RPCs: `public_home`, `public_products`,
   `public_product`, `get_public_shop`. Customers' orders: `my_orders`.
 - `/api/orders` requires a signed-in user and stores `orders.customer_id`.

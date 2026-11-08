@@ -10,9 +10,10 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { PublicNav } from "@/components/PublicNav";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { Icon } from "@/components/Icon";
+import { minFee, type DeliveryZones } from "@/lib/delivery";
 import { Card, Spinner } from "@/components/ui";
 
-type Item = ProductCardData & { delivery_home_dzd: number; delivery_desk_dzd: number; shop_logo?: LogoConfig; shop_logo_url?: string };
+type Item = ProductCardData & { delivery_home_dzd: number; delivery_desk_dzd: number; delivery_zones?: DeliveryZones | null; shop_logo?: LogoConfig; shop_logo_url?: string };
 
 /** Cart across all shops, grouped by shop: each shop's order is placed on its own page. */
 export default function CartPage() {
@@ -89,7 +90,7 @@ export default function CartPage() {
               })}
               <div className="flex justify-between border-t border-line pt-2 text-sm"><span className="text-muted">{t("cart_subtotal")}</span><b className="whitespace-nowrap">{formatDZD(subtotal)}</b></div>
               {first ? (
-                <p className="text-xs text-muted">{t("delivery_from", { price: formatDZD(Math.min(first.delivery_desk_dzd, first.delivery_home_dzd)) })} · {t("cod")}</p>
+                <p className="text-xs text-muted">{t("delivery_from", { price: formatDZD(minFee(first)) })} · {t("cod")}</p>
               ) : null}
               <Link href={`/s/${slug}#order`} className="flex min-h-11 items-center justify-center rounded-full bg-brand px-4 text-center font-semibold text-white">
                 {t("cart_order_from", { shop: first?.shop_name ?? "" })}

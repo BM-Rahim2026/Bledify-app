@@ -20,8 +20,8 @@ type Docs = Record<LegalDoc, Section[]>;
 const fr: Docs = {
   terms: [
     { h: "1. Qui sommes-nous ?", p: [
-      `Bledify est une plateforme qui met en relation des clients avec des vendeuses et artisans qui fabriquent leurs produits à la maison en Algérie. Elle est exploitée par ${OPERATOR.name}, ${OPERATOR.address}, ${OPERATOR.register}. Contact : ${OPERATOR.email}.`,
-      "Bledify n'achète pas et ne revend pas les produits : chaque vente est conclue directement entre le client et la vendeuse.",
+      `Bledify est une plateforme qui met en relation la clientèle avec des boutiques dont les produits sont fabriqués à la maison ou en petit atelier en Algérie. Elle est exploitée par ${OPERATOR.name}, ${OPERATOR.address}, ${OPERATOR.register}. Contact : ${OPERATOR.email}.`,
+      "Bledify n'achète pas et ne revend pas les produits : chaque vente est conclue directement entre l'acheteur et la boutique.",
     ] },
     { h: "2. Compte", p: [
       "La navigation est libre. Pour commander, il faut créer un compte avec une adresse e-mail valide et donner des informations exactes (nom, téléphone, wilaya).",
@@ -33,7 +33,7 @@ const fr: Docs = {
     ] },
     { h: "4. Commande", p: [
       "Le prix du produit et le prix de livraison de votre wilaya sont affichés avant la validation. Le prix enregistré est celui de la base Bledify au moment de la commande.",
-      "Après la commande, la vendeuse vous appelle pour la confirmer. Une commande non confirmée peut être annulée. Une commande n'est définitive qu'après cette confirmation.",
+      "Après la commande, la boutique vous appelle pour la confirmer. Une commande non confirmée peut être annulée. Une commande n'est définitive qu'après cette confirmation.",
     ] },
     { h: "5. Paiement", p: [
       "Le paiement se fait uniquement en espèces à la livraison (au livreur ou au point relais). Bledify ne demande jamais de paiement à l'avance ni de coordonnées bancaires.",
@@ -42,7 +42,7 @@ const fr: Docs = {
       "Seul un client dont la commande a été livrée peut laisser un avis. L'avis doit être honnête, respectueux et porter sur le produit reçu. Bledify peut masquer un avis injurieux, hors sujet ou contenant des données personnelles.",
     ] },
     { h: "7. Responsabilités", p: [
-      "La vendeuse est responsable de ses produits (qualité, hygiène, conformité à la description). Bledify fournit l'outil, vérifie les boutiques signalées « vérifiées » et aide à régler les litiges.",
+      "La boutique est responsable de ses produits (qualité, hygiène, conformité à la description). Bledify fournit l'outil, vérifie les boutiques signalées « vérifiées » et aide à régler les litiges.",
     ] },
     { h: "8. Droit applicable", p: [
       "Ces conditions sont soumises au droit algérien, notamment la loi n° 18-05 relative au commerce électronique et la loi n° 09-03 relative à la protection du consommateur. En cas de litige, une solution amiable est recherchée en premier.",
@@ -50,14 +50,14 @@ const fr: Docs = {
   ],
   privacy: [
     { h: "1. Données collectées", p: [
-      "Compte : nom, e-mail, mot de passe (chiffré). Commande : nom, téléphone, wilaya, commune, adresse, produits commandés. Vendeuses : informations de la boutique et photos des produits.",
+      "Compte : nom, e-mail, mot de passe (chiffré). Commande : nom, téléphone, wilaya, commune, adresse, produits commandés. Boutiques : informations de la boutique et photos des produits.",
       "Nous ne collectons aucune donnée bancaire.",
     ] },
     { h: "2. Pourquoi", p: [
       "Pour traiter les commandes (confirmation par téléphone, livraison), lutter contre les fausses commandes, afficher les avis et améliorer le service.",
     ] },
     { h: "3. Qui voit vos données", p: [
-      "La vendeuse chez qui vous commandez voit votre nom, téléphone et adresse de livraison, uniquement pour cette commande. Le transporteur reçoit ce qui est nécessaire à la livraison.",
+      "La boutique chez qui vous commandez voit votre nom, téléphone et adresse de livraison, uniquement pour cette commande. Le transporteur reçoit ce qui est nécessaire à la livraison.",
       "Sur un avis, seul votre prénom et l'initiale du nom sont affichés. Nous ne vendons jamais vos données.",
     ] },
     { h: "4. Durée de conservation", p: [
@@ -75,36 +75,36 @@ const fr: Docs = {
       "Vérifiez le colis devant le livreur quand c'est possible. Si le colis est ouvert, abîmé ou ne correspond pas, vous pouvez le refuser : vous ne payez rien.",
     ] },
     { h: "2. Produit non conforme ou défectueux", p: [
-      "Signalez le problème dans les 4 jours ouvrables suivant la réception, avec des photos, via la vendeuse (téléphone ou WhatsApp) ou le contact Bledify.",
-      "La vendeuse propose, au choix du client : un échange, une réparation ou un remboursement. Les frais de retour d'un produit non conforme sont à la charge de la vendeuse. Le remboursement intervient au plus tard 15 jours après la réception du retour.",
+      "Signalez le problème dans les 4 jours ouvrables suivant la réception, avec des photos, via la boutique (téléphone ou WhatsApp) ou le contact Bledify.",
+      "La boutique propose, au choix de l'acheteur : un échange, une réparation ou un remboursement. Les frais de retour d'un produit non conforme sont à la charge de la boutique. Le remboursement intervient au plus tard 15 jours après la réception du retour.",
     ] },
     { h: "3. Produits alimentaires et sur mesure", p: [
       "Les gâteaux, plats cuisinés et produits frais ne sont ni repris ni échangés, sauf s'ils sont arrivés abîmés ou non conformes (signalement le jour de la réception, avec photos).",
       "Les créations faites sur mesure (taille, prénom, couleur demandés) ne sont reprises qu'en cas de défaut ou de non-conformité à la demande.",
     ] },
     { h: "4. Changement d'avis", p: [
-      "Pour les autres produits, la vendeuse peut accepter un retour par simple changement d'avis ; ses conditions sont alors indiquées sur sa boutique. Le produit doit être intact et les frais de retour sont à la charge du client.",
+      "Pour les autres produits, la boutique peut accepter un retour par simple changement d'avis ; ses conditions sont alors indiquées sur sa page. Le produit doit être intact et les frais de retour sont à la charge de l'acheteur.",
     ] },
-    { h: "5. Si la vendeuse ne répond pas", p: [
-      "Sans solution sous 3 jours, contactez Bledify avec votre numéro de commande. Nous contactons la vendeuse et pouvons suspendre une boutique qui ne respecte pas ces règles.",
+    { h: "5. Si la boutique ne répond pas", p: [
+      "Sans solution sous 3 jours, contactez Bledify avec votre numéro de commande. Nous contactons la boutique et pouvons la suspendre si elle ne respecte pas ces règles.",
     ] },
   ],
   sellers: [
     { h: "1. Qui peut vendre", p: [
-      "Toute personne qui fabrique elle-même ses produits en Algérie, à la maison ou en petit atelier. La vendeuse s'engage à disposer du statut requis pour son activité (artisan, auto-entrepreneur ou registre du commerce), à vérifier avec Bledify.",
+      "Toute personne qui fabrique elle-même ses produits en Algérie, à la maison ou en petit atelier. La personne qui tient la boutique s'engage à disposer du statut requis pour son activité (artisan, auto-entrepreneur ou registre du commerce), à vérifier avec Bledify.",
     ] },
     { h: "2. Annonces", p: [
       "Photos réelles de ses propres produits, description et prix exacts, ingrédients ou matières principales, et allergènes pour l'alimentaire. Uniquement des produits faits main en Algérie : pas d'importation, pas de revente.",
     ] },
     { h: "3. Commandes", p: [
-      "Appeler le client pour confirmer dans les 24 heures, préparer et expédier dans le délai annoncé, et mettre à jour le statut de la commande (confirmée, expédiée, livrée).",
-      "Les prix de livraison par zone affichés dans la boutique sont ceux facturés au client.",
+      "Appeler l'acheteur pour confirmer dans les 24 heures, préparer et expédier dans le délai annoncé, et mettre à jour le statut de la commande (confirmée, expédiée, livrée).",
+      "Les prix de livraison par zone affichés dans la boutique sont ceux facturés à l'acheteur.",
     ] },
     { h: "4. Qualité et hygiène", p: [
       "Pour l'alimentaire : préparation dans des conditions d'hygiène correctes, emballage propre et fermé, date de fabrication indiquée. Pour les autres produits : finitions conformes aux photos.",
     ] },
     { h: "5. Retours et avis", p: [
-      "La vendeuse applique la politique de retours Bledify. Elle ne peut ni modifier ni supprimer les avis ; elle peut signaler un avis abusif à Bledify.",
+      "La boutique applique la politique de retours Bledify. Elle ne peut ni modifier ni supprimer les avis ; elle peut signaler un avis abusif à Bledify.",
     ] },
     { h: "6. Badge « Boutique vérifiée »", p: [
       "Attribué par l'équipe Bledify après un appel, la vérification de l'identité et la preuve que les produits sont faits maison (photos ou vidéo de fabrication). Il peut être retiré en cas de manquement.",
@@ -115,19 +115,19 @@ const fr: Docs = {
   ],
   delivery: [
     { h: "1. Prix de livraison", p: [
-      "Chaque vendeuse fixe ses prix par zone : sa propre wilaya, le Nord, les Hauts-Plateaux, le Sud et le Grand Sud. Le prix correspondant à votre wilaya (domicile ou point relais) s'affiche avant la commande et ne peut pas être changé ensuite.",
+      "Chaque boutique fixe ses prix par zone : sa propre wilaya, le Nord, les Hauts-Plateaux, le Sud et le Grand Sud. Le prix correspondant à votre wilaya (domicile ou point relais) s'affiche avant la commande et ne peut pas être changé ensuite.",
     ] },
     { h: "2. Délais", p: [
-      "Le délai indiqué (par exemple 2–4 jours) commence après la confirmation téléphonique. Les produits faits sur commande peuvent demander un temps de fabrication, annoncé par la vendeuse au moment de la confirmation.",
+      "Le délai indiqué (par exemple 2–4 jours) commence après la confirmation téléphonique. Les produits faits sur commande peuvent demander un temps de fabrication, annoncé par la boutique au moment de la confirmation.",
     ] },
     { h: "3. Suivi", p: [
       "Le numéro de suivi du transporteur apparaît dans « Mes commandes » dès l'expédition. Vous pouvez aussi suivre une commande avec son numéro et votre téléphone.",
     ] },
     { h: "4. Colis perdu ou en retard", p: [
-      "Au-delà de 7 jours après le délai annoncé, contactez la vendeuse puis Bledify. La vendeuse se charge de la réclamation auprès du transporteur ; si le colis est perdu, vous ne payez rien.",
+      "Au-delà de 7 jours après le délai annoncé, contactez la boutique puis Bledify. La boutique se charge de la réclamation auprès du transporteur ; si le colis est perdu, vous ne payez rien.",
     ] },
     { h: "5. Litiges", p: [
-      "1) Contactez la vendeuse. 2) Sans réponse sous 3 jours, écrivez à Bledify avec votre numéro de commande et des photos. 3) Bledify propose une solution sous 7 jours. Si le désaccord persiste, vous gardez la possibilité de saisir les services de la protection du consommateur ou le tribunal compétent.",
+      "1) Contactez la boutique. 2) Sans réponse sous 3 jours, écrivez à Bledify avec votre numéro de commande et des photos. 3) Bledify propose une solution sous 7 jours. Si le désaccord persiste, vous gardez la possibilité de saisir les services de la protection du consommateur ou le tribunal compétent.",
     ] },
   ],
 };
@@ -135,12 +135,12 @@ const fr: Docs = {
 const ar: Docs = {
   terms: [
     { h: "1. من نحن؟", p: [
-      `Bledify منصة تربط الزبائن ببائعات وحرفيين يصنعون منتجاتهم في البيت في الجزائر. تسيّرها ${OPERATOR.name}، ${OPERATOR.address}، ${OPERATOR.register}. للتواصل: ${OPERATOR.email}.`,
-      "Bledify لا تشتري ولا تعيد بيع المنتجات: كل عملية بيع تتم مباشرة بين الزبون والبائعة.",
+      `Bledify منصة تربط المشترين بمتاجر منتجاتها مصنوعة في البيت أو في ورشات صغيرة في الجزائر. تسيّرها ${OPERATOR.name}، ${OPERATOR.address}، ${OPERATOR.register}. للتواصل: ${OPERATOR.email}.`,
+      "Bledify لا تشتري ولا تعيد بيع المنتجات: كل عملية بيع تتم مباشرة بين المشتري والمتجر.",
     ] },
     { h: "2. الحساب", p: [
       "التصفح حر. للطلب يجب إنشاء حساب ببريد إلكتروني صحيح وإعطاء معلومات صحيحة (الاسم، الهاتف، الولاية).",
-      "أنت مسؤول عن كلمة السر. الحساب الذي يُستعمل في طلبات وهمية أو مسيئة قد يُوقف.",
+      "حماية كلمة السر مسؤولية صاحب الحساب. الحساب الذي يُستعمل في طلبات وهمية أو مسيئة قد يُوقف.",
     ] },
     { h: "3. المنتجات المقبولة", p: [
       "تُقبل فقط المنتجات المصنوعة يدويًا في الجزائر: الحلويات، الأكل، الخياطة، الحرف، الديكور، منتجات الأرض، ولوازم الأعراس والمناسبات.",
@@ -148,7 +148,7 @@ const ar: Docs = {
     ] },
     { h: "4. الطلب", p: [
       "سعر المنتوج وسعر التوصيل لولايتك يظهران قبل تأكيد الطلب. السعر المسجّل هو السعر الموجود في Bledify لحظة الطلب.",
-      "بعد الطلب تتصل بك البائعة لتأكيده. الطلبية غير المؤكدة قد تُلغى، ولا تصبح نهائية إلا بعد هذا التأكيد.",
+      "بعد الطلب يتصل بك المتجر لتأكيده. الطلبية غير المؤكدة قد تُلغى، ولا تصبح نهائية إلا بعد هذا التأكيد.",
     ] },
     { h: "5. الدفع", p: [
       "الدفع نقدًا عند الاستلام فقط (لعامل التوصيل أو في نقطة الاستلام). Bledify لا تطلب أبدًا دفعًا مسبقًا ولا معلومات بنكية.",
@@ -157,7 +157,7 @@ const ar: Docs = {
       "فقط الزبون الذي استلم طلبيته يمكنه التقييم. يجب أن يكون الرأي صادقًا ومحترمًا ويخص المنتوج المستلم. يمكن لـ Bledify إخفاء تقييم مسيء أو خارج الموضوع أو يحتوي معطيات شخصية.",
     ] },
     { h: "7. المسؤوليات", p: [
-      "البائعة مسؤولة عن منتجاتها (الجودة، النظافة، المطابقة للوصف). Bledify توفر الأداة، وتتحقق من المتاجر «الموثّقة»، وتساعد في حل النزاعات.",
+      "المتجر مسؤول عن منتجاته (الجودة، النظافة، المطابقة للوصف). Bledify توفر الأداة، وتتحقق من المتاجر «الموثّقة»، وتساعد في حل النزاعات.",
     ] },
     { h: "8. القانون المطبّق", p: [
       "تخضع هذه الشروط للقانون الجزائري، خاصة القانون رقم 18-05 المتعلق بالتجارة الإلكترونية والقانون رقم 09-03 المتعلق بحماية المستهلك. في حالة نزاع، يُبحث أولًا عن حل ودي.",
@@ -165,14 +165,14 @@ const ar: Docs = {
   ],
   privacy: [
     { h: "1. المعطيات التي نجمعها", p: [
-      "الحساب: الاسم، البريد، كلمة السر (مشفّرة). الطلب: الاسم، الهاتف، الولاية، البلدية، العنوان، المنتجات. البائعات: معلومات المتجر وصور المنتجات.",
+      "الحساب: الاسم، البريد، كلمة السر (مشفّرة). الطلب: الاسم، الهاتف، الولاية، البلدية، العنوان، المنتجات. المتاجر: معلومات المتجر وصور المنتجات.",
       "لا نجمع أي معطيات بنكية.",
     ] },
     { h: "2. لماذا", p: [
       "لمعالجة الطلبيات (التأكيد بالهاتف، التوصيل)، ومحاربة الطلبات الوهمية، وعرض التقييمات، وتحسين الخدمة.",
     ] },
     { h: "3. من يرى معطياتك", p: [
-      "البائعة التي تطلبين منها ترى اسمك وهاتفك وعنوان التوصيل، لهذه الطلبية فقط. شركة التوصيل تستلم ما يلزم للتوصيل.",
+      "المتجر الذي يُطلب منه يرى الاسم والهاتف وعنوان التوصيل، لهذه الطلبية فقط. شركة التوصيل تستلم ما يلزم للتوصيل.",
       "في التقييم يظهر الاسم الأول والحرف الأول من اللقب فقط. لا نبيع معطياتك أبدًا.",
     ] },
     { h: "4. مدة الحفظ", p: [
@@ -187,39 +187,39 @@ const ar: Docs = {
   ],
   returns: [
     { h: "1. عند الاستلام", p: [
-      "تفقّدي الطرد أمام عامل التوصيل إن أمكن. إذا كان مفتوحًا أو متضررًا أو غير مطابق، يمكنك رفضه ولا تدفعين شيئًا.",
+      "يُستحسن تفقّد الطرد أمام عامل التوصيل إن أمكن. الطرد المفتوح أو المتضرر أو غير المطابق يمكن رفضه دون دفع أي شيء.",
     ] },
     { h: "2. منتوج غير مطابق أو معيب", p: [
-      "أبلغي عن المشكل خلال 4 أيام عمل من الاستلام، مع صور، عبر البائعة (هاتف أو واتساب) أو عبر Bledify.",
-      "تقترح البائعة، حسب اختيار الزبون: استبدالًا أو تصليحًا أو استرجاع المبلغ. مصاريف إرجاع المنتوج غير المطابق على البائعة. يُسترجع المبلغ في أجل أقصاه 15 يومًا من استلام المنتوج المُرجع.",
+      "يجب الإبلاغ عن المشكل خلال 4 أيام عمل من الاستلام، مع صور، عبر المتجر (هاتف أو واتساب) أو عبر Bledify.",
+      "يقترح المتجر، حسب اختيار المشتري: استبدالًا أو تصليحًا أو استرجاع المبلغ. مصاريف إرجاع المنتوج غير المطابق على المتجر. يُسترجع المبلغ في أجل أقصاه 15 يومًا من استلام المنتوج المُرجع.",
     ] },
     { h: "3. المأكولات والمنتجات حسب الطلب", p: [
       "الحلويات والأطباق والمنتجات الطازجة لا تُرجع ولا تُستبدل، إلا إذا وصلت متضررة أو غير مطابقة (الإبلاغ يوم الاستلام مع صور).",
       "المنتجات المصنوعة حسب الطلب (مقاس، اسم، لون) لا تُرجع إلا في حالة عيب أو عدم مطابقة للطلب.",
     ] },
     { h: "4. تغيير الرأي", p: [
-      "بالنسبة للمنتجات الأخرى، يمكن للبائعة قبول الإرجاع بسبب تغيير الرأي، وتذكر شروطها في متجرها. يجب أن يكون المنتوج سليمًا ومصاريف الإرجاع على الزبون.",
+      "بالنسبة للمنتجات الأخرى، يمكن للمتجر قبول الإرجاع بسبب تغيير الرأي، ويذكر شروطه في صفحته. يجب أن يكون المنتوج سليمًا ومصاريف الإرجاع على المشتري.",
     ] },
-    { h: "5. إذا لم ترد البائعة", p: [
-      "إذا لم يُحل المشكل خلال 3 أيام، اتصلي بـ Bledify مع رقم الطلبية. نتصل بالبائعة ويمكننا توقيف متجر لا يحترم هذه القواعد.",
+    { h: "5. إذا لم يرد المتجر", p: [
+      "إذا لم يُحل المشكل خلال 3 أيام، يمكن التواصل مع Bledify مع رقم الطلبية. نتصل بالمتجر ويمكننا توقيفه إذا لم يحترم هذه القواعد.",
     ] },
   ],
   sellers: [
     { h: "1. من يمكنه البيع", p: [
-      "كل شخص يصنع منتجاته بنفسه في الجزائر، في البيت أو في ورشة صغيرة. تلتزم البائعة بأن يكون لها الوضع القانوني المطلوب لنشاطها (حرفية، مقاول ذاتي أو سجل تجاري)، يُراجع مع Bledify.",
+      "كل شخص يصنع منتجاته بنفسه في الجزائر، في البيت أو في ورشة صغيرة. يلتزم المتجر بأن يكون للنشاط الوضع القانوني المطلوب (بطاقة الحرف، وضع المقاول الذاتي أو السجل التجاري)، يُراجع مع Bledify.",
     ] },
     { h: "2. الإعلانات", p: [
-      "صور حقيقية لمنتجاتها، وصف وسعر صحيحان، المكونات أو المواد الأساسية، ومسببات الحساسية بالنسبة للأكل. منتجات مصنوعة يدويًا في الجزائر فقط: لا استيراد ولا إعادة بيع.",
+      "صور حقيقية لمنتجات المتجر نفسه، وصف وسعر صحيحان، المكونات أو المواد الأساسية، ومسببات الحساسية بالنسبة للأكل. منتجات مصنوعة يدويًا في الجزائر فقط: لا استيراد ولا إعادة بيع.",
     ] },
     { h: "3. الطلبيات", p: [
-      "الاتصال بالزبون للتأكيد خلال 24 ساعة، التحضير والإرسال في المدة المعلنة، وتحديث حالة الطلبية (مؤكدة، مُرسلة، مُسلّمة).",
-      "أسعار التوصيل حسب المنطقة المعروضة في المتجر هي التي يدفعها الزبون.",
+      "الاتصال بالمشتري للتأكيد خلال 24 ساعة، التحضير والإرسال في المدة المعلنة، وتحديث حالة الطلبية (مؤكدة، مُرسلة، مُسلّمة).",
+      "أسعار التوصيل حسب المنطقة المعروضة في المتجر هي التي يدفعها المشتري.",
     ] },
     { h: "4. الجودة والنظافة", p: [
       "للأكل: تحضير في ظروف نظافة سليمة، تغليف نظيف ومغلق، وذكر تاريخ الصنع. للمنتجات الأخرى: تشطيب مطابق للصور.",
     ] },
     { h: "5. الإرجاع والتقييمات", p: [
-      "تطبق البائعة سياسة الإرجاع الخاصة بـ Bledify. لا يمكنها تعديل أو حذف التقييمات، ويمكنها التبليغ عن تقييم مسيء.",
+      "يطبق المتجر سياسة الإرجاع الخاصة بـ Bledify. لا يمكنه تعديل أو حذف التقييمات، ويمكنه التبليغ عن تقييم مسيء.",
     ] },
     { h: "6. شارة «متجر موثّق»", p: [
       "يمنحها فريق Bledify بعد مكالمة، والتحقق من الهوية، وإثبات أن المنتجات مصنوعة في البيت (صور أو فيديو للصنع). يمكن سحبها في حالة الإخلال.",
@@ -230,19 +230,19 @@ const ar: Docs = {
   ],
   delivery: [
     { h: "1. سعر التوصيل", p: [
-      "كل بائعة تحدد أسعارها حسب المنطقة: ولايتها، الشمال، الهضاب العليا، الجنوب والجنوب الكبير. السعر الخاص بولايتك (إلى المنزل أو نقطة الاستلام) يظهر قبل الطلب ولا يتغير بعده.",
+      "كل متجر يحدد أسعاره حسب المنطقة: ولايته، الشمال، الهضاب العليا، الجنوب والجنوب الكبير. السعر الخاص بولاية التوصيل (إلى المنزل أو نقطة الاستلام) يظهر قبل الطلب ولا يتغير بعده.",
     ] },
     { h: "2. المدة", p: [
-      "المدة المعلنة (مثلًا 2–4 أيام) تبدأ بعد التأكيد بالهاتف. المنتجات المصنوعة حسب الطلب قد تحتاج وقتًا للصنع تعلنه البائعة عند التأكيد.",
+      "المدة المعلنة (مثلًا 2–4 أيام) تبدأ بعد التأكيد بالهاتف. المنتجات المصنوعة حسب الطلب قد تحتاج وقتًا للصنع يعلنه المتجر عند التأكيد.",
     ] },
     { h: "3. التتبع", p: [
       "رقم تتبع شركة التوصيل يظهر في «طلبياتي» بمجرد الإرسال. يمكنك أيضًا تتبع الطلبية برقمها ورقم هاتفك.",
     ] },
     { h: "4. طرد ضائع أو متأخر", p: [
-      "بعد 7 أيام من انتهاء المدة المعلنة، اتصلي بالبائعة ثم بـ Bledify. البائعة تتكفل بالشكوى لدى شركة التوصيل، وإذا ضاع الطرد لا تدفعين شيئًا.",
+      "بعد 7 أيام من انتهاء المدة المعلنة، يجب الاتصال بالمتجر ثم بـ Bledify. المتجر يتكفل بالشكوى لدى شركة التوصيل، وإذا ضاع الطرد لا يُدفع أي شيء.",
     ] },
     { h: "5. النزاعات", p: [
-      "1) اتصلي بالبائعة. 2) إذا لم ترد خلال 3 أيام، راسلي Bledify برقم الطلبية وصور. 3) تقترح Bledify حلًا خلال 7 أيام. إذا استمر الخلاف، يبقى لك حق اللجوء إلى مصالح حماية المستهلك أو المحكمة المختصة.",
+      "1) التواصل مع المتجر. 2) إذا لم يرد خلال 3 أيام، مراسلة Bledify برقم الطلبية وصور. 3) تقترح Bledify حلًا خلال 7 أيام. إذا استمر الخلاف، يبقى حق اللجوء قائمًا إلى مصالح حماية المستهلك أو المحكمة المختصة.",
     ] },
   ],
 };

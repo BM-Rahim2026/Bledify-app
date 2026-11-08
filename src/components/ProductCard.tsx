@@ -28,7 +28,7 @@ export function ProductCard({ p, priority = false }: { p: ProductCardData; prior
       <div className="flex flex-1 flex-col p-2.5">
         <Link href={`/p/${p.id}`} className="line-clamp-2 text-sm font-semibold leading-snug text-ink">{p.name}</Link>
         <p className="mt-1 text-base font-bold text-brand">{formatDZD(p.price_dzd)}</p>
-        {p.review_count ? <RatingSummary rating={p.rating} count={p.review_count} /> : null}
+        {p.review_count ? <RatingSummary rating={p.rating} count={p.review_count} compact /> : null}
         <p className="mt-0.5 flex items-center gap-1 text-xs text-muted"><span className="truncate">{t("by_maker", { name: p.shop_name })}</span>{p.shop_verified ? <VerifiedBadge compact /> : null}</p>
         <p className="mb-2 flex items-center gap-1 truncate text-xs text-muted"><Icon name="map" className="h-3.5 w-3.5 shrink-0 text-gold" />{wilaya}</p>
         <button

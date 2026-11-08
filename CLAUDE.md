@@ -1,6 +1,6 @@
 # Bledify
 
-Marketplace for Algerian home-based makers (mostly women working from home):
+Marketplace for Algerian home-based makers (women and men, at home or in a small workshop):
 traditional cakes, home cooking, couture, crafts, natural beauty, terroir.
 Handmade in Algeria only — no electronics or imported goods. Buyers browse
 freely; an account is required to order (cash on delivery). Sellers get a shop
@@ -29,6 +29,9 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   only through `/api/orders` → `place_order` (service role); prices come from the DB.
 - All UI text through `useI18n().t` / `src/lib/i18n/dict.ts` (fr + ar, same keys).
   Use logical CSS (`ms-`, `ps-`, `text-start`) so Arabic flips. Money via `formatDZD`.
+- Wording is gender-neutral (sellers and buyers are women and men). Arabic: no feminine/masculine
+  verb forms aimed at the user — use verbal nouns (إضافة، اكتشاف), "يمكن/يجب…", or the shop as subject
+  (المتجر). French: "la boutique" rather than "la vendeuse".
 
 ## Marketplace
 - Categories (fixed list, `src/lib/categories.ts` + SQL check, since 0006): food, fashion,

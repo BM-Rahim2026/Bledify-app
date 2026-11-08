@@ -24,15 +24,15 @@ export function Stars({ value, className = "h-4 w-4" }: { value: number; classNa
 }
 
 /** "★ 4.8 (12 avis)" — nothing when there are no reviews yet. */
-export function RatingSummary({ rating, count, size = "sm" }: { rating?: number | string | null; count?: number | null; size?: "sm" | "md" }) {
+export function RatingSummary({ rating, count, size = "sm", compact = false }: { rating?: number | string | null; count?: number | null; size?: "sm" | "md"; compact?: boolean }) {
   const { t } = useI18n();
   if (!count || rating == null) return null;
   const r = Number(rating);
   return (
-    <span className={`inline-flex items-center gap-1.5 ${size === "md" ? "text-sm" : "text-xs"}`}>
-      <Stars value={r} className={size === "md" ? "h-4 w-4" : "h-3.5 w-3.5"} />
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap ${size === "md" ? "text-sm" : "text-xs"}`}>
+      {compact ? <Icon name="star" className="h-3.5 w-3.5 text-gold" fill="currentColor" strokeWidth={0} /> : <Stars value={r} className={size === "md" ? "h-4 w-4" : "h-3.5 w-3.5"} />}
       <b className="text-ink">{r.toFixed(1).replace(/\.0$/, "")}</b>
-      <span className="text-muted">({t("reviews_count", { n: count })})</span>
+      <span className="text-muted">({compact ? count : t("reviews_count", { n: count })})</span>
     </span>
   );
 }

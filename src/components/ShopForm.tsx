@@ -10,7 +10,7 @@ import { ZoneEditor } from "@/components/ZoneEditor";
 import { Icon } from "@/components/Icon";
 import { defaultZones, ZONES, type DeliveryZones, type ZoneRate } from "@/lib/delivery";
 
-type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url" | "verified">;
+type Draft = Omit<Shop, "id" | "owner_id" | "created_at" | "logo" | "logo_url" | "verified" | "status" | "review_note">;
 
 export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
   shop?: Shop; ownerId: string; defaultEmail?: string; onSaved: () => Promise<void> | void;
@@ -21,6 +21,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
     phone: shop?.phone ?? "", whatsapp: shop?.whatsapp ?? "", wilaya: shop?.wilaya ?? "",
     delivery_home_dzd: shop?.delivery_home_dzd ?? 600, delivery_desk_dzd: shop?.delivery_desk_dzd ?? 400,
     notify_email: shop?.notify_email ?? defaultEmail ?? "", notify_new_orders: shop?.notify_new_orders ?? true,
+    application_note: shop?.application_note ?? "",
     delivery_zones: shop?.delivery_zones ?? defaultZones(shop?.delivery_home_dzd ?? 600, shop?.delivery_desk_dzd ?? 400),
   });
   const [slugTouched, setSlugTouched] = useState(Boolean(shop));
@@ -61,6 +62,11 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
         <Input required pattern="[a-z0-9][a-z0-9\-]{1,38}[a-z0-9]" dir="ltr" value={d.slug}
           onChange={(e) => { setSlugTouched(true); set("slug", e.target.value.toLowerCase()); }} />
       </Field>
+      {!shop || shop.status !== "approved" ? (
+        <Field label={t("application_label")} hint={t("application_hint")}>
+          <Textarea required minLength={20} maxLength={1000} rows={4} value={d.application_note ?? ""} onChange={(e) => set("application_note", e.target.value)} />
+        </Field>
+      ) : null}
       <Field label={t("shop_description")}>
         <Textarea rows={2} value={d.description} onChange={(e) => set("description", e.target.value)} />
       </Field>
@@ -84,7 +90,7 @@ export function ShopForm({ shop, ownerId, defaultEmail, onSaved }: {
         {t("notify_new_orders")}
       </label>
       {msg ? <p className={`text-sm ${msg.ok ? "text-ok" : "text-danger"}`} role="status">{msg.text}</p> : null}
-      <Button type="submit" disabled={busy} className="w-full">{shop ? t("save") : t("create")}</Button>
+      <Button type="submit" disabled={busy} className="w-full">{!shop ? t("application_send") : shop.status === "rejected" ? t("application_resend") : t("save")}</Button>
     </form>
   );
 }

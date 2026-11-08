@@ -13,6 +13,7 @@ import type { DictKey } from "@/lib/i18n/dict";
 
 type Shop = {
   id: string; name: string; slug: string; description: string; wilaya: string; phone: string; whatsapp: string;
+  status: "pending" | "approved" | "rejected"; application_note: string; review_note: string;
   verified: boolean; verified_at: string | null; suspended: boolean; suspended_reason: string; is_demo: boolean;
   commission_pct: number | null; commission_effective: number; created_at: string; email: string; owner_name: string | null;
   logo?: LogoConfig; logo_url?: string; category?: string | null;
@@ -26,6 +27,7 @@ export default function AdminShop() {
   const { t, lang, formatDZD } = useI18n();
   const { data: s, reload } = useAdminRpc<Shop>("admin_shop", { p_shop: id });
   const [reason, setReason] = useState("");
+  const [reviewNote, setReviewNote] = useState("");
   const [commission, setCommission] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<boolean | null>(null);
@@ -48,6 +50,7 @@ export default function AdminShop() {
           <h1 className="flex flex-wrap items-center gap-2 font-display text-2xl">{s.name}{s.verified ? <VerifiedBadge /> : null}</h1>
           <p className="text-sm text-muted">{wilayaLabel(s.wilaya, lang).replace(/^\d+ - /, "") || "—"} · {t("adm_joined", { date: formatDate(s.created_at, lang) })}</p>
           <div className="mt-1 flex flex-wrap gap-1.5">
+            {s.status === "pending" ? <Pill tone="warn">{t("adm_status_pending")}</Pill> : s.status === "rejected" ? <Pill tone="danger">{t("adm_status_rejected")}</Pill> : null}
             {s.suspended ? <Pill tone="danger">{t("adm_suspended_badge")}{s.suspended_reason ? ` · ${s.suspended_reason}` : ""}</Pill> : null}
             {s.is_demo ? <Pill>{t("adm_demo_badge")}</Pill> : null}
             <RatingSummary rating={s.rating} count={s.review_count} />
@@ -59,6 +62,20 @@ export default function AdminShop() {
         <Link href={`/admin/products?q=${encodeURIComponent(s.name)}`}>{t("adm_see_products")}</Link>
         <Link href={`/admin/orders?q=${encodeURIComponent(s.name)}`}>{t("adm_see_orders")}</Link>
       </div>
+
+      {s.status !== "approved" ? (
+        <Card className="space-y-3 border-gold/50 bg-gold-soft/40">
+          <h2 className="font-semibold">{t("adm_application")}</h2>
+          <p className="whitespace-pre-line text-sm" dir="auto">{s.application_note || "—"}</p>
+          {s.description ? <p className="text-sm text-muted" dir="auto">{s.description}</p> : null}
+          {s.review_note ? <p className="text-xs text-danger" dir="auto">{s.review_note}</p> : null}
+          <Input placeholder={t("adm_review_note")} value={reviewNote} maxLength={300} onChange={(e) => setReviewNote(e.target.value)} />
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" disabled={busy} onClick={() => patch({ status: "approved", review_note: reviewNote })}>{t("adm_approve_shop")}</Button>
+            <Button size="sm" variant="danger" disabled={busy || s.status === "rejected"} onClick={() => patch({ status: "rejected", review_note: reviewNote })}>{t("adm_reject_shop")}</Button>
+          </div>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t("adm_nav_products")} value={s.products} sub={s.products_blocked ? t("adm_products_blocked_n", { n: s.products_blocked }) : undefined} />

@@ -67,6 +67,14 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   sellers `*@demo.bledify.app`, `shops.is_demo = true`, photos on cdn.openart.ai.
   Remove before launch: `delete from auth.users where email like '%@demo.bledify.app';`
 
+## Seller access (0019)
+- Everyone registers as a buyer. Selling = applying: creating a shop (the `/seller` onboarding form, also
+  reached from "Devenir vendeur" in `/account` or the direct link `/signup?role=seller`) makes
+  `shops.status = 'pending'` with `application_note`. The team approves / refuses in `/admin/shops`
+  (`admin_update_shop` with `status`, `review_note`). Until approved, `get_public_shop` returns nothing and the
+  shop's products stay inactive (trigger `products_moderation`); the applicant can already prepare products.
+  A refused applicant who edits `application_note` goes back to 'pending'.
+
 ## Admin console (`/admin`, 0016–0018)
 - Sections: dashboard, shops (verify, suspend, commission, private contact + payout account), products
   (block / unblock), orders (detail, refunds), payments (refunds due, record payouts), reviews (hide),

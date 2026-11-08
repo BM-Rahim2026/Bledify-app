@@ -14,6 +14,7 @@ export type Shop = {
   verified: boolean; delivery_zones: DeliveryZones | null;
   payout_method?: string; payout_account?: string; payout_holder?: string;
   suspended?: boolean; suspended_reason?: string;
+  status?: "pending" | "approved" | "rejected"; application_note?: string; review_note?: string;
 };
 
 type Ctx = { user: User; shop: Shop | null; reloadShop: () => Promise<void> };

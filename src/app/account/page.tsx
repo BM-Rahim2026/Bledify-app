@@ -38,7 +38,8 @@ export default function Account() {
           <Link href="/favorites" className="flex items-center gap-2 rounded-2xl border border-line bg-surface p-4 font-semibold"><Icon name="heart" className="h-5 w-5 text-rose-600" />{t("favorites")}</Link>
           <Link href="/confiance" className="col-span-2 flex items-center gap-2 rounded-2xl border border-line bg-surface p-4 font-semibold"><Icon name="shield" className="h-5 w-5 text-brand" />{t("trust_title")}</Link>
           <Link href="/seller" className="col-span-2 rounded-2xl border border-line bg-surface p-4 font-semibold">
-            <span className="flex items-center gap-2"><Icon name="store" className="h-5 w-5 text-brand" />{hasShop ? t("my_shop") : t("sell_cta")}</span>
+            <span className="flex items-center gap-2"><Icon name="store" className="h-5 w-5 text-brand" />{hasShop ? t("my_shop") : t("become_seller")}</span>
+            {hasShop ? null : <span className="mt-1 block text-sm font-normal text-muted">{t("become_seller_sub")}</span>}
           </Link>
         </div>
 

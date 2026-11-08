@@ -11,7 +11,7 @@ type Dash = {
   orders_today: number; orders_7d: number; orders_30d: number; gmv_30d: number; commission_30d: number;
   by_status_30d: Record<string, number>; shops_total: number; shops_verified: number; shops_suspended: number; shops_new_7d: number;
   products_active: number; products_blocked: number; customers: number; users: number;
-  pending_offers: number; refunds_due: number; payouts_due: number; unverified_shops: number; reviews_7d: number;
+  pending_offers: number; refunds_due: number; applications: number; payouts_due: number; unverified_shops: number; reviews_7d: number;
 };
 
 /** Marketplace at a glance, and what the team has to deal with. */
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   if (!d) return <div className="py-16 text-center"><Spinner /></div>;
 
   const todo = [
+    d.applications ? { href: "/admin/shops?f=pending", icon: "store", text: d.applications === 1 ? t("adm_todo_applications_one") : t("adm_todo_applications", { n: d.applications }) } : null,
     d.pending_offers ? { href: "/admin/offers", icon: "gift", text: d.pending_offers === 1 ? t("adm_todo_offers_one") : t("adm_todo_offers", { n: d.pending_offers }) } : null,
     d.refunds_due ? { href: "/admin/payments", icon: "cash", text: d.refunds_due === 1 ? t("adm_todo_refunds_one") : t("adm_todo_refunds", { n: d.refunds_due }) } : null,
     d.payouts_due ? { href: "/admin/payments", icon: "truck", text: t("adm_todo_payouts", { amount: formatDZD(d.payouts_due) }) } : null,

@@ -34,6 +34,13 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader title={shop.name} />
+      {shop.status === "pending" ? (
+        <p className="mx-4 mt-3 rounded-xl border border-gold/50 bg-gold-soft/60 p-3 text-sm" role="status">{t("application_pending")}</p>
+      ) : shop.status === "rejected" ? (
+        <p className="mx-4 mt-3 rounded-xl border border-danger/30 bg-rose-50 p-3 text-sm text-danger" role="alert">
+          {t("application_rejected")}{shop.review_note ? ` « ${shop.review_note} »` : ""} {t("application_rejected_how")}
+        </p>
+      ) : null}
       {shop.suspended ? (
         <p className="mx-4 mt-3 rounded-xl border border-danger/30 bg-rose-50 p-3 text-sm text-danger" role="alert">
           {t("seller_suspended")}{shop.suspended_reason ? ` (${shop.suspended_reason})` : ""}

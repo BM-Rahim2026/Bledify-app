@@ -11,10 +11,10 @@ import { Chips, Empty, Pill, SearchInput, useAdminRpc } from "@/components/admin
 
 type Row = {
   id: string; name: string; slug: string; wilaya: string; verified: boolean; suspended: boolean; is_demo: boolean;
-  created_at: string; email: string; phone: string; logo?: LogoConfig; logo_url?: string; category?: string | null;
+  status: "pending" | "approved" | "rejected"; created_at: string; email: string; phone: string; logo?: LogoConfig; logo_url?: string; category?: string | null;
   products: number; orders: number; delivered: number;
 };
-type F = "" | "unverified" | "verified" | "suspended" | "demo";
+type F = "" | "pending" | "rejected" | "unverified" | "verified" | "suspended" | "demo";
 
 export default function AdminShops() {
   const { t, lang } = useI18n();
@@ -27,7 +27,7 @@ export default function AdminShops() {
     <div className="space-y-3">
       <SearchInput onSearch={setQ} />
       <Chips value={f} onChange={setF} options={[
-        { key: "", label: t("all") }, { key: "unverified", label: t("adm_f_unverified") }, { key: "verified", label: t("adm_f_verified") },
+        { key: "", label: t("all") }, { key: "pending", label: t("adm_f_pending") }, { key: "rejected", label: t("adm_f_rejected") }, { key: "unverified", label: t("adm_f_unverified") }, { key: "verified", label: t("adm_f_verified") },
         { key: "suspended", label: t("adm_f_suspended") }, { key: "demo", label: t("adm_f_demo") }]} />
       {!data ? <div className="py-16 text-center"><Spinner /></div> : data.length === 0 ? <Empty /> : (
         <ul className="space-y-2">
@@ -38,6 +38,7 @@ export default function AdminShops() {
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-1.5 font-semibold">
                     <span className="truncate">{s.name}</span>{s.verified ? <VerifiedBadge compact /> : null}
+                    {s.status === "pending" ? <Pill tone="warn">{t("adm_status_pending")}</Pill> : s.status === "rejected" ? <Pill tone="danger">{t("adm_status_rejected")}</Pill> : null}
                     {s.suspended ? <Pill tone="danger">{t("adm_suspended_badge")}</Pill> : null}
                     {s.is_demo ? <Pill>{t("adm_demo_badge")}</Pill> : null}
                   </span>

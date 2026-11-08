@@ -53,8 +53,8 @@ before(async () => {
   await db.query("truncate public.orders, public.products, public.shops, public.order_attempts, auth.users cascade");
   await db.query("insert into auth.users (id, email) values ($1,'a@test.dz'),($2,'b@test.dz')", [A, B]);
   [{ id: shopA }] = await q(
-    "insert into public.shops (owner_id,name,slug,delivery_home_dzd,delivery_desk_dzd) values ($1,'TEST Shop','shop-a',600,400) returning id", [A]);
-  [{ id: shopB }] = await q("insert into public.shops (owner_id,name,slug) values ($1,'Other','shop-b') returning id", [B]);
+    "insert into public.shops (owner_id,name,slug,delivery_home_dzd,delivery_desk_dzd,status) values ($1,'TEST Shop','shop-a',600,400,'approved') returning id", [A]);
+  [{ id: shopB }] = await q("insert into public.shops (owner_id,name,slug,status) values ($1,'Other','shop-b','approved') returning id", [B]);
   [{ id: p1 }] = await q("insert into public.products (owner_id,shop_id,name,price_dzd) values ($1,$2,'Tapis',700) returning id", [A, shopA]);
   [{ id: p2 }] = await q("insert into public.products (owner_id,shop_id,name,price_dzd) values ($1,$2,'Coussin',250) returning id", [A, shopA]);
 });
@@ -521,4 +521,31 @@ test("admin console: moderation and admin functions", { skip }, async () => {
   await q("update public.shops set verified=false where id=$1", [shopA]);
   await q("update public.products set active=true, seller_active=true where shop_id=$1", [shopA]);
   await q("delete from public.admins");
+});
+
+test("seller applications: new shops wait for approval, hidden until then", { skip }, async () => {
+  const D = "00000000-0000-0000-0000-00000000000d";
+  await q("insert into auth.users (id, email) values ($1, 'd@test.dz')", [D]);
+  const [{ id: shopD }] = await as(D, () => q("insert into public.shops (owner_id, name, slug, application_note, status) values ($1, 'Atelier D', 'atelier-d', 'Je fais du makrout', 'approved') returning id", [D]));
+  const [s0] = await q("select status from public.shops where id=$1", [shopD]);
+  assert.equal(s0.status, "pending"); // cannot approve itself
+  const [{ id: pd }] = await as(D, () => q("insert into public.products (shop_id, name, price_dzd, active) values ($1, 'Makrout', 900, true) returning id", [shopD]));
+  const pub = async () => (await as("anon", () => q("select public.public_product($1) p, public.get_public_shop('atelier-d') s", [pd])))[0];
+  let r = await pub();
+  assert.equal(r.p, null); assert.equal(r.s, null);
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  await as(B, () => q(`select public.admin_update_shop($1, '{"status":"rejected","review_note":"Photos manquantes"}')`, [shopD]));
+  // the applicant updates the application: back to review
+  await as(D, () => q("update public.shops set application_note='Je fais du makrout depuis 10 ans' where id=$1", [shopD]));
+  const [s1] = await q("select status from public.shops where id=$1", [shopD]);
+  assert.equal(s1.status, "pending");
+  const [{ l }] = await as(B, () => q("select public.admin_shops('', 'pending') l"));
+  assert.ok(l.some((x) => x.id === shopD));
+  await as(B, () => q(`select public.admin_update_shop($1, '{"status":"approved"}')`, [shopD]));
+  r = await pub();
+  assert.ok(r.p && r.s);
+  const [{ d }] = await as(B, () => q("select public.admin_dashboard() d"));
+  assert.ok("applications" in d);
+  await q("delete from public.admins");
+  await q("delete from auth.users where id=$1", [D]);
 });

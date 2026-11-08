@@ -30,7 +30,10 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
             <Logo height={30} />
             <LangSwitch />
           </div>
-          <h1 className="mb-4 font-display text-3xl">{t("setup_title")}</h1>
+          <h1 className="mb-2 font-display text-3xl">{t("setup_title")}</h1>
+          <ol className="mb-5 space-y-1 rounded-2xl bg-gold-soft/50 p-3 text-sm">
+            <li>1. {t("apply_step1")}</li><li>2. {t("apply_step2")}</li><li>3. {t("apply_step3")}</li>
+          </ol>
           <ShopForm ownerId={user.id} defaultEmail={user.email} onSaved={done} />
         </main>
       )}

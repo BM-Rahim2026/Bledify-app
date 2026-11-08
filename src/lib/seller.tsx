@@ -13,6 +13,7 @@ export type Shop = {
   logo: { shape?: string; color?: string; content?: string }; logo_url: string;
   verified: boolean; delivery_zones: DeliveryZones | null;
   payout_method?: string; payout_account?: string; payout_holder?: string;
+  suspended?: boolean; suspended_reason?: string;
 };
 
 type Ctx = { user: User; shop: Shop | null; reloadShop: () => Promise<void> };

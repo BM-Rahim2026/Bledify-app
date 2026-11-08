@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { OffersSubnav } from "@/components/admin/OffersSubnav";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -43,6 +44,7 @@ export default function AdminProposals() {
 
   return (
     <div className="space-y-4">
+      <OffersSubnav />
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button key={f || "all"} type="button" onClick={() => { setEntries(null); setFilter(f); }}

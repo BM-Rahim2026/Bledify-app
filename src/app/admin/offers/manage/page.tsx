@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useState } from "react";
+import { OffersSubnav } from "@/components/admin/OffersSubnav";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { offerTitle, type Offer } from "@/lib/offers";
@@ -35,6 +36,7 @@ export default function ManageOffers() {
   if (!offers) return <div className="py-16 text-center"><Spinner /></div>;
   return (
     <div className="space-y-4">
+      <OffersSubnav />
       {edit ? (
         <form onSubmit={async (e) => { e.preventDefault(); if (await save(edit)) setEdit(null); }} className="space-y-3 rounded-2xl border border-line bg-surface p-4 shadow-sm">
           <h2 className="font-semibold">{edit.isNew ? t("offer_new") : t("offer_edit")}</h2>

@@ -1,9 +1,13 @@
+import type { DictKey } from "@/lib/i18n/dict";
 export type OrderStatus =
   | "new" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned"
   | "pending" | "ready"; // legacy, display only
 
 export const SETTABLE: OrderStatus[] = ["new", "confirmed", "shipped", "delivered", "cancelled", "returned"];
 export const TABS = ["all", ...SETTABLE] as const;
+export const PAYMENT_STATUSES = ["none", "pending", "paid", "failed", "refund_due", "refunded"] as const;
+/** Dictionary key for a payment status ("none" = cash on delivery). */
+export const payLabel = (s: string): DictKey => (s === "none" ? "pay_cod" : (`pay_status_${s}` as DictKey));
 
 export type OrderItem = { product_id?: string | null; name: string; unit_price_dzd: number; quantity: number };
 export type HistoryEntry = { status: OrderStatus | "no_answer"; at: string };

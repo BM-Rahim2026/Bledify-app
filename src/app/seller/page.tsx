@@ -34,6 +34,11 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader title={shop.name} />
+      {shop.suspended ? (
+        <p className="mx-4 mt-3 rounded-xl border border-danger/30 bg-rose-50 p-3 text-sm text-danger" role="alert">
+          {t("seller_suspended")}{shop.suspended_reason ? ` (${shop.suspended_reason})` : ""}
+        </p>
+      ) : null}
       <div className="space-y-4 p-4">
         <div className="rounded-2xl bg-brand p-4 text-white">
           <p className="text-sm opacity-90">{t("your_link")}</p>

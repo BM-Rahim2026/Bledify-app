@@ -11,7 +11,7 @@ import { ProductAI } from "@/components/ai/ProductAI";
 import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
 
-type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; subcategory: string | null; tags: string[]; pay_cod: boolean; pay_card: boolean; deposit_pct: number };
+type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; subcategory: string | null; tags: string[]; pay_cod: boolean; pay_card: boolean; deposit_pct: number; blocked?: boolean; block_reason?: string; seller_active?: boolean };
 const fetchProducts = async () =>
   ((await supabase().from("products").select("*").order("position").order("created_at")).data ?? []) as Product[];
 const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", subcategory: null as string | null, tags: [] as string[], pay_cod: true, pay_card: true, deposit_pct: 0 };
@@ -74,15 +74,16 @@ function ProductsInner() {
         {list === null ? <div className="py-10 text-center"><Spinner /></div>
           : list.length === 0 ? <Empty>{t("no_products")}</Empty>
           : list.map((p) => (
-            <Card key={p.id} className="flex cursor-pointer items-center gap-3" onClick={() => setEdit({ ...p })}>
+            <Card key={p.id} className="flex cursor-pointer items-center gap-3" onClick={() => setEdit({ ...p, active: p.seller_active ?? p.active })}>
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sand">
                 {p.images[0] ? <img src={p.images[0]} alt="" className="h-full w-full object-cover" /> : null}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{p.name}</p>
                 <p className="font-bold text-brand">{formatDZD(p.price_dzd)}</p>
+                {p.blocked ? <p className="text-xs text-danger" dir="auto">{t("adm_blocked_badge")}{p.block_reason ? ` · ${p.block_reason}` : ""}</p> : null}
               </div>
-              {!p.active ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-muted">{t("hidden")}</span> : null}
+              {p.blocked ? null : !(p.seller_active ?? p.active) ? <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-muted">{t("hidden")}</span> : null}
               <button type="button" aria-label={t("ai_post")} title={t("ai_post")} onClick={(e) => { e.stopPropagation(); setPostFor(p.id); }}
                 className="shrink-0 rounded-xl border border-line px-2.5 py-2 text-sm hover:border-brand">📣</button>
             </Card>

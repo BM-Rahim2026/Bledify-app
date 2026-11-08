@@ -471,3 +471,54 @@ test("admin by email: only once the address is confirmed", { skip }, async () =>
   await q("delete from auth.users where id=$1", [C]);
   await q("delete from public.admin_emails where email='team@test.dz'");
 });
+
+test("admin console: moderation and admin functions", { skip }, async () => {
+  await q("update public.products set active=true, blocked=false, seller_active=true where shop_id=$1", [shopA]);
+  await q("update public.shops set suspended=false where id=$1", [shopA]);
+  // non-admins are refused everywhere
+  for (const f of ["admin_dashboard()", "admin_shops()", "admin_products()", "admin_orders()", "admin_payouts()", "admin_reviews()", "admin_settings()"]) {
+    assert.equal(await code(as(A, () => q(`select public.${f}`))), "42501", f);
+  }
+  // shops cannot set admin fields
+  await as(A, () => q("update public.shops set suspended=true, commission_pct=0, is_demo=true where id=$1", [shopA]));
+  const [sh] = await q("select suspended, commission_pct, is_demo from public.shops where id=$1", [shopA]);
+  assert.deepEqual([sh.suspended, sh.commission_pct, sh.is_demo], [false, null, false]);
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  const visible = async (id) => (await as("anon", () => q("select public.public_product($1) p", [id])))[0].p !== null;
+  // block a product: hidden, and the shop cannot bring it back
+  await as(B, () => q("select public.admin_set_product_blocked($1, true, 'Produit importé')", [p1]));
+  assert.equal(await visible(p1), false);
+  await as(A, () => q("update public.products set active=true, blocked=false where id=$1", [p1]));
+  assert.equal(await visible(p1), false);
+  await as(B, () => q("select public.admin_set_product_blocked($1, false)", [p1]));
+  assert.equal(await visible(p1), true);
+  // suspend the shop: all its products disappear, then come back as the shop had them
+  await as(A, () => q("update public.products set active=false where id=$1", [p2])); // the shop had hidden p2
+  await as(B, () => q(`select public.admin_update_shop($1, '{"suspended":true,"suspended_reason":"KYC"}')`, [shopA]));
+  assert.equal(await visible(p1), false);
+  assert.equal(await code(placeOrder({ phone: "0550000700", ip: "" })), "22023");
+  await as(B, () => q(`select public.admin_update_shop($1, '{"suspended":false,"verified":true,"commission_pct":"5"}')`, [shopA]));
+  assert.equal(await visible(p1), true);
+  assert.equal(await visible(p2), false); // stays as the shop wanted
+  const [{ s }] = await as(B, () => q("select public.admin_shop($1) s", [shopA]));
+  assert.deepEqual([s.verified, Number(s.commission_effective), s.suspended], [true, 5, false]);
+  assert.ok("phone" in s && "payout_account" in s);
+  await as(B, () => q(`select public.admin_update_shop($1, '{"commission_pct":""}')`, [shopA]));
+  // lists, settings, admins
+  const [{ d }] = await as(B, () => q("select public.admin_dashboard() d"));
+  assert.ok(d.shops_total >= 2 && "refunds_due" in d);
+  const [{ l }] = await as(B, () => q("select public.admin_shops('shop-a') l"));
+  assert.equal(l.length, 1);
+  await as(B, () => q(`select public.admin_save_settings('{"commission_pct":12}')`));
+  const [{ st }] = await as(B, () => q("select public.admin_settings() st"));
+  assert.equal(Number(st.commission_pct), 12);
+  await as(B, () => q(`select public.admin_save_settings('{"commission_pct":10}')`));
+  await as(B, () => q("select public.admin_add_admin_email(' New@Team.dz ')"));
+  const [{ e }] = await q("select count(*)::int e from public.admin_emails where email='new@team.dz'");
+  assert.equal(e, 1);
+  assert.equal(await code(as(B, () => q("select public.admin_remove_admin_email('b@test.dz')"))), "22023"); // not themself
+  await as(B, () => q("select public.admin_remove_admin_email('new@team.dz')"));
+  await q("update public.shops set verified=false where id=$1", [shopA]);
+  await q("update public.products set active=true, seller_active=true where shop_id=$1", [shopA]);
+  await q("delete from public.admins");
+});

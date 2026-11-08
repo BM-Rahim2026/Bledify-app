@@ -67,6 +67,14 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   sellers `*@demo.bledify.app`, `shops.is_demo = true`, photos on cdn.openart.ai.
   Remove before launch: `delete from auth.users where email like '%@demo.bledify.app';`
 
+## Admin console (`/admin`, 0016–0018)
+- Sections: dashboard, shops (verify, suspend, commission, private contact + payout account), products
+  (block / unblock), orders (detail, refunds), payments (refunds due, record payouts), reviews (hide),
+  offers (proposals, manage), settings (commission, payout delay, unpaid expiry, admin emails).
+- All data through `admin_*` SECURITY DEFINER RPCs that call `require_admin()`; UI helpers in
+  `src/components/admin/AdminUI.tsx`. Moderation: `shops.suspended`, `products.blocked` (+ `seller_active` =
+  the shop's own choice); trigger `products_moderation` forces `active = false` while blocked/suspended.
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

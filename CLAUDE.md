@@ -31,8 +31,14 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   Use logical CSS (`ms-`, `ps-`, `text-start`) so Arabic flips. Money via `formatDZD`.
 
 ## Marketplace
-- Categories (fixed list, `src/lib/categories.ts` + SQL check): gateaux, cuisine,
-  terroir, couture, enfants, artisanat, beaute, bijoux.
+- Categories (fixed list, `src/lib/categories.ts` + SQL check, since 0006): food, fashion,
+  crafts, home, terroir, occasions. Seasonal collections = `products.tags`
+  (mariage, ramadan, aid, ete) → `/explore?collection=`. `products.story` = short maker story.
+- Home follows the mockup: ivory/olive/gold, hero carousel, category grid, seasonal offers,
+  trust strip, 5-tab bottom nav (`PublicNav`: home, categories, explore, cart, account).
+- Cart is local (`src/lib/cart.ts`, one cart per shop, `public_cart` for prices); each shop's
+  order is still placed on `/s/[slug]#order`. Favourites: `favorites` table (product xor shop,
+  RLS own rows), `src/lib/favorites.ts`, `my_favorites()`, page `/favorites`.
 - Public browse via SECURITY DEFINER RPCs: `public_home`, `public_products`,
   `public_product`, `get_public_shop`. Customers' orders: `my_orders`.
 - `/api/orders` requires a signed-in user and stores `orders.customer_id`.

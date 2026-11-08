@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -12,6 +13,7 @@ import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
@@ -122,7 +124,10 @@ export function ShopView({ shop }: { shop: PublicShop }) {
             <ShopLogo name={shop.name} logo={shop.logo} logoUrl={shop.logo_url} category={shop.category} size={80} />
           </span>
           <div className="mt-3">
-            <h1 className="font-display text-3xl leading-tight md:text-4xl">{shop.name}</h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="font-display text-3xl leading-tight md:text-4xl">{shop.name}</h1>
+              <FavoriteButton kind="shop" id={shop.id} />
+            </div>
             <p className="text-sm text-muted">
               {shop.wilaya ? wilayaLabel(shop.wilaya, lang).replace(/^\d+ - /, "") : null}
               {shop.delivered_count > 0 ? <span className="text-ok"> · ✓ {t("delivered_count", { n: shop.delivered_count })}</span> : null}
@@ -131,11 +136,11 @@ export function ShopView({ shop }: { shop: PublicShop }) {
         </div>
         {shop.description ? <p className="mt-4 max-w-2xl text-ink/90">{shop.description}</p> : null}
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-          <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand">🏠 {t("handmade")}</span>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok">💵 {t("cod")}</span>
-          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted">🚚 {t("desk")} {formatDZD(shop.delivery_desk_dzd)} · {t("home")} {formatDZD(shop.delivery_home_dzd)}</span>
+          <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
+          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("desk")} {formatDZD(shop.delivery_desk_dzd)} · {t("home")} {formatDZD(shop.delivery_home_dzd)}</span>
           {shop.whatsapp ? (
-            <a href={`https://wa.me/${waNumber(shop.whatsapp)}`} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366]/15 px-2.5 py-1 text-[#128C4B]">💬 WhatsApp</a>
+            <a href={`https://wa.me/${waNumber(shop.whatsapp)}`} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366]/15 px-2.5 py-1 text-[#128C4B]">WhatsApp</a>
           ) : null}
         </div>
 
@@ -174,14 +179,14 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                 )) : <p className="text-muted">{t("cart_empty")}</p>}
                 <div className="flex justify-between text-muted"><span>{t("delivery_fee")} ({t(f.type)})</span><span>{formatDZD(fee)}</span></div>
                 <div className="flex justify-between border-t border-line pt-2 text-base font-bold"><span>{t("total")}</span><span className="text-brand">{formatDZD(subtotal + fee)}</span></div>
-                <p className="pt-1 text-xs font-semibold text-ok">💵 {t("cod")}</p>
+                <p className="flex items-center gap-1 pt-1 text-xs font-semibold text-ok"><Icon name="cash" className="h-4 w-4" />{t("cod")}</p>
               </Card>
 
               {user === undefined ? (
                 <div className="py-6 text-center"><Spinner /></div>
               ) : !user ? (
                 <Card className="space-y-3 border-brand/30 bg-brand-soft/40 text-center">
-                  <p className="text-lg font-semibold">🔒 {t("login_to_order")}</p>
+                  <p className="text-lg font-semibold">{t("login_to_order")}</p>
                   <p className="text-sm text-muted">{t("login_to_order_sub")}</p>
                   <div className="flex flex-col gap-2">
                     <Link href={`/signup?next=${next}`} className="rounded-xl bg-brand px-4 py-3 font-semibold text-white">{t("signup")}</Link>
@@ -229,7 +234,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
       {/* sticky cart bar on phones */}
       {lines.length ? (
         <a href="#order" className="fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-2xl bg-ink px-4 py-3.5 font-semibold text-white shadow-xl md:hidden">
-          <span>🧺 {lines.reduce((n, p) => n + cart[p.id], 0)} · {formatDZD(subtotal)}</span>
+          <span className="inline-flex items-center gap-2"><Icon name="bag" className="h-5 w-5" />{lines.reduce((n, p) => n + cart[p.id], 0)} · {formatDZD(subtotal)}</span>
           <span>{t("order_now")} →</span>
         </a>
       ) : null}

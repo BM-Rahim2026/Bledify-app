@@ -8,6 +8,7 @@ import { CATEGORIES } from "@/lib/categories";
 const Listing = z.object({
   name: z.string().describe("Short product title, max 70 characters, includes quantity/size when relevant"),
   description: z.string().describe("2-4 short sentences: what it is, how it is made at home, ingredients/materials, size or quantity, how to order or keep it"),
+  story: z.string().describe("2-3 warm sentences telling the product's story: who makes it, where in Algeria, how, and what makes it special. Only use facts the seller gave or that are visible; otherwise keep it general and true."),
   category: z.enum(CATEGORIES),
   price_min_dzd: z.number().int(),
   price_max_dzd: z.number().int(),
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 Seller's product name (may be empty): ${name || "(none)"}
 Seller's notes (may be empty): ${notes || "(none)"}
 
-Write "name" and "description" in ${LANG_NAME[lang]}. Keep the seller's own words and facts; do not invent ingredients, sizes or claims you cannot see or read. Warm, simple, trustworthy tone for Algerian buyers; no emojis in the name, at most one in the description. Suggest a realistic retail price range in DA for this kind of homemade product in Algeria in 2026. Write "price_note" and "tips" in ${LANG_NAME[lang]} too.`,
+Write "name", "description" and "story" in ${LANG_NAME[lang]}. Categories: food (cakes, home cooking), fashion (clothing, couture, jewellery), crafts (pottery, copper, embroidery, handmade objects), home (rugs, decor, household textiles), terroir (olive oil, honey, dates, cheese, natural cosmetics), occasions (bridal trousseau, henna, wedding favours, gifts). Keep the seller's own words and facts; do not invent ingredients, sizes or claims you cannot see or read. Warm, simple, trustworthy tone for Algerian buyers; no emojis in the name, at most one in the description. Suggest a realistic retail price range in DA for this kind of homemade product in Algeria in 2026. Write "price_note" and "tips" in ${LANG_NAME[lang]} too.`,
     },
   ];
 

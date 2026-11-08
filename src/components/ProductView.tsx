@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { Icon } from "@/components/Icon";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,9 +12,11 @@ import { PublicHeader } from "@/components/PublicHeader";
 import { ProductGrid } from "@/components/ProductCard";
 import { Button } from "@/components/ui";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { colKey } from "@/lib/categories";
 
 export type PublicProduct = {
-  id: string; name: string; description: string; price_dzd: number; images: string[]; category: string;
+  id: string; name: string; description: string; story?: string; tags?: string[]; price_dzd: number; images: string[]; category: string;
   shop: {
     name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number;
     delivered_count: number; logo?: LogoConfig; logo_url?: string; category?: string | null;
@@ -53,14 +56,31 @@ export function ProductView({ p }: { p: PublicProduct }) {
 
         <div className="px-4 pt-5 md:px-0 md:pt-0">
           <Link href={`/explore?category=${p.category}`} className="text-sm font-semibold text-brand">{t(catKey(p.category))}</Link>
-          <h1 className="mt-1 font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
+          <div className="mt-1 flex items-start justify-between gap-3">
+            <h1 className="font-display text-3xl leading-tight md:text-4xl">{p.name}</h1>
+            <FavoriteButton kind="product" id={p.id} />
+          </div>
           <p className="mt-3 text-3xl font-bold text-brand">{formatDZD(p.price_dzd)}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand">🏠 {t("handmade")}</span>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok">💵 {t("cod")}</span>
-            <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted">🚚 {t("delivery_from", { price: formatDZD(Math.min(p.shop.delivery_desk_dzd, p.shop.delivery_home_dzd)) })}</span>
+            <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
+            <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(Math.min(p.shop.delivery_desk_dzd, p.shop.delivery_home_dzd)) })}</span>
           </div>
+          {p.tags?.length ? (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {p.tags.map((tag) => (
+                <Link key={tag} href={`/explore?collection=${tag}`} className="rounded-full border border-gold/50 bg-gold-soft/60 px-2.5 py-0.5 text-xs font-semibold">{t(colKey(tag))}</Link>
+              ))}
+            </div>
+          ) : null}
           {p.description ? <p className="mt-5 whitespace-pre-line leading-relaxed text-ink/90">{p.description}</p> : null}
+          {p.story ? (
+            <section className="mt-5 rounded-2xl border border-gold/40 bg-gold-soft/40 p-4">
+              <h2 className="mb-1 flex items-center gap-2 font-display text-xl"><span className="h-2 w-2 rotate-45 bg-gold" aria-hidden />{t("product_story")}</h2>
+              <p className="whitespace-pre-line leading-relaxed text-ink/90">{p.story}</p>
+              <p className="mt-2 text-sm font-semibold text-brand">{t("made_by", { shop: p.shop.name, wilaya: wilayaLabel(p.shop.wilaya, lang).replace(/^\d+ - /, "") })}</p>
+            </section>
+          ) : null}
 
           <div className="mt-6 hidden items-center gap-3 md:flex">
             <Qty qty={qty} setQty={setQty} />

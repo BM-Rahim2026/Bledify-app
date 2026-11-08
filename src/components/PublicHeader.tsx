@@ -1,46 +1,38 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useI18n, LangSwitch } from "@/lib/i18n";
+import { useCartCount } from "@/lib/cart";
 import { Logo } from "@/components/Logo";
-import { displayName, useSession } from "@/lib/useSession";
+import { Icon } from "@/components/Icon";
 
-/** Top bar for public pages. `overlay` renders it transparent over a hero image. */
-export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
+/** Ivory top bar: search · logo + tagline (centre) · language, favourites, cart. */
+export function PublicHeader({ tagline = false }: { tagline?: boolean; overlay?: boolean }) {
   const { t } = useI18n();
-  const user = useSession();
-  const path = usePathname();
-  const next = encodeURIComponent(path);
-  const text = overlay ? "text-white" : "text-ink";
-
+  const count = useCartCount();
   return (
-    <header className={`${overlay ? "absolute inset-x-0 top-0 z-20" : "sticky top-0 z-30 border-b border-line bg-sand/90 backdrop-blur"}`}>
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-        <Link href="/" aria-label="Bledify" className="shrink-0"><Logo variant={overlay ? "white" : "color"} height={30} className="h-[26px] w-auto min-[360px]:h-[30px]" /></Link>
-        <nav className={`ms-6 hidden gap-5 text-sm font-semibold md:flex ${text}`}>
-          <Link href="/explore" className="hover:opacity-80">{t("explore")}</Link>
-          <Link href="/track" className="hover:opacity-80">{t("track_order")}</Link>
-          <Link href="/signup?role=seller" className="hover:opacity-80">{t("sell_on_bledify")}</Link>
-        </nav>
-        <div className="ms-auto flex items-center gap-1.5 min-[360px]:gap-2">
-          <LangSwitch className={overlay ? "border-white/30 bg-white/15 backdrop-blur [&_button:not([aria-pressed=true])]:text-white" : ""} />
-          {user === undefined ? null : user ? (
-            <Link href="/account" className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${overlay ? "bg-white/15 text-white backdrop-blur" : "bg-surface border border-line"}`}>
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs text-white">
-                {(displayName(user)[0] || "?").toUpperCase()}
-              </span>
-              <span className="hidden sm:inline">{displayName(user)}</span>
-            </Link>
-          ) : (
-            <>
-              <Link href={`/login?next=${next}`} className={`hidden rounded-full px-3 py-1.5 text-sm font-semibold sm:inline-block ${text}`}>{t("login")}</Link>
-              <Link href={`/signup?next=${next}`} className="whitespace-nowrap rounded-full bg-brand px-3 py-1.5 text-sm font-semibold text-white shadow-sm min-[360px]:px-3.5">
-                <span className="min-[360px]:hidden">{t("signup_short")}</span><span className="hidden min-[360px]:inline">{t("signup")}</span>
-              </Link>
-            </>
-          )}
+    <header className="sticky top-0 z-30 border-b border-line/70 bg-ivory/95 backdrop-blur">
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-2">
+        <div className="flex items-center gap-1">
+          <Link href="/explore" aria-label={t("search")} className="rounded-full p-2 text-ink hover:bg-sand"><Icon name="search" className="h-6 w-6" /></Link>
+          <nav className="ms-2 hidden gap-4 text-sm font-semibold md:flex">
+            <Link href="/categories" className="hover:text-brand">{t("nav_categories")}</Link>
+            <Link href="/track" className="hover:text-brand">{t("track_order")}</Link>
+            <Link href="/signup?role=seller" className="hover:text-brand">{t("sell_on_bledify")}</Link>
+          </nav>
+        </div>
+        <Link href="/" aria-label="Bledify" className="flex flex-col items-center">
+          <Logo height={28} className="h-[26px] w-auto min-[360px]:h-[28px]" />
+        </Link>
+        <div className="flex items-center justify-end gap-0.5">
+          <LangSwitch className="hidden min-[400px]:inline-flex [&_button]:px-2" />
+          <Link href="/favorites" aria-label={t("favorites")} className="hidden rounded-full p-2 text-ink hover:bg-sand min-[360px]:block"><Icon name="heart" className="h-6 w-6" /></Link>
+          <Link href="/cart" aria-label={t("cart_title")} className="relative rounded-full p-2 text-ink hover:bg-sand">
+            <Icon name="cart" className="h-6 w-6" />
+            {count ? <span className="absolute end-0.5 top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">{count}</span> : null}
+          </Link>
         </div>
       </div>
+      {tagline ? <p className="-mt-1 pb-1.5 text-center text-[11px] font-semibold text-gold">{t("tagline_short")}</p> : null}
     </header>
   );
 }

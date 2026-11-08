@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { isConfigured } from "@/lib/env";
 import { Button, Field, Input } from "@/components/ui";
+import { Icon } from "@/components/Icon";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" | "forgot" | "reset" }) {
   const { t, lang } = useI18n();
@@ -72,7 +73,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" | "forgot" | "rese
               {(["buyer", "seller"] as const).map((r) => (
                 <label key={r} className={`cursor-pointer rounded-2xl border p-3 ${role === r ? "border-brand bg-brand-soft" : "border-line bg-surface"}`}>
                   <input type="radio" name="role" className="sr-only" checked={role === r} onChange={() => setRole(r)} />
-                  <span className="block text-2xl">{r === "buyer" ? "🧺" : "🏪"}</span>
+                  <span className={`mb-1 flex h-10 w-10 items-center justify-center rounded-xl ${role === r ? "bg-brand text-white" : "bg-gold-soft text-brand"}`}>
+                    <Icon name={r === "buyer" ? "bag" : "store"} className="h-5 w-5" />
+                  </span>
                   <span className="block font-semibold">{r === "buyer" ? t("role_buy") : t("role_sell")}</span>
                   <span className="block text-xs text-muted">{r === "buyer" ? t("role_buy_sub") : t("role_sell_sub")}</span>
                 </label>

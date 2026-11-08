@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n, LangSwitch } from "@/lib/i18n";
@@ -33,9 +34,10 @@ export default function Account() {
         <h1 className="font-display text-3xl">{t("hello_name", { name: name.split(" ")[0] || user.email?.split("@")[0] || "" })}</h1>
 
         <div className="grid grid-cols-2 gap-3">
-          <Link href="/orders" className="rounded-2xl border border-line bg-surface p-4 font-semibold">🧺 {t("my_orders")}</Link>
-          <Link href="/seller" className="rounded-2xl border border-line bg-surface p-4 font-semibold">
-            🏪 {hasShop ? t("my_shop") : t("sell_cta")}
+          <Link href="/orders" className="flex items-center gap-2 rounded-2xl border border-line bg-surface p-4 font-semibold"><Icon name="bag" className="h-5 w-5 text-brand" />{t("my_orders")}</Link>
+          <Link href="/favorites" className="flex items-center gap-2 rounded-2xl border border-line bg-surface p-4 font-semibold"><Icon name="heart" className="h-5 w-5 text-rose-600" />{t("favorites")}</Link>
+          <Link href="/seller" className="col-span-2 rounded-2xl border border-line bg-surface p-4 font-semibold">
+            <span className="flex items-center gap-2"><Icon name="store" className="h-5 w-5 text-brand" />{hasShop ? t("my_shop") : t("sell_cta")}</span>
           </Link>
         </div>
 

@@ -204,3 +204,17 @@ test("AI credits: signed-in only, capped per day", { skip }, async () => {
   const [{ n }] = await as(B, () => q("select public.use_ai_credit(3) n"));
   assert.equal(n, 2);
 });
+
+test("favourites: own rows only; product xor shop", { skip }, async () => {
+  const [{ id: prod }] = await q("select id from public.products limit 1");
+  await as(A, () => q("insert into public.favorites (product_id) values ($1)", [prod]));
+  await as(A, () => q("insert into public.favorites (shop_id) values ($1)", [shopA]));
+  assert.equal(await code(as(A, () => q("insert into public.favorites (product_id) values ($1)", [prod]))), "23505");
+  assert.equal(await code(as(A, () => q("insert into public.favorites (product_id, shop_id) values ($1, $2)", [prod, shopA]))), "23514");
+  const mine = await as(A, () => q("select public.my_favorites() f"));
+  assert.equal(mine[0].f.products.length, 1);
+  assert.equal(mine[0].f.shops.length, 1);
+  const theirs = await as(B, () => q("select count(*)::int n from public.favorites"));
+  assert.equal(theirs[0].n, 0);
+  assert.equal(await code(as(B, () => q("insert into public.favorites (user_id, shop_id) values ($1, $2)", [A, shopA]))), "42501");
+});

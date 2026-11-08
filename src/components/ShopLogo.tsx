@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import { CATEGORY_ICON_PATHS } from "@/components/Icon";
+
 // Shop logo: the seller's uploaded image, or a generated badge in Bledify's style
 // (arch, diamond, Amazigh rosette) with the shop's initials or a craft icon.
 
@@ -18,6 +20,11 @@ export const LOGO_COLORS: Record<string, { bg: string; fg: string; accent: strin
 
 // 24×24 stroke icons, one per craft category
 const ICONS: Record<string, string> = {
+  food: CATEGORY_ICON_PATHS.food,
+  fashion: CATEGORY_ICON_PATHS.fashion,
+  crafts: CATEGORY_ICON_PATHS.crafts,
+  home: CATEGORY_ICON_PATHS.home,
+  occasions: CATEGORY_ICON_PATHS.occasions,
   gateaux: "M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0M12 12V8M12 5.2v.1",
   cuisine: "M3 11h18M4 11a8 8 0 0 0 16 0M9 7.5c0-1.2 1.2-1.6 1.2-3M13.5 7.5c0-1.2 1.2-1.6 1.2-3",
   terroir: "M5 19C5 10.5 10.5 5 19 5c0 8.5-5.5 14-14 14zM5 19l8.5-8.5",

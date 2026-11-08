@@ -6,6 +6,9 @@
   --color-brand-dark: #12301f;
   --color-brand-soft: #f6e7e2;
   --color-accent: #ca826f;
+  --color-gold: #b5895a;
+  --color-gold-soft: #f1e6d3;
+  --color-ivory: #fbf8f2;
   --color-accent-dark: #a85c49;
   --color-ink: #1f2421;
   --color-muted: #6b6560;
@@ -31,6 +34,17 @@ html, body {
 body, input, select, textarea, button {
   font-family: var(--font-sans);
 }
+
+/* Arabic headings: DM Serif has no Arabic letters, so use a bold Naskh */
+[dir="rtl"] .font-display {
+  font-family: var(--font-naskh), serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* hide scrollbars on horizontal carousels */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* long French words / emails / names wrap instead of widening the page */
 body {

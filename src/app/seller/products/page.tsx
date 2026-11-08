@@ -5,15 +5,15 @@ import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useSeller } from "@/lib/seller";
 import { Button, Card, Empty, Field, Input, Modal, Select, Spinner, Textarea } from "@/components/ui";
-import { CATEGORIES, catKey } from "@/lib/categories";
+import { CATEGORIES, COLLECTIONS, catKey, colKey } from "@/lib/categories";
 import { ProductAI } from "@/components/ai/ProductAI";
 import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
 
-type Product = { id: string; name: string; description: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string };
+type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; tags: string[] };
 const fetchProducts = async () =>
   ((await supabase().from("products").select("*").order("position").order("created_at")).data ?? []) as Product[];
-const blank = { name: "", description: "", price_dzd: 0, images: [] as string[], active: true, category: "gateaux" };
+const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", tags: [] as string[] };
 
 function ProductsInner() {
   const { t, formatDZD } = useI18n();
@@ -48,7 +48,7 @@ function ProductsInner() {
     e.preventDefault();
     if (!edit) return;
     setBusy(true); setErr(null);
-    const row = { name: edit.name, description: edit.description, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category };
+    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, tags: edit.tags };
     const sb = supabase();
     const { error } = edit.id
       ? await sb.from("products").update(row).eq("id", edit.id)
@@ -96,7 +96,7 @@ function ProductsInner() {
               images={edit.images}
               uploading={uploading}
               onUpload={upload}
-              onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, category: l.category, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
+              onResult={(l) => setEdit((e) => e && { ...e, name: l.name, description: l.description, story: l.story || e.story, category: l.category, price_dzd: e.price_dzd || Math.round(((l.price_min_dzd + l.price_max_dzd) / 2) / 50) * 50 })}
               onPrice={(price) => setEdit((e) => e && { ...e, price_dzd: price })}
             />
             <Field label={t("product_name")}><Input required value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></Field>
@@ -107,6 +107,24 @@ function ProductsInner() {
               </Select>
             </Field>
             <Field label={t("shop_description")}><Textarea rows={2} value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} /></Field>
+            <Field label={t("story_label")} hint={t("story_hint")}>
+              <Textarea rows={3} value={edit.story} onChange={(e) => setEdit({ ...edit, story: e.target.value })} />
+            </Field>
+            <fieldset>
+              <legend className="mb-1 text-sm font-semibold">{t("collections_label")}</legend>
+              <div className="flex flex-wrap gap-2">
+                {COLLECTIONS.map((c) => {
+                  const on = edit.tags.includes(c);
+                  return (
+                    <button key={c} type="button" aria-pressed={on}
+                      onClick={() => setEdit({ ...edit, tags: on ? edit.tags.filter((x) => x !== c) : [...edit.tags, c] })}
+                      className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${on ? "border-brand bg-brand text-white" : "border-line bg-surface"}`}>
+                      {t(colKey(c))}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
             <div>
               <p className="mb-1 text-sm font-semibold">{t("photos")}</p>
               <div className="flex flex-wrap gap-2">

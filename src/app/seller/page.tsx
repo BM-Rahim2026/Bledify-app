@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -55,6 +56,13 @@ export default function Dashboard() {
             </Link>
           ))}
         </div>
+        <Link href="/seller/earnings" className="flex items-center gap-3 rounded-2xl border border-gold/50 bg-gold-soft/50 p-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gold text-white"><Icon name="cash" className="h-6 w-6" /></span>
+          <span className="min-w-0">
+            <span className="block font-semibold">{t("earnings")}</span>
+            <span className="block text-sm text-muted">{t("earnings_sub")}</span>
+          </span>
+        </Link>
         <Link href="/seller/assistant" className="flex items-center gap-3 rounded-2xl border border-brand/30 bg-gradient-to-br from-brand-soft to-surface p-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-2xl text-white">✨</span>
           <span className="min-w-0">

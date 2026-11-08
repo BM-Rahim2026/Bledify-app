@@ -59,6 +59,19 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   sellers `*@demo.bledify.app`, `shops.is_demo = true`, photos on cdn.openart.ai.
   Remove before launch: `delete from auth.users where email like '%@demo.bledify.app';`
 
+## Payments (marketplace, 0010)
+- Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
+  `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes
+  `amount_online_dzd` / `amount_cod_dzd`; online amounts → `payment_status 'pending'`, hidden from the
+  shop (RLS) until paid, expired after `platform_settings.unpaid_expiry_minutes`.
+- Chargily Pay (`src/lib/server/payments.ts`, env `CHARGILY_SECRET_KEY`, `CHARGILY_MODE`): `/api/orders`
+  returns `checkout_url`; webhook `/api/payments/chargily/webhook` (HMAC `signature` header, then re-reads
+  the checkout); `/api/payments/checkout` = pay again / sync on return. `PAYMENTS_FAKE=1` = local test page.
+- Payment fields are database-only (trigger `orders_payment_guard`). On delivery: commission
+  (`platform_settings.commission_pct`, 10 %, or `shops.commission_pct`) on items, credit in `seller_ledger`,
+  available after `payout_delay_days` (7). Team (service role / SQL): `record_payout`, `resolve_refund`.
+  Shop sees `seller_balance()` at `/seller/earnings`; payout account fields are private.
+
 ## Shop logos
 - `shops.logo_url` (uploaded image) or `shops.logo` = `{shape, color, content}` (generated badge),
   rendered by `src/components/ShopLogo.tsx`; with neither, a stable default from the shop name.

@@ -15,6 +15,7 @@ export type Order = {
   note: string; status: OrderStatus; history: HistoryEntry[]; no_answer_count: number;
   carrier: string; tracking_number: string; source: "shop" | "manual";
   created_at: string; updated_at: string; risk?: boolean;
+  payment_method?: "cod" | "card"; payment_status?: string; amount_online_dzd?: number; amount_cod_dzd?: number;
 };
 
 export const STATUS_COLOR: Record<string, string> = {
@@ -43,6 +44,8 @@ export function errorKey(e: { code?: string; message?: string } | null | undefin
   if (e.message === "INVALID_PHONE") return "err_phone";
   if (e.message === "NO_DELIVERY") return "err_no_delivery";
   if (e.message === "PHONE_IN_TEXT") return "err_phone_in_text";
+  if (e.message === "PAYMENT_NOT_ALLOWED") return "err_payment_not_allowed";
+  if (e.message === "ORDER_PAID_LOCKED") return "err_order_paid_locked";
   if (e.code === "P0002") return "err_not_found";
   return "error";
 }

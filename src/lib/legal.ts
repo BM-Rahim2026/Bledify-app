@@ -36,7 +36,9 @@ const fr: Docs = {
       "Après la commande, la boutique vous appelle pour la confirmer. Une commande non confirmée peut être annulée. Une commande n'est définitive qu'après cette confirmation.",
     ] },
     { h: "5. Paiement", p: [
-      "Le paiement se fait uniquement en espèces à la livraison (au livreur ou au point relais). Bledify ne demande jamais de paiement à l'avance ni de coordonnées bancaires.",
+      "Tous les paiements sont encaissés par Bledify, jamais directement par la boutique : en espèces à la livraison (le livreur encaisse pour le compte de Bledify), ou en ligne par carte CIB / Edahabia via la plateforme sécurisée Chargily Pay. Bledify ne voit jamais les données de votre carte.",
+      "Certains produits faits sur commande demandent un acompte payé en ligne (pourcentage affiché sur le produit) ; le reste est payé à la livraison. Une commande non payée sous 2 heures est annulée.",
+      "Bledify garde l'argent jusqu'à la livraison, puis le verse à la boutique après le délai de réclamation, moins la commission de la plateforme. En cas d'annulation ou de remboursement, Bledify rembourse le montant payé en ligne.",
     ] },
     { h: "6. Avis", p: [
       "Seul un client dont la commande a été livrée peut laisser un avis. L'avis doit être honnête, respectueux et porter sur le produit reçu. Bledify peut masquer un avis injurieux, hors sujet ou contenant des données personnelles.",
@@ -101,6 +103,8 @@ const fr: Docs = {
     { h: "3. Commandes", p: [
       "Appeler l'acheteur pour confirmer dans les 24 heures, préparer et expédier dans le délai annoncé, et mettre à jour le statut de la commande (confirmée, expédiée, livrée).",
       "Les prix de livraison par zone affichés dans la boutique sont ceux facturés à l'acheteur.",
+      "La boutique ne reçoit jamais d'argent directement de l'acheteur : Bledify encaisse tout (espèces via le livreur, ou carte en ligne). La boutique choisit pour chaque produit les paiements acceptés (à la livraison, par carte) et, pour les produits faits sur commande, un acompte payé en ligne.",
+      "Après la livraison, Bledify crédite la boutique du prix des produits et des frais de livraison, moins la commission de la plateforme (10 % du prix des produits au lancement). Ce montant devient disponible 7 jours après la livraison, puis est versé sur le compte indiqué (CCP, BaridiMob ou banque).",
     ] },
     { h: "4. Qualité et hygiène", p: [
       "Pour l'alimentaire : préparation dans des conditions d'hygiène correctes, emballage propre et fermé, date de fabrication indiquée. Pour les autres produits : finitions conformes aux photos.",
@@ -145,7 +149,7 @@ const ar: Docs = {
       "حماية كلمة السر مسؤولية صاحب الحساب. الحساب الذي يُستعمل في طلبات وهمية أو مسيئة قد يُوقف.",
     ] },
     { h: "3. المنتجات المقبولة", p: [
-      "تُقبل فقط المنتجات المصنوعة يدويًا في الجزائر: الحلويات، الأكل، الخياطة، الحرف، الديكور، منتجات الأرض، ولوازم الأعراس والمناسبات.",
+      "تُقبل فقط المنتجات المصنوعة يدويًا في الجزائر: الحلويات، الأكل، الخياطة، الحرف، الديكور، المنتجات الفلاحية المحلية، ولوازم الأعراس والمناسبات.",
       "يُمنع خاصة: المنتجات المستوردة، الإلكترونيات، المقلّدة، الأدوية، الأسلحة، وكل منتوج يمنعه القانون الجزائري. يمكن لـ Bledify حذف أي إعلان دون إشعار.",
     ] },
     { h: "4. الطلب", p: [
@@ -153,7 +157,9 @@ const ar: Docs = {
       "بعد الطلب يتصل بك المتجر لتأكيده. الطلبية غير المؤكدة قد تُلغى، ولا تصبح نهائية إلا بعد هذا التأكيد.",
     ] },
     { h: "5. الدفع", p: [
-      "الدفع نقدًا عند الاستلام فقط (لعامل التوصيل أو في نقطة الاستلام). Bledify لا تطلب أبدًا دفعًا مسبقًا ولا معلومات بنكية.",
+      "كل المدفوعات تستلمها Bledify، وليس المتجر مباشرة: نقدًا عند الاستلام (عامل التوصيل يحصّل لحساب Bledify)، أو إلكترونيًا بالبطاقة CIB / الذهبية عبر منصة Chargily Pay الآمنة. Bledify لا ترى أبدًا معطيات البطاقة.",
+      "بعض المنتجات المصنوعة حسب الطلب تتطلب عربونًا يُدفع إلكترونيًا (النسبة معروضة على المنتوج)، والباقي عند الاستلام. الطلبية غير المدفوعة خلال ساعتين تُلغى.",
+      "تحتفظ Bledify بالمبلغ حتى التسليم، ثم تحوّله إلى المتجر بعد انتهاء أجل الشكاوى، بعد خصم عمولة المنصة. في حالة الإلغاء أو الاسترجاع، تُرجع Bledify المبلغ المدفوع إلكترونيًا.",
     ] },
     { h: "6. التقييمات", p: [
       "فقط الزبون الذي استلم طلبيته يمكنه التقييم. يجب أن يكون الرأي صادقًا ومحترمًا ويخص المنتوج المستلم. يمكن لـ Bledify إخفاء تقييم مسيء أو خارج الموضوع أو يحتوي معطيات شخصية.",
@@ -218,6 +224,8 @@ const ar: Docs = {
     { h: "3. الطلبيات", p: [
       "الاتصال بالمشتري للتأكيد خلال 24 ساعة، التحضير والإرسال في المدة المعلنة، وتحديث حالة الطلبية (مؤكدة، مُرسلة، مُسلّمة).",
       "أسعار التوصيل حسب المنطقة المعروضة في المتجر هي التي يدفعها المشتري.",
+      "المتجر لا يستلم أي مبلغ مباشرة من المشتري: Bledify تستلم كل شيء (نقدًا عبر عامل التوصيل أو بالبطاقة إلكترونيًا). يختار المتجر لكل منتوج طرق الدفع المقبولة (عند الاستلام، بالبطاقة)، وللمنتجات المصنوعة حسب الطلب عربونًا يُدفع إلكترونيًا.",
+      "بعد التسليم، تضيف Bledify إلى رصيد المتجر سعر المنتجات وسعر التوصيل، بعد خصم عمولة المنصة (10% من سعر المنتجات عند الإطلاق). يصبح المبلغ متاحًا بعد 7 أيام من التسليم ثم يُحوَّل إلى الحساب المسجّل (CCP أو بريدي موب أو بنك).",
     ] },
     { h: "4. الجودة والنظافة", p: [
       "للأكل: تحضير في ظروف نظافة سليمة، تغليف نظيف ومغلق، وذكر تاريخ الصنع. للمنتجات الأخرى: تشطيب مطابق للصور.",

@@ -18,6 +18,7 @@ import { Logo } from "@/components/Logo";
 import { Button, Card, Field, Input, Select, Spinner, Textarea } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
 import { minFee, quote, type DeliveryZones } from "@/lib/delivery";
+import { allowedMethods, splitPayment, type PayMethod } from "@/lib/payments";
 import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/components/trust/Trust";
 
 export type PublicShop = {
@@ -26,10 +27,10 @@ export type PublicShop = {
   delivery_home_dzd: number; delivery_desk_dzd: number; delivered_count: number;
   delivery_zones?: DeliveryZones | null; verified?: boolean;
   rating?: number | string | null; review_count?: number; reviews?: Review[];
-  products: { id: string; name: string; description: string; category: string; price_dzd: number; images: string[] }[];
+  products: { id: string; name: string; description: string; category: string; price_dzd: number; images: string[]; pay_cod?: boolean; pay_card?: boolean; deposit_pct?: number }[];
 };
 
-export function ShopView({ shop }: { shop: PublicShop }) {
+export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; paymentsOn?: boolean }) {
   const { t, lang, formatDZD } = useI18n();
   const user = useSession();
   const path = usePathname();
@@ -37,7 +38,10 @@ export function ShopView({ shop }: { shop: PublicShop }) {
   const [f, setF] = useState({ name: "", phone: "", wilaya: "", commune: "", address: "", type: "home" as "home" | "desk", note: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [done, setDone] = useState<{ number: string; total_dzd: number } | null>(null);
+  const [done, setDone] = useState<{ number: string; total_dzd: number; payment_error?: boolean } | null>(null);
+  const [payPick, setPayPick] = useState<PayMethod>("cod");
+  const [cardType, setCardType] = useState<"edahabia" | "cib">("edahabia");
+  const [redirecting, setRedirecting] = useState(false);
 
   // restore the cart saved before login / from a product page
   useEffect(() => {
@@ -63,6 +67,11 @@ export function ShopView({ shop }: { shop: PublicShop }) {
   const subtotal = lines.reduce((s, p) => s + p.price_dzd * cart[p.id], 0);
   const q = f.wilaya ? quote(shop, f.wilaya) : null;
   const fee = q ? (q.off ? 0 : f.type === "desk" ? q.desk : q.home) : 0;
+  const payLines = lines.map((p) => ({ price_dzd: p.price_dzd, qty: cart[p.id], pay_cod: p.pay_cod, pay_card: p.pay_card, deposit_pct: p.deposit_pct }));
+  const allowed = allowedMethods(payLines);
+  const method: PayMethod = payPick === "card" ? (allowed.card ? "card" : "cod") : (allowed.cod ? "cod" : "card");
+  const split = splitPayment(payLines, q && !q.off ? fee : 0, method);
+  const payBlocked = split.online > 0 && !paymentsOn;
   const wilayas = useMemo(() => WILAYAS.map((w) => ({ v: wilayaValue(w), l: wilayaLabel(wilayaValue(w), lang) })), [lang]);
   const next = encodeURIComponent(`${path}#order`);
 
@@ -72,6 +81,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
     if (!lines.length) { setErr(t("cart_empty")); return; }
     if (!normalizePhone(f.phone)) { setErr(t("err_phone")); return; }
     if (q?.off) { setErr(t("err_no_delivery")); return; }
+    if (payBlocked) { setErr(t("pay_online_unavailable")); return; }
     setBusy(true);
     try {
       const res = await fetch("/api/orders", {
@@ -79,16 +89,17 @@ export function ShopView({ shop }: { shop: PublicShop }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           slug: shop.slug, customer_name: f.name, phone: f.phone, wilaya: f.wilaya, commune: f.commune,
-          address: f.address, delivery_type: f.type, note: f.note,
+          address: f.address, delivery_type: f.type, note: f.note, payment_method: method, card_type: cardType, lang,
           items: lines.map((p) => ({ product_id: p.id, quantity: cart[p.id] })),
         }),
       });
       const body = await res.json();
       if (!res.ok) { setErr(t((body.error as DictKey) || "error")); return; }
       writeCart(shop.slug, {});
-      setDone(body);
       // remember delivery details for next time
       void supabase().auth.updateUser({ data: { full_name: f.name, phone: f.phone, wilaya: f.wilaya, commune: f.commune } });
+      if (body.checkout_url) { setRedirecting(true); window.location.assign(body.checkout_url); return; }
+      setDone(body);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setErr(t("error"));
@@ -106,7 +117,7 @@ export function ShopView({ shop }: { shop: PublicShop }) {
           <h1 className="font-display text-3xl">{t("order_sent_title")}</h1>
           <p className="mt-3 text-muted">{t("order_sent_body")}</p>
           <p className="my-4 font-mono text-3xl font-bold" dir="ltr">{done.number}</p>
-          <p className="text-lg">{t("to_collect")}: <b>{formatDZD(done.total_dzd)}</b></p>
+          {done.payment_error ? <p className="mb-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t("pay_retry_later")}</p> : <p className="text-lg">{t("to_collect")}: <b>{formatDZD(done.total_dzd)}</b></p>}
           <div className="mt-8 flex flex-col gap-3">
             <Link href="/orders" className="rounded-xl bg-brand px-5 py-3 font-semibold text-white">{t("my_orders")}</Link>
             <Link href="/" className="rounded-xl border border-line bg-surface px-5 py-3 font-semibold">{t("continue_shopping")}</Link>
@@ -186,8 +197,14 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                 )) : <p className="text-muted">{t("cart_empty")}</p>}
                 <div className="flex justify-between text-muted"><span>{t("delivery_fee")} ({t(f.type)})</span><span>{q ? (q.off ? "—" : formatDZD(fee)) : t("delivery_from", { price: formatDZD(minFee(shop)) })}</span></div>
                 {q?.days_min != null && q.days_max != null && !q.off ? <p className="text-xs text-muted">{t("delivery_days", { min: q.days_min, max: q.days_max })}</p> : null}
+                {lines.length && split.online > 0 ? (
+                  <div className="space-y-1 rounded-xl bg-gold-soft/50 p-2.5">
+                    <div className="flex justify-between font-semibold"><span>{t("pay_now_amount")}</span><span className="whitespace-nowrap">{formatDZD(split.online)}</span></div>
+                    <div className="flex justify-between text-muted"><span>{t("pay_on_delivery_amount")}</span><span className="whitespace-nowrap">{formatDZD(split.cod)}</span></div>
+                  </div>
+                ) : null}
                 <div className="flex justify-between border-t border-line pt-2 text-base font-bold"><span>{t("total")}</span><span className="text-brand">{formatDZD(subtotal + fee)}</span></div>
-                <p className="flex items-center gap-1 pt-1 text-xs font-semibold text-ok"><Icon name="cash" className="h-4 w-4" />{t("cod")}</p>
+                <p className="flex items-center gap-1 pt-1 text-xs font-semibold text-ok"><Icon name="shield" className="h-4 w-4" />{t("pay_secure_note")}</p>
               </Card>
 
               {user === undefined ? (
@@ -225,11 +242,35 @@ export function ShopView({ shop }: { shop: PublicShop }) {
                       ))}
                     </div>
                   </fieldset>
+                  <fieldset>
+                    <legend className="mb-1 text-sm font-semibold">{t("pay_method")}</legend>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["cod", "card"] as const).filter((k) => allowed[k]).map((k) => (
+                        <label key={k} className={`cursor-pointer rounded-xl border p-3 text-sm ${method === k ? "border-brand bg-brand-soft" : "border-line bg-surface"}`}>
+                          <input type="radio" name="pay" className="sr-only" checked={method === k} onChange={() => setPayPick(k)} />
+                          <span className="flex items-center gap-1.5 font-semibold"><Icon name={k === "cod" ? "cash" : "shield"} className="h-4 w-4 shrink-0" />{t(k === "cod" ? "pay_cod" : "pay_card")}</span>
+                          <span className="text-xs text-muted">{t(k === "cod" ? "pay_cod_sub" : "pay_card_sub")}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {method === "cod" && split.deposit ? <p className="mt-2 text-xs text-muted">{t("pay_deposit_note")}</p> : null}
+                    {split.online > 0 && paymentsOn ? (
+                      <div className="mt-2 flex items-center gap-2 text-sm">
+                        <span className="text-muted">{t("pay_card_type")}</span>
+                        {(["edahabia", "cib"] as const).map((c) => (
+                          <button key={c} type="button" onClick={() => setCardType(c)} className={`rounded-full border px-3 py-1 font-semibold ${cardType === c ? "border-brand bg-brand text-white" : "border-line bg-surface"}`}>{c === "cib" ? "CIB" : "Edahabia"}</button>
+                        ))}
+                      </div>
+                    ) : null}
+                    {payBlocked ? <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t("pay_online_unavailable")}</p> : split.online > 0 ? <p className="mt-2 text-xs text-muted">{t("pay_expiry_note")}</p> : null}
+                  </fieldset>
                   {f.type === "home" ? <Field label={t("address")}><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></Field> : null}
                   <Field label={`${t("note")} (${t("optional")})`}><Textarea rows={2} maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></Field>
                   {err ? <p className="rounded-xl bg-rose-50 p-3 text-sm text-danger" role="alert">{err}</p> : null}
                   <Link href="/confiance" className="block text-center text-xs text-muted underline">{t("order_consent")}</Link>
-                  <Button type="submit" className="w-full text-lg" disabled={busy || Boolean(q?.off)}>{busy ? t("sending") : `${t("place_order")} · ${formatDZD(subtotal + fee)}`}</Button>
+                  <Button type="submit" className="w-full text-lg" disabled={busy || redirecting || Boolean(q?.off) || payBlocked}>
+                    {redirecting ? t("pay_redirecting") : busy ? t("sending") : split.online > 0 ? t("pay_and_order", { amount: formatDZD(split.online) }) : `${t("place_order")} · ${formatDZD(subtotal + fee)}`}
+                  </Button>
                 </form>
               )}
             </div>

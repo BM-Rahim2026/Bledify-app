@@ -4,6 +4,7 @@ import { cache } from "react";
 import { anonSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { ShopView, type PublicShop } from "@/components/ShopView";
+import { paymentMode } from "@/lib/server/payments";
 
 const getShop = cache(async (slug: string): Promise<PublicShop | null> => {
   if (!isConfigured) return null;
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: PageProps<"/s/[slug]">): Prom
 export default async function ShopPage({ params }: PageProps<"/s/[slug]">) {
   const shop = await getShop((await params).slug);
   if (!shop) notFound();
-  return <ShopView shop={shop} />;
+  return <ShopView shop={shop} paymentsOn={paymentMode() !== "off"} />;
 }

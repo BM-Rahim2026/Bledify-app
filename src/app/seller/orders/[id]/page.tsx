@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { PaymentBadge, toCollect } from "@/components/PaymentBadge";
 import { use, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -67,7 +68,11 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
               <li key={k} className="flex justify-between gap-3 py-2"><span className="min-w-0">{i.name} ×{i.quantity}</span><span className="shrink-0 whitespace-nowrap">{formatDZD(i.unit_price_dzd * i.quantity)}</span></li>
             ))}
             <li className="flex justify-between gap-3 py-2 text-muted"><span>{t("delivery_fee")}</span><span className="whitespace-nowrap">{formatDZD(o.delivery_dzd)}</span></li>
-            <li className="flex justify-between gap-3 py-2 text-base font-bold"><span>{t("to_collect")}</span><span className="whitespace-nowrap text-brand">{formatDZD(o.total_dzd)}</span></li>
+            <li className="flex justify-between gap-3 py-2 font-semibold"><span>{t("total")}</span><span className="whitespace-nowrap">{formatDZD(o.total_dzd)}</span></li>
+            {o.amount_online_dzd && toCollect(o) !== o.total_dzd ? (
+              <li className="flex justify-between gap-3 py-2 text-sky-800"><span><PaymentBadge o={o} /></span><span className="whitespace-nowrap">−{formatDZD(o.total_dzd - toCollect(o))}</span></li>
+            ) : null}
+            <li className="flex justify-between gap-3 py-2 text-base font-bold"><span>{t("collect_on_delivery")}</span><span className="whitespace-nowrap text-brand">{toCollect(o) ? formatDZD(toCollect(o)) : t("nothing_to_collect")}</span></li>
           </ul>
           {o.note ? <p className="mt-2 rounded-lg bg-sand p-2 text-sm">{o.note}</p> : null}
         </Card>

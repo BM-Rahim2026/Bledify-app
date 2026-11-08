@@ -10,10 +10,10 @@ import { ProductAI } from "@/components/ai/ProductAI";
 import { PostGenerator } from "@/components/ai/PostGenerator";
 import { PageHeader } from "@/components/PageHeader";
 
-type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; tags: string[] };
+type Product = { id: string; name: string; description: string; story: string; price_dzd: number; images: string[]; active: boolean; position: number; category: string; tags: string[]; pay_cod: boolean; pay_card: boolean; deposit_pct: number };
 const fetchProducts = async () =>
   ((await supabase().from("products").select("*").order("position").order("created_at")).data ?? []) as Product[];
-const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", tags: [] as string[] };
+const blank = { name: "", description: "", story: "", price_dzd: 0, images: [] as string[], active: true, category: "food", tags: [] as string[], pay_cod: true, pay_card: true, deposit_pct: 0 };
 
 function ProductsInner() {
   const { t, formatDZD } = useI18n();
@@ -48,7 +48,7 @@ function ProductsInner() {
     e.preventDefault();
     if (!edit) return;
     setBusy(true); setErr(null);
-    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, tags: edit.tags };
+    const row = { name: edit.name, description: edit.description, story: edit.story, price_dzd: edit.price_dzd, images: edit.images, active: edit.active, category: edit.category, tags: edit.tags, pay_cod: edit.pay_cod || !edit.pay_card, pay_card: edit.pay_card || edit.deposit_pct > 0, deposit_pct: edit.deposit_pct };
     const sb = supabase();
     const { error } = edit.id
       ? await sb.from("products").update(row).eq("id", edit.id)
@@ -123,6 +123,30 @@ function ProductsInner() {
                     </button>
                   );
                 })}
+              </div>
+            </fieldset>
+            <fieldset className="space-y-2 rounded-xl border border-line p-3">
+              <legend className="px-1 text-sm font-semibold">{t("seller_pay_options")}</legend>
+              {(["pay_cod", "pay_card"] as const).map((k) => (
+                <label key={k} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" className="h-5 w-5 accent-brand" checked={edit[k]}
+                    disabled={edit[k] && !edit[k === "pay_cod" ? "pay_card" : "pay_cod"]}
+                    onChange={(e) => setEdit({ ...edit, [k]: e.target.checked, ...(k === "pay_card" && !e.target.checked ? { deposit_pct: 0 } : {}) })} />
+                  {t(k === "pay_cod" ? "seller_pay_cod" : "seller_pay_card")}
+                </label>
+              ))}
+              <div>
+                <p className="text-sm font-semibold">{t("seller_deposit")}</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {[0, 30, 50, 100].map((pct) => (
+                    <button key={pct} type="button" aria-pressed={edit.deposit_pct === pct}
+                      onClick={() => setEdit({ ...edit, deposit_pct: pct, ...(pct > 0 ? { pay_card: true } : {}) })}
+                      className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${edit.deposit_pct === pct ? "border-brand bg-brand text-white" : "border-line bg-surface"}`}>
+                      {pct ? `${pct} %` : t("seller_deposit_none")}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-xs text-muted">{t("seller_deposit_hint")}</p>
               </div>
             </fieldset>
             <div>

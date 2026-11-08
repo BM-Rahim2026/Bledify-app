@@ -19,6 +19,7 @@ import { RatingSummary, ReviewList, VerifiedBadge, type Review } from "@/compone
 
 export type PublicProduct = {
   id: string; name: string; description: string; story?: string; tags?: string[]; price_dzd: number; images: string[]; category: string;
+  pay_cod?: boolean; pay_card?: boolean; deposit_pct?: number;
   shop: {
     name: string; slug: string; wilaya: string; description: string; delivery_home_dzd: number; delivery_desk_dzd: number;
     delivered_count: number; logo?: LogoConfig; logo_url?: string; category?: string | null;
@@ -68,7 +69,9 @@ export function ProductView({ p }: { p: PublicProduct }) {
           <p className="mt-3 text-3xl font-bold text-brand">{formatDZD(p.price_dzd)}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
             <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand inline-flex items-center gap-1"><Icon name="home" className="h-3.5 w-3.5" />{t("handmade")}</span>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span>
+            {p.pay_cod !== false ? <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-ok inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5" />{t("cod")}</span> : null}
+            {p.pay_card !== false ? <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-800 inline-flex items-center gap-1"><Icon name="shield" className="h-3.5 w-3.5" />{t("pay_card")}</span> : null}
+            {p.deposit_pct ? <span className="rounded-full bg-gold-soft px-2.5 py-1 text-ink inline-flex items-center gap-1"><Icon name="cash" className="h-3.5 w-3.5 text-gold" />{t("pay_deposit", { pct: p.deposit_pct })}</span> : null}
             <span className="rounded-full bg-stone-100 px-2.5 py-1 text-muted inline-flex items-center gap-1"><Icon name="truck" className="h-3.5 w-3.5" />{t("delivery_from", { price: formatDZD(minFee(p.shop)) })}</span>
           </div>
           {p.tags?.length ? (

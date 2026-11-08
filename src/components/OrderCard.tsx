@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { PaymentBadge } from "@/components/PaymentBadge";
 import { useI18n } from "@/lib/i18n";
 import { formatDateTime, prettyPhone } from "@/lib/format";
 import { wilayaLabel } from "@/lib/wilayas";
@@ -20,6 +21,7 @@ export function OrderCard({ order: o, onChange }: { order: Order; onChange: (o: 
           <div className="shrink-0 text-end">
             <StatusPill status={o.status} />
             <p className="mt-1 whitespace-nowrap text-base font-bold text-brand">{formatDZD(o.total_dzd)}</p>
+            <PaymentBadge o={o} />
           </div>
         </div>
         <p className="text-sm text-muted">

@@ -1,5 +1,6 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
+import { toCollect } from "@/components/PaymentBadge";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -44,7 +45,7 @@ function Labels() {
             {o.tracking_number ? <p className="text-sm" dir="ltr">{o.carrier} {o.tracking_number}</p> : null}
             <div className="mt-3 flex items-center justify-between border-t border-black pt-2">
               <span className="font-semibold">{t("to_collect")}</span>
-              <span className="text-3xl font-bold">{formatDZD(o.total_dzd)}</span>
+              <span className="text-3xl font-bold">{toCollect(o) ? formatDZD(toCollect(o)) : t("nothing_to_collect")}</span>
             </div>
           </section>
         ))}

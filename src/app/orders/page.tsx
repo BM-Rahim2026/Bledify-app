@@ -16,18 +16,46 @@ type MyOrder = {
   id: string; number: string; status: string; items: OrderItem[]; total_dzd: number; created_at: string;
   carrier: string; tracking_number: string; shop_name: string; shop_slug: string; image: string | null;
   reviews?: Record<string, { rating: number; comment: string }>;
+  payment_method?: "cod" | "card"; payment_status?: string; amount_online_dzd?: number; amount_cod_dzd?: number;
 };
 
 export default function MyOrders() {
   const { t, lang, formatDZD } = useI18n();
   const [orders, setOrders] = useState<MyOrder[] | null>(null);
-  useEffect(() => { supabase().rpc("my_orders").then(({ data }) => setOrders((data ?? []) as MyOrder[])); }, []);
+  const [banner, setBanner] = useState<"paid" | "checking" | "failed" | null>(null);
+  const [paying, setPaying] = useState<string | null>(null);
+  const load = () => supabase().rpc("my_orders").then(({ data }) => setOrders((data ?? []) as MyOrder[]));
+
+  // back from the payment page: record the result now (the webhook may arrive later)
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const id = sp.get("paid") || sp.get("payfail");
+    if (!id) { void load(); return; }
+    queueMicrotask(() => setBanner("checking"));
+    fetch("/api/payments/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ order_id: id, sync: true }) })
+      .then((r) => r.json()).then((b) => setBanner(b.paid ? "paid" : "failed")).catch(() => setBanner("failed"))
+      .finally(() => { void load(); window.history.replaceState(null, "", "/orders"); });
+  }, []);
+
+  async function pay(o: MyOrder) {
+    setPaying(o.id);
+    const r = await fetch("/api/payments/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ order_id: o.id, lang }) });
+    const b = await r.json().catch(() => ({}));
+    if (b.checkout_url) { window.location.href = b.checkout_url; return; }
+    setPaying(null);
+    if (b.paid) void load(); else setBanner("failed");
+  }
 
   return (
     <div className="min-h-dvh">
       <PublicHeader />
       <main className="mx-auto max-w-2xl px-4 py-6">
         <h1 className="mb-5 font-display text-3xl">{t("my_orders")}</h1>
+        {banner ? (
+          <p role="status" className={`mb-4 rounded-xl p-3 text-sm font-semibold ${banner === "paid" ? "bg-emerald-50 text-ok" : banner === "failed" ? "bg-amber-50 text-amber-900" : "bg-sand text-ink"}`}>
+            {t(banner === "paid" ? "pay_success" : banner === "failed" ? "pay_failed_msg" : "pay_checking")}
+          </p>
+        ) : null}
         {orders === null ? <div className="py-16 text-center"><Spinner /></div> : orders.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-muted">{t("no_my_orders")}</p>
@@ -50,6 +78,12 @@ export default function MyOrders() {
                   </p>
                   <p className="mt-1 font-bold">{formatDZD(o.total_dzd)}</p>
                   {o.tracking_number ? <p className="text-xs font-semibold text-amber-800" dir="ltr">{o.carrier} {o.tracking_number}</p> : null}
+                  <PaymentLine o={o} />
+                  {o.status === "new" && (o.payment_status === "pending" || o.payment_status === "failed") && o.amount_online_dzd ? (
+                    <button type="button" disabled={paying === o.id} onClick={() => pay(o)} className="mt-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+                      {paying === o.id ? t("pay_redirecting") : t("pay_now", { amount: formatDZD(o.amount_online_dzd) })}
+                    </button>
+                  ) : null}
                   {o.status === "delivered" ? (
                     <div className="mt-3 space-y-2 border-t border-line pt-3">
                       {o.items.filter((i) => i.product_id).map((i) => <ReviewBox key={i.product_id} orderId={o.id} item={i} existing={o.reviews?.[i.product_id!]} />)}
@@ -118,5 +152,18 @@ function ReviewBox({ orderId, item, existing }: { orderId: string; item: OrderIt
         <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-line bg-surface px-3 py-2 text-sm">{t("cancel")}</button>
       </div>
     </form>
+  );
+}
+
+function PaymentLine({ o }: { o: MyOrder }) {
+  const { t, formatDZD } = useI18n();
+  const st = o.payment_status ?? "none";
+  if (st === "none") return <p className="mt-1 text-xs text-muted">{t("pay_cod")} · {formatDZD(o.amount_cod_dzd ?? o.total_dzd)}</p>;
+  const color = st === "paid" ? "text-ok" : st === "failed" ? "text-danger" : "text-amber-800";
+  return (
+    <p className={`mt-1 text-xs font-semibold ${color}`}>
+      {t(`pay_status_${st}` as Parameters<typeof t>[0])} · {formatDZD(o.amount_online_dzd ?? 0)}
+      {o.amount_cod_dzd ? <span className="font-normal text-muted"> · {t("pay_on_delivery_amount")} {formatDZD(o.amount_cod_dzd)}</span> : null}
+    </p>
   );
 }

@@ -40,8 +40,8 @@ async function placeOrder(over = {}) {
     items: [{ product_id: p1, quantity: 1 }], ip: `10.0.0.${++ipSeq}`, ...over,
   };
   const [r] = await as("service", () =>
-    q("select public.place_order($1,$2,$3,$4,$5,$6,$7,$8::jsonb,'',$9) as o",
-      [a.slug, a.name, a.phone, a.wilaya, a.commune, a.address, a.type, JSON.stringify(a.items), a.ip]));
+    q("select public.place_order($1,$2,$3,$4,$5,$6,$7,$8::jsonb,'',$9,$10,$11) as o",
+      [a.slug, a.name, a.phone, a.wilaya, a.commune, a.address, a.type, JSON.stringify(a.items), a.ip, a.customer ?? null, a.method ?? "cod"]));
   return r.o;
 }
 const code = (p) => p.then(() => "ok", (e) => e.code);
@@ -300,4 +300,78 @@ test("no phone numbers in public shop and product texts", { skip }, async () => 
   // ordinary numbers are fine
   await as(A, () => q("update public.products set description='Boîte de 30 pièces, 2500 DA, commande 48 h avant, 1 kg' where id=$1", [p1]));
   await as(A, () => q("update public.shops set description='Depuis 2015, 058 wilayas' where id=$1", [shopA]));
+});
+
+
+test("payments: card orders hidden until paid; deposits; allowed methods", { skip }, async () => {
+  await db.query("truncate public.orders, public.order_attempts cascade");
+  await q("update public.products set pay_cod=true, pay_card=true, deposit_pct=0 where shop_id=$1", [shopA]);
+  // full card payment
+  const card = await placeOrder({ phone: "0550000500", method: "card", ip: "" });
+  assert.equal(card.payment_status, "pending");
+  assert.equal(card.amount_online_dzd, card.total_dzd);
+  assert.equal(card.amount_cod_dzd, 0);
+  const seen = async () => (await as(A, () => q("select count(*)::int n from public.orders where id=$1", [card.id])))[0].n;
+  assert.equal(await seen(), 0); // the shop does not see unpaid orders
+  await as("service", () => q("select public.attach_checkout($1,'chk_1')", [card.id]));
+  assert.equal(await code(as("service", () => q("select public.mark_order_paid('chk_1', 5)"))), "22023"); // wrong amount
+  const [{ r }] = await as("service", () => q("select public.mark_order_paid('chk_1', $1) r", [card.total_dzd]));
+  assert.equal(r.newly_paid, true);
+  const [{ r: again }] = await as("service", () => q("select public.mark_order_paid('chk_1', $1) r", [card.total_dzd]));
+  assert.equal(again.newly_paid, false); // idempotent
+  assert.equal(await seen(), 1);
+  // the shop cannot change payment fields
+  await as(A, () => q("update public.orders set payment_status='none', amount_online_dzd=0 where id=$1", [card.id]));
+  const [row] = await q("select payment_status, amount_online_dzd from public.orders where id=$1", [card.id]);
+  assert.deepEqual([row.payment_status, row.amount_online_dzd], ["paid", card.total_dzd]);
+  assert.equal(await code(as(A, () => q("update public.orders set delivery_dzd=0 where id=$1", [card.id]))), "22023");
+  // deposit: 30 % of 700 = 210 DA online, the rest cash on delivery
+  await q("update public.products set deposit_pct=30 where id=$1", [p1]);
+  const dep = await placeOrder({ phone: "0550000501", ip: "" });
+  assert.deepEqual([dep.payment_method, dep.amount_online_dzd, dep.amount_cod_dzd, dep.payment_status], ["cod", 210, dep.total_dzd - 210, "pending"]);
+  // a product without cash on delivery refuses the cod method
+  await q("update public.products set pay_cod=false, deposit_pct=0 where id=$1", [p2]);
+  assert.equal(await code(placeOrder({ phone: "0550000502", items: [{ product_id: p2, quantity: 1 }], ip: "" })), "22023");
+  await q("update public.products set pay_card=false, pay_cod=true where id=$1", [p2]);
+  assert.equal(await code(placeOrder({ phone: "0550000503", items: [{ product_id: p2, quantity: 1 }], method: "card", ip: "" })), "22023");
+  assert.equal(await code(q("update public.products set pay_cod=false, pay_card=false where id=$1", [p2])), "23514");
+  await q("update public.products set pay_cod=true, pay_card=true, deposit_pct=0 where shop_id=$1", [shopA]);
+  // unpaid orders expire
+  await db.query("set session_replication_role = replica");
+  await q("update public.orders set created_at = now() - interval '3 hours' where id=$1", [dep.id]);
+  await db.query("set session_replication_role = origin");
+  await placeOrder({ phone: "0550000504", ip: "" });
+  const [exp] = await q("select status, payment_status from public.orders where id=$1", [dep.id]);
+  assert.deepEqual([exp.status, exp.payment_status], ["cancelled", "failed"]);
+});
+
+test("payouts: commission, hold period, refunds, payouts", { skip }, async () => {
+  await db.query("truncate public.orders, public.order_attempts, public.seller_ledger cascade");
+  const o = await placeOrder({ phone: "0550000600", ip: "" }); // 700 + 400 delivery, cash on delivery
+  for (const st of ["confirmed", "shipped", "delivered"]) await as(A, () => q("select public.set_order_status($1,$2)", [o.id, st]));
+  const [row] = await q("select commission_dzd, seller_net_dzd from public.orders where id=$1", [o.id]);
+  assert.deepEqual([row.commission_dzd, row.seller_net_dzd], [70, 1030]); // 10 % of the items only
+  let [{ b }] = await as(A, () => q("select public.seller_balance() b"));
+  assert.deepEqual([b.on_hold, b.available, b.paid_out], [1030, 0, 0]);
+  const [{ n: other }] = await as(B, () => q("select count(*)::int n from public.seller_ledger"));
+  assert.equal(other, 0);
+  assert.equal(await code(as(A, () => q("insert into public.seller_ledger (shop_id, kind, amount_dzd) values ($1,'adjustment',99999)", [shopA]))), "42501");
+  assert.equal(await code(as(A, () => q("select public.record_payout($1, 10, 'x')", [shopA]))), "42501");
+  await q("update public.seller_ledger set available_at = now() - interval '1 minute' where order_id=$1", [o.id]);
+  [{ b }] = await as(A, () => q("select public.seller_balance() b"));
+  assert.equal(b.available, 1030);
+  assert.equal(await code(as("service", () => q("select public.record_payout($1, 2000, 'CCP 1')", [shopA]))), "22023");
+  await as("service", () => q("select public.record_payout($1, 1000, 'CCP virement 1')", [shopA]));
+  [{ b }] = await as(A, () => q("select public.seller_balance() b"));
+  assert.deepEqual([b.available, b.paid_out], [30, 1000]);
+  // a paid card order cancelled by the shop must be refunded; the team may credit part of it to the shop
+  const c = await placeOrder({ phone: "0550000601", method: "card", ip: "" });
+  await as("service", () => q("select public.attach_checkout($1,'chk_2')", [c.id]));
+  await as("service", () => q("select public.mark_order_paid('chk_2', $1)", [c.total_dzd]));
+  await as(A, () => q("select public.record_call($1,'cancelled')", [c.id]));
+  const [{ payment_status }] = await q("select payment_status from public.orders where id=$1", [c.id]);
+  assert.equal(payment_status, "refund_due");
+  await as("service", () => q("select public.resolve_refund($1, 200, 'acompte gardé')", [c.id]));
+  [{ b }] = await as(A, () => q("select public.seller_balance() b"));
+  assert.equal(b.available, 230);
 });

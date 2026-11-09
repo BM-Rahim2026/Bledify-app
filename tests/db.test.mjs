@@ -608,3 +608,64 @@ test("admin v2: reports, disputes, blocked accounts, review queue, log, analytic
   await q("delete from public.admins");
   await q("update public.products set reviewed_at=now() where shop_id=$1", [shopA]);
 });
+
+test("notifications, warnings, banners, email digest", { skip }, async () => {
+  await q("update auth.users set email_confirmed_at=now()");
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  await q("delete from public.notifications");
+  // a buyer's order: the shop hears about it, the buyer hears about shipping
+  const o = await placeOrder({ phone: "0550000901", ip: "", customer: B });
+  for (const st of ["confirmed", "shipped"]) await as(A, () => q("select public.set_order_status($1,$2)", [o.id, st]));
+  const [{ na }] = await as(A, () => q("select public.my_notifications() na"));
+  assert.ok(na.some((x) => x.kind === "order_new" && x.params.number === o.number));
+  const [{ nb }] = await as(B, () => q("select public.my_notifications() nb"));
+  assert.deepEqual(nb.map((x) => x.kind).sort(), ["order_confirmed", "order_shipped"]);
+  // nobody reads or writes the table directly
+  assert.equal(await code(as(A, () => q("select * from public.notifications"))), "42501");
+  assert.equal(await code(as(A, () => q("select public.notify($1, 'x')", [A]))), "42501");
+  // team actions → the shop is told
+  await as(B, () => q("select public.admin_set_product_blocked($1, true, 'Produit importé')", [p2]));
+  await as(B, () => q("select public.admin_set_product_blocked($1, false)", [p2]));
+  const wid = (await as(B, () => q("select public.admin_warn_shop($1, 'warning', 'late_shipping', 'Trois retards') w", [shopA])))[0].w;
+  assert.ok(wid);
+  assert.equal(await code(as(A, () => q("select public.admin_warn_shop($1, 'final', 'other')", [shopA]))), "42501");
+  assert.equal(await code(as(B, () => q("select public.admin_warn_shop($1, 'final', 'nope')", [shopA]))), "23514");
+  const [{ w }] = await as(A, () => q("select public.my_shop_warnings() w"));
+  assert.equal(w[0].reason, "late_shipping");
+  const [{ w: wb }] = await as(B, () => q("select public.my_shop_warnings() w"));
+  assert.equal(wb.length, 0);
+  const [{ aw }] = await as(B, () => q("select public.admin_shop_warnings($1) aw", [shopA]));
+  assert.equal(aw.length, 1);
+  const [{ u }] = await as(A, () => q("select public.my_unread_count() u"));
+  assert.equal(u, 4); // order_new, product_blocked, product_unblocked, shop_warning_warning
+  // email digest: once per notification, respecting the user's choice
+  let [{ d }] = await as("service", () => q("select public.digest_pending() d"));
+  const da = d.find((x) => x.user_id === A);
+  assert.equal(da.items.length, 4);
+  assert.equal(da.email, "a@test.dz");
+  await as("service", () => q("select public.digest_mark_sent($1::bigint[])", [da.items.map((i) => i.id)]));
+  await as(B, () => q("select public.save_my_settings('ar', false)"));
+  [{ d }] = await as("service", () => q("select public.digest_pending() d"));
+  assert.equal(d.length, 0);
+  const [{ st }] = await as(B, () => q("select public.my_settings() st"));
+  assert.deepEqual(st, { lang: "ar", email_digest: false });
+  assert.equal(await code(as(A, () => q("select public.digest_pending()"))), "42501");
+  const [{ td }] = await as("service", () => q("select public.team_digest() td"));
+  assert.ok(td.emails.includes("b@test.dz") && "applications" in td.counts);
+  await as(A, () => q("select public.mark_notifications_read()"));
+  assert.equal((await as(A, () => q("select public.my_unread_count() u")))[0].u, 0);
+  // home banners: live ones are public, the team manages them
+  const id = (await as(B, () => q(`select public.admin_save_banner('{"title_fr":"Aïd","title_ar":"العيد","image":"/home/x.webp","href":"/explore?collection=aid"}') id`)))[0].id;
+  await as(B, () => q(`select public.admin_save_banner('{"title_fr":"Plus tard","title_ar":"لاحقا","image":"/home/y.webp","starts_at":"2099-01-01"}')`));
+  const live = await as("anon", () => q("select title_fr from public.home_banners"));
+  assert.deepEqual(live.map((x) => x.title_fr), ["Aïd"]);
+  assert.equal(await code(as(A, () => q("select public.admin_save_banner('{}')"))), "42501");
+  assert.equal(await code(as(B, () => q(`select public.admin_save_banner('{"title_fr":"x","title_ar":"x","image":"javascript:x"}')`))), "23514");
+  const [{ bs }] = await as(B, () => q("select public.admin_banners() bs"));
+  assert.equal(bs.length, 2);
+  await as(B, () => q("select public.admin_delete_banner($1)", [id]));
+  const [{ log }] = await as(B, () => q("select public.admin_audit_log() log"));
+  assert.ok(log.some((x) => x.target_type === "home_banners" && x.action === "delete"));
+  assert.ok(log.some((x) => x.action === "warn"));
+  await q("delete from public.admins; delete from public.home_banners");
+});

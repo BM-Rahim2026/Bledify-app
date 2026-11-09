@@ -19,7 +19,7 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getUser();
-  const gated = ["/seller", "/admin", "/account", "/orders"].some((p) => request.nextUrl.pathname.startsWith(p));
+  const gated = ["/seller", "/admin", "/account", "/orders", "/notifications"].some((p) => request.nextUrl.pathname.startsWith(p));
   if (!data.user && gated) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -30,5 +30,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/seller/:path*", "/admin/:path*", "/account", "/orders", "/s/:path*", "/login", "/signup", "/auth/:path*", "/api/orders", "/api/ai/:path*"],
+  matcher: ["/seller/:path*", "/admin/:path*", "/account", "/orders", "/notifications", "/s/:path*", "/login", "/signup", "/auth/:path*", "/api/orders", "/api/ai/:path*"],
 };

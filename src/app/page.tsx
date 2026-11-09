@@ -8,7 +8,7 @@ import { PublicNav } from "@/components/PublicNav";
 import { ProductRow } from "@/components/ProductCard";
 import { ShopCard, type ShopCardData } from "@/components/ShopCard";
 import { Logo } from "@/components/Logo";
-import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { HeroCarousel, type HeroSlide } from "@/components/home/HeroCarousel";
 import { CategoryGrid, OffersSections, SectionTitle, TrustStrip } from "@/components/home/Sections";
 import { getOffers } from "@/lib/server/offers";
 
@@ -21,14 +21,27 @@ async function getHome(): Promise<Home> {
   return (data as Home) ?? empty;
 }
 
+type Banner = { id: number; title_fr: string; title_ar: string; sub_fr: string; sub_ar: string; image: string; href: string };
+
+// Live slides chosen by the team (RLS keeps active ones within their dates).
+async function getBanners(): Promise<Banner[]> {
+  if (!isConfigured) return [];
+  const { data } = await anonSupabase().from("home_banners").select("id,title_fr,title_ar,sub_fr,sub_ar,image,href").order("position").order("id").limit(8);
+  return (data ?? []) as Banner[];
+}
+
 export default async function HomePage() {
-  const [{ t }, home, offers] = await Promise.all([getT(), getHome(), getOffers()]);
+  const [{ t, lang }, home, offers, banners] = await Promise.all([getT(), getHome(), getOffers(), getBanners()]);
+  const slides: HeroSlide[] = banners.map((b) => ({
+    key: String(b.id), image: b.image, href: b.href,
+    title: lang === "ar" ? b.title_ar : b.title_fr, sub: lang === "ar" ? b.sub_ar : b.sub_fr,
+  }));
   const fallback = Object.fromEntries(home.categories.map((c) => [c.slug, c.image]));
 
   return (
     <div className="min-h-dvh bg-ivory">
       <PublicHeader tagline />
-      <div className="mx-auto max-w-6xl md:px-4 md:pt-4"><HeroCarousel /></div>
+      <div className="mx-auto max-w-6xl md:px-4 md:pt-4"><HeroCarousel banners={slides} /></div>
 
       <main className="mx-auto max-w-6xl space-y-9 px-4 pt-7">
         <section>

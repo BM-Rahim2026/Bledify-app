@@ -4,6 +4,7 @@ import { useI18n, LangSwitch } from "@/lib/i18n";
 import { useCartCount } from "@/lib/cart";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icon";
+import { NotificationBell } from "@/components/NotificationBell";
 
 /** Ivory top bar: search · logo + tagline (centre) · language, favourites, cart. */
 export function PublicHeader({ tagline = false }: { tagline?: boolean; overlay?: boolean }) {
@@ -26,6 +27,7 @@ export function PublicHeader({ tagline = false }: { tagline?: boolean; overlay?:
         <div className="flex items-center justify-end gap-0.5">
           <LangSwitch className="hidden min-[400px]:inline-flex [&_button]:px-2" />
           <Link href="/favorites" aria-label={t("favorites")} className="hidden rounded-full p-2 text-ink hover:bg-sand min-[360px]:block"><Icon name="heart" className="h-6 w-6" /></Link>
+          <NotificationBell />
           <Link href="/cart" aria-label={t("cart_title")} className="relative rounded-full p-2 text-ink hover:bg-sand">
             <Icon name="cart" className="h-6 w-6" />
             {count ? <span className="absolute end-0.5 top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">{count}</span> : null}

@@ -7,6 +7,10 @@ import { useI18n } from "@/lib/i18n";
 import { shopUrl, useSeller } from "@/lib/seller";
 import { Button, Card } from "@/components/ui";
 import { PageHeader } from "@/components/PageHeader";
+import { NotificationBell } from "@/components/NotificationBell";
+import type { DictKey } from "@/lib/i18n/dict";
+
+type Warning = { id: number; level: "warning" | "final"; reason: string; details: string; created_at: string };
 
 type Stats = { by_status: Record<string, number>; revenue_month_dzd: number; week: number };
 
@@ -16,11 +20,13 @@ export default function Dashboard() {
   const [s, setS] = useState<Stats | null>(null);
   const [products, setProducts] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [warnings, setWarnings] = useState<Warning[]>([]);
   const link = shopUrl(shop.slug);
 
   useEffect(() => {
     supabase().rpc("seller_stats").then(({ data }) => setS(data as Stats));
     supabase().from("products").select("id", { count: "exact", head: true }).then(({ count }) => setProducts(count ?? 0));
+    supabase().rpc("my_shop_warnings").then(({ data }) => setWarnings((data as Warning[]) ?? []));
   }, []);
 
   const n = (k: string) => s?.by_status?.[k] ?? 0;
@@ -33,7 +39,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <PageHeader title={shop.name} />
+      <PageHeader title={shop.name} action={<NotificationBell className="-me-2" />} />
       {shop.status === "pending" ? (
         <p className="mx-4 mt-3 rounded-xl border border-gold/50 bg-gold-soft/60 p-3 text-sm" role="status">{t("application_pending")}</p>
       ) : shop.status === "rejected" ? (
@@ -45,6 +51,19 @@ export default function Dashboard() {
         <p className="mx-4 mt-3 rounded-xl border border-danger/30 bg-rose-50 p-3 text-sm text-danger" role="alert">
           {t("seller_suspended")}{shop.suspended_reason ? ` (${shop.suspended_reason})` : ""}
         </p>
+      ) : null}
+      {warnings.length && !shop.suspended ? (
+        <div className={`mx-4 mt-3 rounded-xl border p-3 text-sm ${warnings[0].level === "final" ? "border-danger/30 bg-rose-50 text-danger" : "border-gold/50 bg-gold-soft/60"}`} role="alert">
+          <p className="font-semibold">{t(warnings[0].level === "final" ? "warn_final_title" : "warn_title")}</p>
+          <ul className="mt-1 space-y-1">
+            {warnings.slice(0, 3).map((w) => (
+              <li key={w.id}>
+                {new Date(w.created_at).toLocaleDateString(undefined, { timeZone: "Africa/Algiers" })} · {t(`warn_r_${w.reason}` as DictKey)}{w.details ? ` — ${w.details}` : ""}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs opacity-90">{t("warn_seller_hint")} <Link href="/legal/sellers" className="underline">{t("warn_rules_link")}</Link></p>
+        </div>
       ) : null}
       <div className="space-y-4 p-4">
         <div className="rounded-2xl bg-brand p-4 text-white">

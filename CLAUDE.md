@@ -93,6 +93,19 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   `/api/orders`); internal notes (`admin_notes`); automatic action log (`admin_audit`, written by triggers only
   when `require_admin()` marked the request) at `/admin/journal`.
 
+## Notifications, warnings, banners (0021)
+- `notifications` (no direct access) written by triggers via internal `notify()`: shop decided / suspended, product
+  blocked, offer entry decided, payout, new visible order (shop), order confirmed/shipped/delivered/cancelled (buyer),
+  report closed, shop warning. Read with `my_notifications`, `my_unread_count`, `mark_notifications_read`; text from
+  `kind` + `params` via `ntf_<kind>` dict keys (`src/lib/notifications.ts`). Bell = `NotificationBell`, page `/notifications`.
+- `user_settings` (lang, email_digest) via `my_settings` / `save_my_settings`. Daily digest: Vercel Cron (`vercel.json`)
+  → `/api/cron/digest` (needs `CRON_SECRET` + `RESEND_API_KEY`), service-role `digest_pending`, `digest_mark_sent`,
+  `team_digest` (to-do counts to admins; `todo_counts()` is shared with `admin_counts`).
+- Graduated warnings: `shop_warnings` (warning → final → suspension), `admin_warn_shop`, `admin_shop_warnings`,
+  shop sees `my_shop_warnings` on `/seller`.
+- Home carousel: `home_banners` (public RLS = active and within dates), `/admin/banners` (`admin_banners`,
+  `admin_save_banner`, `admin_delete_banner`); without live banners `HERO_SLIDES` are shown.
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

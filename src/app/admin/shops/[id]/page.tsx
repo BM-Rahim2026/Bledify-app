@@ -7,9 +7,12 @@ import { wilayaLabel } from "@/lib/wilayas";
 import { formatDate } from "@/lib/format";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { RatingSummary, VerifiedBadge } from "@/components/trust/Trust";
-import { Button, Card, Field, Input, Spinner } from "@/components/ui";
+import { Button, Card, Field, Input, Select, Spinner } from "@/components/ui";
 import { NotesAndLog, Pill, Section, Stat, adminCall, useAdminRpc } from "@/components/admin/AdminUI";
 import type { DictKey } from "@/lib/i18n/dict";
+import { WARNING_REASONS, type WarningReason } from "@/lib/notifications";
+
+type Warning = { id: number; level: "warning" | "final"; reason: WarningReason; details: string; admin_email: string; created_at: string };
 
 type Shop = {
   id: string; name: string; slug: string; description: string; wilaya: string; phone: string; whatsapp: string;
@@ -26,6 +29,9 @@ export default function AdminShop() {
   const { id } = useParams<{ id: string }>();
   const { t, lang, formatDZD } = useI18n();
   const { data: s, reload } = useAdminRpc<Shop>("admin_shop", { p_shop: id });
+  const { data: warnings, reload: reloadWarnings } = useAdminRpc<Warning[]>("admin_shop_warnings", { p_shop: id });
+  const [wReason, setWReason] = useState<WarningReason>("late_shipping");
+  const [wDetails, setWDetails] = useState("");
   const [reason, setReason] = useState("");
   const [reviewNote, setReviewNote] = useState("");
   const [commission, setCommission] = useState<string | null>(null);
@@ -39,7 +45,17 @@ export default function AdminShop() {
     if (ok) await reload();
   }
 
+  async function warn(level: "warning" | "final") {
+    setBusy(true); setMsg(null);
+    const ok = await adminCall("admin_warn_shop", { p_shop: id, p_level: level, p_reason: wReason, p_details: wDetails.trim() });
+    setBusy(false); setMsg(ok);
+    if (ok) { setWDetails(""); await reloadWarnings(); }
+  }
+
   if (!s) return <div className="py-16 text-center"><Spinner /></div>;
+  const warns = warnings ?? [];
+  const finals = warns.filter((w) => w.level === "final").length;
+  const step = s.suspended ? 3 : finals ? 2 : warns.length ? 1 : 0;
   const pct = commission ?? (s.commission_pct == null ? "" : String(s.commission_pct));
   return (
     <div className="space-y-5">
@@ -129,6 +145,44 @@ export default function AdminShop() {
             <Button type="submit" size="sm" disabled={busy}>{t("save")}</Button>
           </form>
           {msg !== null ? <p className={`text-sm ${msg ? "text-ok" : "text-danger"}`}>{t(msg ? "saved" : "error")}</p> : null}
+        </Card>
+      </Section>
+      <Section title={t("adm_warnings")}>
+        <Card className="space-y-4">
+          <ol className="grid grid-cols-3 gap-1 text-center text-xs font-semibold">
+            {(["adm_step_warning", "adm_step_final", "adm_step_suspend"] as const).map((k, i) => (
+              <li key={k} className={`rounded-lg px-1 py-2 ${step > i ? (i === 2 ? "bg-rose-100 text-danger" : "bg-amber-100 text-amber-900") : step === i ? "border-2 border-ink" : "bg-sand text-muted"}`}>
+                {i + 1}. {t(k)}
+              </li>
+            ))}
+          </ol>
+          {warns.length ? (
+            <ul className="space-y-2 text-sm">
+              {warns.map((w) => (
+                <li key={w.id} className="flex flex-wrap items-center gap-2 border-b border-line pb-2 last:border-0">
+                  <Pill tone={w.level === "final" ? "danger" : "warn"}>{t(w.level === "final" ? "adm_step_final" : "adm_step_warning")}</Pill>
+                  <span className="font-semibold">{t(`warn_r_${w.reason}` as DictKey)}</span>
+                  {w.details ? <span className="min-w-0 break-words text-muted">— {w.details}</span> : null}
+                  <span className="ms-auto whitespace-nowrap text-xs text-muted">{formatDate(w.created_at, lang)} · {w.admin_email}</span>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="text-sm text-muted">{t("adm_no_warnings")}</p>}
+          {s.suspended ? null : (
+            <div className="space-y-2 border-t border-line pt-3">
+              <Field label={t("adm_warn_reason")}>
+                <Select value={wReason} onChange={(e) => setWReason(e.target.value as WarningReason)}>
+                  {WARNING_REASONS.map((r) => <option key={r} value={r}>{t(`warn_r_${r}` as DictKey)}</option>)}
+                </Select>
+              </Field>
+              <Field label={t("adm_warn_details")}><Input value={wDetails} maxLength={1000} onChange={(e) => setWDetails(e.target.value)} /></Field>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant={step === 0 ? "primary" : "secondary"} disabled={busy} onClick={() => warn("warning")}>{t("adm_send_warning")}</Button>
+                <Button size="sm" variant={step >= 1 ? "danger" : "secondary"} disabled={busy} onClick={() => warn("final")}>{t("adm_send_final")}</Button>
+              </div>
+              <p className="text-xs text-muted">{t(step >= 2 ? "adm_warn_next_suspend" : "adm_warn_hint")}</p>
+            </div>
+          )}
         </Card>
       </Section>
       <NotesAndLog type="shop" id={s.id} logType="shops" />

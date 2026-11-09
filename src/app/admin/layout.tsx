@@ -28,7 +28,10 @@ const GROUPS: { key: DictKey; items: Item[] }[] = [
     { href: "/admin/customers", key: "adm_nav_customers", icon: "user" },
     { href: "/admin/reviews", key: "adm_nav_reviews", icon: "star" },
   ] },
-  { key: "adm_g_marketing", items: [{ href: "/admin/offers", key: "adm_nav_offers", icon: "gift", badge: "offers" }] },
+  { key: "adm_g_marketing", items: [
+    { href: "/admin/offers", key: "adm_nav_offers", icon: "gift", badge: "offers" },
+    { href: "/admin/banners", key: "adm_nav_banners", icon: "sun" },
+  ] },
   { key: "adm_g_system", items: [
     { href: "/admin/journal", key: "adm_nav_journal", icon: "map" },
     { href: "/admin/settings", key: "adm_nav_settings", icon: "home" },

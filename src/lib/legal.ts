@@ -117,6 +117,7 @@ const fr: Docs = {
     ] },
     { h: "7. Suspension", p: [
       "Fausses annonces, produits interdits, commandes non honorées à répétition ou comportement abusif envers les clients peuvent entraîner la suspension de la boutique.",
+      "Sauf faute grave (produits importés présentés comme faits main, fraude, danger pour la santé), Bledify procède par étapes : un avertissement, puis un dernier avertissement, puis la suspension. Chaque étape est notifiée à la boutique avec son motif, dans l'application et par e-mail.",
     ] },
   ],
   delivery: [
@@ -238,6 +239,7 @@ const ar: Docs = {
     ] },
     { h: "7. التوقيف", p: [
       "الإعلانات الكاذبة، المنتجات الممنوعة، تكرار عدم الوفاء بالطلبيات أو سوء معاملة الزبائن قد تؤدي إلى توقيف المتجر.",
+      "باستثناء المخالفات الخطيرة (منتجات مستوردة تُعرض على أنها يدوية، الاحتيال، خطر على الصحة)، تتدرج Bledify في الإجراءات: تنبيه، ثم تنبيه أخير، ثم التوقيف. يُبلَّغ المتجر بكل مرحلة وسببها، في التطبيق وعبر البريد الإلكتروني.",
     ] },
   ],
   delivery: [

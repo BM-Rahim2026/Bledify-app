@@ -114,6 +114,12 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   `wilaya_km()`. `public_nearby_shops` (home "Près de chez vous"), `public_products(..., p_near)` and
   `public_sellers(..., p_near)` sort nearest first; order form pre-fills the wilaya (GPS / chosen only).
 
+## Addresses & confirmations (0023)
+- `addresses` (RLS own rows; label home|work|family|other, validated phone/wilaya, max 10 → P0429, first = default,
+  one default kept by triggers). `src/lib/addresses.ts`, `AddressBook` / `AddressForm` on `/account`; checkout
+  (`ShopView`) lists them as cards (default pre-selected) or "new address" + "save for next orders".
+- Confirmations: `toast(text, "ok" | "error")` from `src/components/Toast.tsx` (`<Toaster />` in the root layout).
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

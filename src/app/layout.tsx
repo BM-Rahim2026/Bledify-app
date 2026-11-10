@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Serif_Display, Plus_Jakarta_Sans, Noto_Naskh_Arabic, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n";
+import { Toaster } from "@/components/Toast";
 import { getLang } from "@/lib/i18n/server";
 
 const dmSerif = DM_Serif_Display({ weight: "400", subsets: ["latin"], variable: "--font-dm-serif" });
@@ -29,7 +30,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${dmSerif.variable} ${jakarta.variable} ${naskh.variable} ${notoArabic.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <I18nProvider initial={lang}>{children}</I18nProvider>
+        <I18nProvider initial={lang}>{children}<Toaster /></I18nProvider>
       </body>
     </html>
   );

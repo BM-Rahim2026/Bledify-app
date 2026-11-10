@@ -697,3 +697,33 @@ test("geo: coordinates mirror src/lib/geo-coords.ts, distances, nearest shops fi
   assert.equal(se[0].slug, "shop-b");
   await q("delete from public.products where id=$1", [pb]);
 });
+
+test("address book: own rows only, one default, limit", { skip }, async () => {
+  await q("delete from public.addresses");
+  const add = (u, over = {}) => as(u, () => q(
+    "insert into public.addresses (label, full_name, phone, wilaya, commune, address) values ($1,$2,$3,$4,$5,$6) returning id, is_default",
+    [over.label ?? "home", "Amina K.", over.phone ?? "0661234567", over.wilaya ?? "31 - Oran", "Bir El Djir", "Cité 200 logts"]));
+  const [a1] = await add(A);
+  assert.equal(a1.is_default, true); // first = default
+  const [a2] = await add(A, { label: "work", wilaya: "16 - Alger" });
+  assert.equal(a2.is_default, false);
+  await as(A, () => q("update public.addresses set is_default = true where id = $1", [a2.id]));
+  let rows = await as(A, () => q("select id, is_default from public.addresses order by created_at"));
+  assert.deepEqual(rows.map((r) => r.is_default), [false, true]);
+  // others cannot see or change them
+  assert.equal((await as(B, () => q("select * from public.addresses"))).length, 0);
+  await as(B, () => q("update public.addresses set commune = 'X'"));
+  await as(B, () => q("delete from public.addresses"));
+  assert.equal((await as(A, () => q("select * from public.addresses"))).length, 2);
+  assert.equal(await code(as(A, () => q("insert into public.addresses (user_id, full_name, phone, wilaya, commune) values ($1,'Bad','0661234567','16 - Alger','X')", [B]))), "42501");
+  // validation
+  assert.equal(await code(add(A, { phone: "12345" })), "23514");
+  assert.equal(await code(add(A, { wilaya: "99 - Nowhere" })), "23514");
+  // deleting the default promotes another one
+  await as(A, () => q("delete from public.addresses where id = $1", [a2.id]));
+  rows = await as(A, () => q("select id, is_default from public.addresses"));
+  assert.deepEqual(rows.map((r) => [r.id, r.is_default]), [[a1.id, true]]);
+  for (let i = 0; i < 9; i++) await add(A);
+  assert.equal(await code(add(A)), "P0429");
+  await q("delete from public.addresses");
+});

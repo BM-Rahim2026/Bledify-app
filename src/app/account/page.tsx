@@ -8,6 +8,8 @@ import { useSession } from "@/lib/useSession";
 import { normalizePhone } from "@/lib/format";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicNav } from "@/components/PublicNav";
+import { AddressBook } from "@/components/AddressBook";
+import { toast } from "@/components/Toast";
 import { Button, Card, Field, Input, Spinner } from "@/components/ui";
 
 export default function Account() {
@@ -48,17 +50,19 @@ export default function Account() {
           <form className="space-y-3" onSubmit={async (e) => {
             e.preventDefault();
             setMsg(null);
-            if (phone && !normalizePhone(phone)) { setMsg(t("err_phone")); return; }
-            const { error } = await supabase().auth.updateUser({ data: { full_name: name.trim(), phone } });
-            setMsg(error ? t("error") : t("saved"));
+            if (phone && !normalizePhone(phone)) { setMsg(t("err_phone")); toast(t("err_phone"), "error"); return; }
+            const { error } = await supabase().auth.updateUser({ data: { full_name: name.trim(), phone: phone ? normalizePhone(phone) : "" } });
+            if (error) { setMsg(t("error")); toast(t("error"), "error"); } else toast(t("profile_saved"));
           }}>
             <Field label={t("customer_name")}><Input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></Field>
             <Field label={t("phone")}><Input type="tel" dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" /></Field>
             <p className="text-sm text-muted" dir="ltr">{user.email}</p>
-            {msg ? <p className="text-sm" role="status">{msg}</p> : null}
+            {msg ? <p className="text-sm text-danger" role="alert">{msg}</p> : null}
             <Button type="submit">{t("save")}</Button>
           </form>
         </Card>
+
+        <AddressBook defaults={{ full_name: name.trim(), phone }} />
 
         <Card className="flex items-center justify-between">
           <span className="font-semibold">{t("language")}</span>

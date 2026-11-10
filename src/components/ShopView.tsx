@@ -12,6 +12,8 @@ import { normalizePhone } from "@/lib/format";
 import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
 import { useLocation } from "@/lib/location";
+import { listAddresses, saveAddress, type Address } from "@/lib/addresses";
+import { AddressLabelText, AddressLine } from "@/components/AddressBook";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -44,6 +46,10 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
   const [payPick, setPayPick] = useState<PayMethod>("cod");
   const [cardType, setCardType] = useState<"edahabia" | "cib">("edahabia");
   const [redirecting, setRedirecting] = useState(false);
+  // saved delivery addresses: pick one, or "new" (optionally saved to the profile after ordering)
+  const [addrs, setAddrs] = useState<Address[] | null>(null);
+  const [pick, setPick] = useState("new");
+  const [saveNew, setSaveNew] = useState(true);
 
   // restore the cart saved before login / from a product page
   useEffect(() => {
@@ -60,6 +66,19 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
       ...x, name: x.name || m.full_name || "", phone: x.phone || m.phone || "",
       wilaya: x.wilaya || m.wilaya || "", commune: x.commune || m.commune || "",
     })));
+  }, [user]);
+
+  const chooseAddress = (a: Address) => {
+    setPick(a.id);
+    setF((x) => ({ ...x, name: a.full_name, phone: a.phone, wilaya: a.wilaya, commune: a.commune, address: a.address }));
+  };
+  useEffect(() => {
+    if (!user) return;
+    listAddresses().then((l) => {
+      setAddrs(l);
+      const d = l.find((a) => a.is_default) ?? l[0];
+      if (d) chooseAddress(d);
+    });
   }, [user]);
 
   // otherwise, the wilaya from the person's location (GPS or chosen), so the delivery price shows at once
@@ -107,6 +126,10 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
       writeCart(shop.slug, {});
       // remember delivery details for next time
       void supabase().auth.updateUser({ data: { full_name: f.name, phone: f.phone, wilaya: f.wilaya, commune: f.commune } });
+      if (pick === "new" && saveNew) {
+        void saveAddress({ label: addrs?.length ? "other" : "home", full_name: f.name, phone: normalizePhone(f.phone) ?? f.phone,
+          wilaya: f.wilaya, commune: f.commune, address: f.address });
+      }
       if (body.checkout_url) { setRedirecting(true); window.location.assign(body.checkout_url); return; }
       setDone(body);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -229,6 +252,31 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
                 </Card>
               ) : (
                 <form onSubmit={submit} className="space-y-4">
+                  {addrs?.length ? (
+                    <fieldset className="space-y-2">
+                      <legend className="mb-1 flex w-full items-center justify-between text-sm font-semibold">
+                        {t("addr_deliver_to")}
+                        <Link href="/account" className="text-xs font-semibold text-brand">{t("addr_manage")}</Link>
+                      </legend>
+                      {addrs.map((a) => (
+                        <label key={a.id} className={`flex cursor-pointer gap-3 rounded-2xl border p-3 text-sm ${pick === a.id ? "border-brand bg-brand-soft ring-1 ring-brand" : "border-line bg-surface"}`}>
+                          <input type="radio" name="addr" className="mt-1 h-4 w-4 accent-brand" checked={pick === a.id} onChange={() => chooseAddress(a)} />
+                          <span className="min-w-0">
+                            <span className="flex flex-wrap items-center gap-2 font-semibold"><AddressLabelText label={a.label} />
+                              {a.is_default ? <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] text-white">{t("addr_default")}</span> : null}</span>
+                            <span className="block">{a.full_name} · <span dir="ltr">{a.phone}</span></span>
+                            <span className="block text-muted"><AddressLine a={a} /></span>
+                          </span>
+                        </label>
+                      ))}
+                      <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 text-sm font-semibold ${pick === "new" ? "border-brand bg-brand-soft ring-1 ring-brand" : "border-dashed border-line bg-surface"}`}>
+                        <input type="radio" name="addr" className="h-4 w-4 accent-brand" checked={pick === "new"}
+                          onChange={() => { setPick("new"); setF((x) => ({ ...x, commune: "", address: "" })); }} />
+                        + {t("addr_new")}
+                      </label>
+                    </fieldset>
+                  ) : null}
+                  {pick === "new" ? <>
                   <Field label={t("customer_name")}><Input required minLength={2} maxLength={80} autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
                   <Field label={t("phone")}><Input required type="tel" inputMode="tel" dir="ltr" autoComplete="tel" placeholder="0661 23 45 67" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
                   <Field label={t("wilaya")}>
@@ -238,6 +286,7 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
                     </Select>
                   </Field>
                   <Field label={t("commune")}><Input required value={f.commune} onChange={(e) => setF({ ...f, commune: e.target.value })} /></Field>
+                  </> : null}
                   {q?.off ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t("err_no_delivery")}</p> : !q ? <p className="text-xs text-muted">{t("delivery_choose_wilaya")}</p> : null}
                   <fieldset>
                     <legend className="mb-1 text-sm font-semibold">{t("delivery")}</legend>
@@ -274,6 +323,12 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
                     {payBlocked ? <p className="mt-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{t("pay_online_unavailable")}</p> : split.online > 0 ? <p className="mt-2 text-xs text-muted">{t("pay_expiry_note")}</p> : null}
                   </fieldset>
                   {f.type === "home" ? <Field label={t("address")}><Input value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></Field> : null}
+                  {pick === "new" ? (
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" className="h-4 w-4 accent-brand" checked={saveNew} onChange={(e) => setSaveNew(e.target.checked)} />
+                      {t("addr_save_for_next")}
+                    </label>
+                  ) : null}
                   <Field label={`${t("note")} (${t("optional")})`}><Textarea rows={2} maxLength={500} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></Field>
                   {err ? <p className="rounded-xl bg-rose-50 p-3 text-sm text-danger" role="alert">{err}</p> : null}
                   <Link href="/confiance" className="block text-center text-xs text-muted underline">{t("order_consent")}</Link>

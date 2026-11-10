@@ -6,12 +6,14 @@ import { wilayaLabel } from "@/lib/wilayas";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { RatingSummary, VerifiedBadge } from "@/components/trust/Trust";
+import { Icon } from "@/components/Icon";
 
 export type ShopCardData = {
   name: string; slug: string; wilaya: string; description: string; cover: string;
   product_count: number; delivered_count: number;
   logo?: LogoConfig; logo_url?: string; category?: string | null; id?: string;
   verified?: boolean; rating?: number | string | null; review_count?: number;
+  distance_km?: number | null;
 };
 
 export function ShopCard({ s }: { s: ShopCardData }) {
@@ -22,6 +24,11 @@ export function ShopCard({ s }: { s: ShopCardData }) {
         {s.cover ? <Image src={s.cover} alt="" fill sizes="320px" className="object-cover transition duration-500 group-hover:scale-105" /> : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         {s.id ? <FavoriteButton kind="shop" id={s.id} size="sm" className="absolute end-3 top-3" /> : null}
+        {s.distance_km != null ? (
+          <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-semibold text-ink shadow">
+            <Icon name="map" className="h-3.5 w-3.5 text-accent" />{s.distance_km < 15 ? t("dist_same") : t("dist_km", { n: s.distance_km })}
+          </span>
+        ) : null}
         <span className="absolute bottom-3 start-3 rounded-2xl bg-white p-1 shadow">
           <ShopLogo name={s.name} logo={s.logo} logoUrl={s.logo_url} category={s.category} size={48} />
         </span>

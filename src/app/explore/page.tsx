@@ -12,6 +12,9 @@ import { ProductGrid } from "@/components/ProductCard";
 import { SearchBox } from "@/components/SearchBox";
 import { SubcategorySelect } from "@/components/explore/SubcategorySelect";
 import { SellerResults, type SellerResult } from "@/components/explore/SellerResults";
+import { getLocation } from "@/lib/server/location";
+import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
+import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Explorer" };
 const PAGE = 24;
@@ -30,12 +33,15 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const collection = offer ? offer.slug : "";
   const limit = Math.min(PAGE * Math.max(1, parseInt(one(sp.n) || "1", 10) || 1), 120);
   const { t, lang } = await getT();
+  const loc = await getLocation();
+  const near = loc?.code ?? null;
+  const nearW = near ? WILAYAS.find((x) => x.code === near) : undefined;
 
   const sellers: SellerResult[] = isConfigured && view === "shops"
-    ? ((await anonSupabase().rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null })).data ?? [])
+    ? ((await anonSupabase().rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null, p_near: near })).data ?? [])
     : [];
   const items: ProductCardData[] = isConfigured && view === "products"
-    ? ((await anonSupabase().rpc("public_products", { p_category: category || null, p_q: q || null, p_limit: limit + 1, p_offset: 0, p_tag: collection || null, p_sub: sub || null })).data ?? [])
+    ? ((await anonSupabase().rpc("public_products", { p_category: category || null, p_q: q || null, p_limit: limit + 1, p_offset: 0, p_tag: collection || null, p_sub: sub || null, p_near: near })).data ?? [])
     : [];
   const counts: Record<string, number> = isConfigured && category
     ? ((await anonSupabase().rpc("subcategory_counts", { p_category: category })).data ?? {}) : {};
@@ -68,6 +74,12 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
             </Link>
           ))}
         </div>
+        {nearW ? (
+          <p className="mt-3 inline-flex items-center gap-1 text-xs text-muted">
+            <Icon name="map" className="h-3.5 w-3.5 text-accent" />
+            {t("nearest_first", { place: wilayaLabel(wilayaValue(nearW), lang).replace(/^\d+ - /, "") })}
+          </p>
+        ) : null}
         {subs.length ? (
           <SubcategorySelect value={sub}
             options={subOrder.map((k) => ({ key: k, label: t(subKey(k)), count: counts[k] ?? 0 }))}

@@ -669,3 +669,31 @@ test("notifications, warnings, banners, email digest", { skip }, async () => {
   assert.ok(log.some((x) => x.action === "warn"));
   await q("delete from public.admins; delete from public.home_banners");
 });
+
+test("geo: coordinates mirror src/lib/geo-coords.ts, distances, nearest shops first", { skip }, async () => {
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../src/lib/geo-coords.ts", import.meta.url), "utf8");
+  const ts = [...src.matchAll(/(\d+): \[([-\d.]+), ([-\d.]+)\]/g)].map((m) => [Number(m[1]), Number(m[2]), Number(m[3])]);
+  const rows = await q("select code, lat, lng from public.wilaya_coords order by code");
+  assert.equal(ts.length, 58);
+  assert.deepEqual(rows.map((r) => [r.code, r.lat, r.lng]), ts);
+  const [{ same, alg_oran, bad }] = await q("select public.wilaya_km(16,16) same, public.wilaya_km(16,31) alg_oran, public.wilaya_km(16, public.wilaya_code('n/a')) bad");
+  assert.equal(same, 0);
+  assert.ok(alg_oran > 330 && alg_oran < 380, String(alg_oran));
+  assert.equal(bad, null);
+  // shop A in Oran, shop B in Alger
+  await q("update public.shops set wilaya='31 - Oran', status='approved', suspended=false where id=$1", [shopA]);
+  await q("update public.shops set wilaya='16 - Alger', status='approved', suspended=false where id=$1", [shopB]);
+  const [{ id: pb }] = await q("insert into public.products (owner_id,shop_id,name,price_dzd) values ($1,$2,'Burnous',9000) returning id", [B, shopB]);
+  const [{ s }] = await as("anon", () => q("select public.public_nearby_shops(16) s"));
+  assert.deepEqual(s.slice(0, 2).map((x) => [x.slug, x.distance_km === 0]), [["shop-b", true], ["shop-a", false]]);
+  const [{ s: s2 }] = await as("anon", () => q("select public.public_nearby_shops(31) s"));
+  assert.equal(s2[0].slug, "shop-a");
+  const [{ pr }] = await as("anon", () => q("select public.public_products(p_near => 16) pr"));
+  assert.equal(pr[0].shop_slug, "shop-b");
+  const [{ pr: pr2 }] = await as("anon", () => q("select public.public_products(p_near => 31) pr"));
+  assert.equal(pr2[0].shop_slug, "shop-a");
+  const [{ se }] = await as("anon", () => q("select public.public_sellers(p_near => 16) se"));
+  assert.equal(se[0].slug, "shop-b");
+  await q("delete from public.products where id=$1", [pb]);
+});

@@ -11,6 +11,8 @@ import { Logo } from "@/components/Logo";
 import { HeroCarousel, type HeroSlide } from "@/components/home/HeroCarousel";
 import { CategoryGrid, OffersSections, SectionTitle, TrustStrip } from "@/components/home/Sections";
 import { getOffers } from "@/lib/server/offers";
+import { getLocation } from "@/lib/server/location";
+import type { Loc } from "@/lib/geo";
 
 type Home = { categories: { slug: string; image: string | null }[]; featured: ProductCardData[]; shops: ShopCardData[] };
 
@@ -30,8 +32,16 @@ async function getBanners(): Promise<Banner[]> {
   return (data ?? []) as Banner[];
 }
 
+// Shops nearest to the visitor's wilaya (from GPS, their choice, or their connection).
+async function getNearby(loc: Loc | null): Promise<ShopCardData[]> {
+  if (!isConfigured || !loc) return [];
+  const { data } = await anonSupabase().rpc("public_nearby_shops", { p_wilaya: loc.code, p_limit: 12 });
+  return (data ?? []) as ShopCardData[];
+}
+
 export default async function HomePage() {
-  const [{ t, lang }, home, offers, banners] = await Promise.all([getT(), getHome(), getOffers(), getBanners()]);
+  const loc = await getLocation();
+  const [{ t, lang }, home, offers, banners, nearby] = await Promise.all([getT(), getHome(), getOffers(), getBanners(), getNearby(loc)]);
   const slides: HeroSlide[] = banners.map((b) => ({
     key: String(b.id), image: b.image, href: b.href,
     title: lang === "ar" ? b.title_ar : b.title_fr, sub: lang === "ar" ? b.sub_ar : b.sub_fr,
@@ -48,6 +58,15 @@ export default async function HomePage() {
           <SectionTitle title={t("shop_by_category")} href="/categories" linkLabel={t("see_all")} />
           <CategoryGrid fallback={fallback} />
         </section>
+
+        {nearby.length ? (
+          <section>
+            <SectionTitle title={t("nearby_title")} href="/explore" linkLabel={t("see_all")} />
+            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-3">
+              {nearby.map((s) => <ShopCard key={s.slug} s={s} />)}
+            </div>
+          </section>
+        ) : null}
 
         <OffersSections offers={offers} />
 

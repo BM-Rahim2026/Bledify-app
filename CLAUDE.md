@@ -106,6 +106,14 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
 - Home carousel: `home_banners` (public RLS = active and within dates), `/admin/banners` (`admin_banners`,
   `admin_save_banner`, `admin_delete_banner`); without live banners `HERO_SLIDES` are shown.
 
+## Location (0022)
+- Header `LocationChip` (next to the logo on lg+, under it below lg): cookie `loc` = "<wilaya>.<gps|manual|ip>"
+  (`src/lib/geo.ts`, client `src/lib/location.ts`). First visit: guess from Vercel IP headers (`/api/geo`,
+  `getLocation()` server-side), then the browser asks once for GPS → nearest wilaya capital; refused + no guess → picker.
+- Distance = between wilaya capitals: `wilaya_coords` (= `src/lib/geo-coords.ts`, test checks), `wilaya_code()`,
+  `wilaya_km()`. `public_nearby_shops` (home "Près de chez vous"), `public_products(..., p_near)` and
+  `public_sellers(..., p_near)` sort nearest first; order form pre-fills the wilaya (GPS / chosen only).
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

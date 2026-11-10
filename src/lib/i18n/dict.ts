@@ -910,6 +910,20 @@ export const fr = {
   adm_banner_delete_confirm: "Supprimer cette bannière ?",
   adm_banners_empty: "Aucune bannière : l'accueil affiche les diapositives par défaut.",
   edit: "Modifier",
+  loc_title: "Votre position",
+  loc_sub: "Les boutiques les plus proches s'affichent en premier, avec des délais et des frais de livraison plus bas.",
+  loc_choose: "Choisir ma wilaya",
+  loc_near: "Près de",
+  loc_use_gps: "Utiliser ma position actuelle",
+  loc_locating: "Localisation…",
+  loc_gps_error: "Position indisponible ou refusée. La wilaya peut être choisie dans la liste.",
+  loc_or: "ou",
+  loc_ok: "Valider",
+  loc_ip_note: "Position estimée d'après la connexion internet : la position actuelle est plus précise.",
+  nearby_title: "Près de chez vous",
+  dist_same: "Dans votre wilaya",
+  dist_km: "À ~{n} km",
+  nearest_first: "Les boutiques les plus proches de {place} en premier",
 };
 
 export type Dict = typeof fr;
@@ -1813,6 +1827,20 @@ export const ar: Dict = {
   adm_banner_delete_confirm: "حذف هذه اللافتة؟",
   adm_banners_empty: "لا توجد لافتات: تعرض الصفحة الرئيسية الشرائح الافتراضية.",
   edit: "تعديل",
+  loc_title: "موقعك",
+  loc_sub: "تظهر المتاجر الأقرب أولا، مع آجال وتكاليف توصيل أقل.",
+  loc_choose: "اختيار الولاية",
+  loc_near: "قرب",
+  loc_use_gps: "استعمال الموقع الحالي",
+  loc_locating: "جارٍ تحديد الموقع…",
+  loc_gps_error: "الموقع غير متاح أو مرفوض. يمكن اختيار الولاية من القائمة.",
+  loc_or: "أو",
+  loc_ok: "تأكيد",
+  loc_ip_note: "موقع تقريبي حسب اتصال الإنترنت: الموقع الحالي أدق.",
+  nearby_title: "بالقرب منك",
+  dist_same: "في ولايتك",
+  dist_km: "على بعد ~{n} كم",
+  nearest_first: "المتاجر الأقرب إلى {place} أولا",
 };
 
 export type Lang = "fr" | "ar";

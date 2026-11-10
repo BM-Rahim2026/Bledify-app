@@ -11,6 +11,7 @@ import { readCart, writeCart, type Cart } from "@/lib/cart";
 import { normalizePhone } from "@/lib/format";
 import { CAT_TINT } from "@/lib/categories";
 import { WILAYAS, wilayaLabel, wilayaValue } from "@/lib/wilayas";
+import { useLocation } from "@/lib/location";
 import { PublicHeader } from "@/components/PublicHeader";
 import { ShopLogo, type LogoConfig } from "@/components/ShopLogo";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -60,6 +61,13 @@ export function ShopView({ shop, paymentsOn = false }: { shop: PublicShop; payme
       wilaya: x.wilaya || m.wilaya || "", commune: x.commune || m.commune || "",
     })));
   }, [user]);
+
+  // otherwise, the wilaya from the person's location (GPS or chosen), so the delivery price shows at once
+  const { loc } = useLocation();
+  useEffect(() => {
+    const w = loc && loc.source !== "ip" ? WILAYAS.find((x) => x.code === loc.code) : undefined;
+    if (w) queueMicrotask(() => setF((x) => (x.wilaya ? x : { ...x, wilaya: wilayaValue(w) })));
+  }, [loc]);
 
   const setCart = (fn: (c: Cart) => Cart) => setCartState((c) => { const n = fn(c); writeCart(shop.slug, n); return n; });
   const qty = (id: string, d: number) => setCart((c) => ({ ...c, [id]: Math.max(0, Math.min(99, (c[id] ?? 0) + d)) }));

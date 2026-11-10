@@ -53,7 +53,7 @@ export function HeroCarousel({ banners = [] }: { banners?: HeroSlide[] }) {
             <div className="absolute inset-x-0 bottom-0 p-5 pb-10 md:inset-y-0 md:flex md:max-w-xl md:flex-col md:justify-center md:p-12">
               <h1 className="font-display text-[1.9rem] leading-tight text-white drop-shadow md:text-5xl">{s.title}</h1>
               {s.sub ? <p className="mt-2 max-w-md text-[15px] text-white/90 md:text-lg">{s.sub}</p> : null}
-              <Link href={s.href} className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-lg ring-1 ring-white/20 hover:bg-brand-dark">
+              <Link href={s.href} className="mt-4 inline-flex items-center gap-2 self-start rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-lg ring-1 ring-white/20 hover:bg-brand-dark">
                 {t("shop_now")} <Icon name="arrow" className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </div>

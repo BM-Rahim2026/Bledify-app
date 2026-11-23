@@ -128,7 +128,8 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   inviter `invite_used`). `access_requests` from the invite page (`request_access`, anon); team handles them at
   `/admin/invites` (`admin_invite_request` → code to send by WhatsApp, `admin_decline_request`, `admin_create_invites`,
   `admin_revoke_invite`, `admin_save_invite_settings`); badge `access_requests` in `todo_counts`.
-- Gate = `src/proxy.ts` (all pages; open: /invite, /i/*, /login, /forgot, /reset, /auth/*, /legal, /confiance, /api/*).
+- Gate = `src/proxy.ts` (all pages; open: /invite, /i/*, /login, /forgot, /reset, /auth/*, /api/*; /legal only with a code).
+  The invite and login pages say nothing about what Bledify is (no photos, neutral titles / meta / share text).
   Signed cookie `bl_pass` (`src/lib/server/pass.ts`, HMAC with ACCESS_COOKIE_SECRET or the service key): guest = entered
   a valid code (`/i/<code>` link or `/api/invite/enter`, code kept in `bl_invite`), member = signed-in account with
   access (the proxy redeems `bl_invite` on the first signed-in page). `/api/orders` refuses accounts without access

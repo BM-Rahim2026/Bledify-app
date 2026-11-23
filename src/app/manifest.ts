@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Bledify",
     short_name: "Bledify",
-    description: "Gérez vos commandes en paiement à la livraison.",
+    description: "Bledify",
     start_url: "/seller",
     display: "standalone",
     background_color: "#f7f3ec",

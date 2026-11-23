@@ -4,7 +4,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
 import { INVITE_COOKIE, PASS_COOKIE, makePass, passCookie, readPass } from "@/lib/server/pass";
 
 // Pages anyone can open while Bledify is invite-only (everything else is masked: members only).
-const OPEN = ["/invite", "/i/", "/login", "/forgot", "/reset", "/auth/", "/legal", "/api/"];
+const OPEN = ["/invite", "/i/", "/login", "/forgot", "/reset", "/auth/", "/api/"];
 // Pages that need a signed-in account.
 const SIGNED_IN = ["/seller", "/admin", "/account", "/orders", "/notifications", "/invitations"];
 // Routes where the Supabase session cookie is refreshed even when nothing else needs it.
@@ -57,7 +57,7 @@ export async function proxy(request: NextRequest) {
 
   if (gateCheck) {
     if (!user) {
-      if (path === "/signup" && pass?.kind === "guest") return response;
+      if ((path === "/signup" || path.startsWith("/legal")) && pass?.kind === "guest") return response;
       return redirect("/invite", path === "/" ? {} : { next: path + request.nextUrl.search });
     }
     const { data } = await supabase.rpc("my_access");

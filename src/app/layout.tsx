@@ -12,7 +12,7 @@ const notoArabic = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--font-not
 
 export const metadata: Metadata = {
   title: { default: "Bledify", template: "%s · Bledify" },
-  description: "Boutique en ligne et gestion des commandes en paiement à la livraison pour les vendeurs algériens.",
+  description: "Accès sur invitation.",
   manifest: "/manifest.webmanifest",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://bledify.vercel.app"),
   openGraph: { siteName: "Bledify", images: ["/brand/icon-512.png"] },

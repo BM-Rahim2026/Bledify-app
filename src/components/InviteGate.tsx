@@ -73,14 +73,6 @@ export function InviteGate({ code: initial, error, reason, next }: { code: strin
             setSent(er ? "error" : "ok");
           }}>
             <p className="font-semibold">{t("inv_request")}</p>
-            <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
-              {(["buyer", "seller"] as const).map((r) => (
-                <label key={r} className={`cursor-pointer rounded-xl px-3 py-2 text-center ${req.role === r ? "bg-white text-brand" : "bg-white/10 ring-1 ring-white/30"}`}>
-                  <input type="radio" name="role" className="sr-only" checked={req.role === r} onChange={() => setReq({ ...req, role: r })} />
-                  {t(r === "buyer" ? "inv_role_buyer" : "inv_role_seller")}
-                </label>
-              ))}
-            </div>
             <Field label={t("customer_name")}><Input required minLength={2} maxLength={80} value={req.name} onChange={(e) => setReq({ ...req, name: e.target.value })} /></Field>
             <Field label={t("inv_contact")}><Input required minLength={5} maxLength={120} dir="ltr" value={req.contact} onChange={(e) => setReq({ ...req, contact: e.target.value })} /></Field>
             <Field label={t("wilaya")}>
@@ -95,7 +87,6 @@ export function InviteGate({ code: initial, error, reason, next }: { code: strin
           </form>
         )}
       </div>
-      <p className="text-center text-xs text-white/70"><Link href="/legal/terms" className="underline">{t("legal_terms")}</Link></p>
     </div>
   );
 }

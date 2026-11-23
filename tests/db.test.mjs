@@ -813,8 +813,8 @@ test("masked: visitors and accounts without an invitation get no data", { skip }
 });
 
 test("no ready meals: removed subcategories are refused", { skip }, async () => {
-  for (const sub of ["dishes", "catering", "savory"]) {
-    assert.equal(await code(as(A, () => q("insert into public.products (shop_id,name,price_dzd,category,subcategory) values ($1,'Plat',500,'food',$2)", [shopA, sub]))), "23514", sub);
+  for (const [cat, sub] of [["food", "dishes"], ["food", "catering"], ["food", "savory"], ["fashion", "tailoring"], ["occasions", "event_decor"]]) {
+    assert.equal(await code(as(A, () => q("insert into public.products (shop_id,name,price_dzd,category,subcategory) values ($1,'X',500,$2,$3)", [shopA, cat, sub]))), "23514", sub);
   }
   const [{ id }] = await as(A, () => q("insert into public.products (shop_id,name,price_dzd,category,subcategory) values ($1,'Makrout',900,'food','trad_cakes') returning id", [shopA]));
   await q("delete from public.products where id=$1", [id]);

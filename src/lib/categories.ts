@@ -9,11 +9,11 @@ export type Category = (typeof CATEGORIES)[number];
 // Subcategories per category (same list as public.subcategories_of() in SQL; a DB test checks it).
 export const SUBCATEGORIES: Record<Category, readonly string[]> = {
   food: ["trad_cakes", "modern_cakes", "breads", "couscous_pasta", "jams_sweets", "chocolate", "trays_boxes"],
-  fashion: ["women_traditional", "modern_modest", "hijabs", "men", "kids_babies", "knitting", "shoes", "tailoring"],
+  fashion: ["women_traditional", "modern_modest", "hijabs", "men", "kids_babies", "knitting", "shoes"],
   crafts: ["pottery", "copper", "embroidery", "weaving", "basketry", "leather", "wood", "calligraphy", "instruments"],
   home: ["rugs", "linens", "cushions", "tableware", "utensils", "lighting", "wall_decor", "candles_incense", "baskets_storage", "furniture"],
   terroir: ["olive_oil", "honey", "dates", "produce", "eggs", "dairy", "grains", "spices_herbs", "dried_fruits_nuts", "processed", "plants_seeds"],
-  occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "event_decor", "birth_circumcision", "custom_gifts"],
+  occasions: ["trousseau", "henna", "decorated_trays", "favors", "invitations", "birth_circumcision", "custom_gifts"],
   beauty: ["soaps", "oils", "face", "hair", "hammam_body", "perfumes", "khol_swak", "baby_mom", "men_beard", "gift_sets"],
   jewelry: ["silver_traditional", "fantasy", "beads_stones", "personalized", "bags", "hair_accessories", "belts", "small_accessories", "jewelry_boxes"],
 };

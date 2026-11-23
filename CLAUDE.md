@@ -2,7 +2,8 @@
 
 Marketplace for Algerian home-based makers (women and men, at home or in a small workshop):
 traditional cakes and sweets, couture, crafts, natural beauty, terroir.
-Not a food-delivery service: no ready meals, savoury snacks or catering (removed in 0026).
+Products only: not a food-delivery service (no ready meals, savoury snacks or catering, 0026) and no services
+(no alterations, event decoration, rentals…, 0027).
 Handmade in Algeria only — no electronics or imported goods. Buyers browse
 freely; an account is required to order (cash on delivery). Sellers get a shop
 link and an order desk to confirm, ship and track. French and Arabic (RTL). Full product brief:

@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
 import { INVITE_COOKIE, PASS_COOKIE, makePass, passCookie, readPass } from "@/lib/server/pass";
 
-// Pages anyone can open while Bledify is invite-only.
-const OPEN = ["/invite", "/i/", "/login", "/forgot", "/reset", "/auth/", "/legal", "/confiance", "/api/"];
+// Pages anyone can open while Bledify is invite-only (everything else is masked: members only).
+const OPEN = ["/invite", "/i/", "/login", "/forgot", "/reset", "/auth/", "/legal", "/api/"];
 // Pages that need a signed-in account.
 const SIGNED_IN = ["/seller", "/admin", "/account", "/orders", "/notifications", "/invitations"];
 // Routes where the Supabase session cookie is refreshed even when nothing else needs it.
@@ -49,27 +49,24 @@ export async function proxy(request: NextRequest) {
   const pass = readPass(request.cookies.get(PASS_COOKIE)?.value);
   const hasSession = request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("auth-token"));
   const open = starts(path, OPEN);
-  // a guest pass is upgraded (code redeemed) once the person has an account
-  const gateCheck = !open && (!pass || (pass.kind === "guest" && hasSession)) && (await inviteOnly(supabase));
+  // Masked: only signed-in members see the site. A valid code (guest pass) only opens account creation.
+  const admitted = pass?.kind === "member" && hasSession;
+  const gateCheck = !open && !admitted && (await inviteOnly(supabase));
   const needUser = starts(path, SIGNED_IN) || gateCheck || starts(path, REFRESH);
   const user = needUser ? (await supabase.auth.getUser()).data.user : null;
 
   if (gateCheck) {
-    if (user) {
-      const { data } = await supabase.rpc("my_access");
-      let ok = Boolean((data as { access?: boolean } | null)?.access);
-      const code = request.cookies.get(INVITE_COOKIE)?.value;
-      if (!ok && code) ok = !(await supabase.rpc("redeem_invite", { p_code: code })).error;
-      if (!ok) {
-        // signing up with a code: the account is created first, then joins on the next page
-        if (pass?.kind === "guest" && path === "/signup") return response;
-        return redirect("/invite", { reason: "no_access", next: path });
-      }
-      response.cookies.set(PASS_COOKIE, makePass("member", user.id), passCookie);
-      response.cookies.delete(INVITE_COOKIE);
-    } else if (!pass) {
+    if (!user) {
+      if (path === "/signup" && pass?.kind === "guest") return response;
       return redirect("/invite", path === "/" ? {} : { next: path + request.nextUrl.search });
     }
+    const { data } = await supabase.rpc("my_access");
+    let ok = Boolean((data as { access?: boolean } | null)?.access);
+    const code = request.cookies.get(INVITE_COOKIE)?.value;
+    if (!ok && code) ok = !(await supabase.rpc("redeem_invite", { p_code: code })).error;
+    if (!ok) return redirect("/invite", { reason: "no_access", next: path });
+    response.cookies.set(PASS_COOKIE, makePass("member", user.id), passCookie);
+    response.cookies.delete(INVITE_COOKIE);
   }
 
   if (!user && starts(path, SIGNED_IN)) return redirect("/login", { next: path });

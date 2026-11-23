@@ -27,7 +27,10 @@ export function InviteGate({ code: initial, error, reason, next }: { code: strin
     const body = (await r.json().catch(() => ({}))) as { ok?: boolean; next?: string };
     setBusy(false);
     if (!body.ok) { setErr(true); return; }
-    router.replace(body.next === "/" && safeNext ? safeNext : body.next ?? "/");
+    // keep where the person was going (e.g. the seller sign-up link)
+    const to = safeNext.startsWith("/signup") && body.next !== "/" ? `${safeNext}${safeNext.includes("?") ? "&" : "?"}invited=1`
+      : body.next === "/" && safeNext ? safeNext : body.next ?? "/";
+    router.replace(to);
     router.refresh();
   }
 
@@ -92,7 +95,7 @@ export function InviteGate({ code: initial, error, reason, next }: { code: strin
           </form>
         )}
       </div>
-      <p className="text-center text-xs text-white/70"><Link href="/confiance" className="underline">{t("trust_title")}</Link> · <Link href="/legal/terms" className="underline">{t("legal_terms")}</Link></p>
+      <p className="text-center text-xs text-white/70"><Link href="/legal/terms" className="underline">{t("legal_terms")}</Link></p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { anonSupabase } from "@/lib/supabase/server";
+import { serverSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { getT } from "@/lib/i18n/server";
 import type { ProductCardData } from "@/lib/categories";
@@ -19,7 +19,7 @@ type Home = { categories: { slug: string; image: string | null }[]; featured: Pr
 async function getHome(): Promise<Home> {
   const empty = { categories: [], featured: [], shops: [] };
   if (!isConfigured) return empty;
-  const { data } = await anonSupabase().rpc("public_home");
+  const { data } = await (await serverSupabase()).rpc("public_home");
   return (data as Home) ?? empty;
 }
 
@@ -28,14 +28,14 @@ type Banner = { id: number; title_fr: string; title_ar: string; sub_fr: string; 
 // Live slides chosen by the team (RLS keeps active ones within their dates).
 async function getBanners(): Promise<Banner[]> {
   if (!isConfigured) return [];
-  const { data } = await anonSupabase().from("home_banners").select("id,title_fr,title_ar,sub_fr,sub_ar,image,href").order("position").order("id").limit(8);
+  const { data } = await (await serverSupabase()).from("home_banners").select("id,title_fr,title_ar,sub_fr,sub_ar,image,href").order("position").order("id").limit(8);
   return (data ?? []) as Banner[];
 }
 
 // Shops nearest to the visitor's wilaya (from GPS, their choice, or their connection).
 async function getNearby(loc: Loc | null): Promise<ShopCardData[]> {
   if (!isConfigured || !loc) return [];
-  const { data } = await anonSupabase().rpc("public_nearby_shops", { p_wilaya: loc.code, p_limit: 12 });
+  const { data } = await (await serverSupabase()).rpc("public_nearby_shops", { p_wilaya: loc.code, p_limit: 12 });
   return (data ?? []) as ShopCardData[];
 }
 

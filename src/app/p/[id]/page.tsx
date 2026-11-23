@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { anonSupabase } from "@/lib/supabase/server";
+import { serverSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { ProductView, type PublicProduct } from "@/components/ProductView";
 import { getOffers } from "@/lib/server/offers";
@@ -10,7 +10,7 @@ const UUID = /^[0-9a-f-]{36}$/i;
 
 const getProduct = cache(async (id: string): Promise<PublicProduct | null> => {
   if (!isConfigured || !UUID.test(id)) return null;
-  const { data } = await anonSupabase().rpc("public_product", { p_id: id });
+  const { data } = await (await serverSupabase()).rpc("public_product", { p_id: id });
   return (data as PublicProduct) ?? null;
 });
 

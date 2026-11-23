@@ -133,7 +133,12 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   a valid code (`/i/<code>` link or `/api/invite/enter`, code kept in `bl_invite`), member = signed-in account with
   access (the proxy redeems `bl_invite` on the first signed-in page). `/api/orders` refuses accounts without access
   (`inv_no_access`); a trigger refuses new shops from them (NO_ACCESS). Members manage codes at `/invitations`.
-  Site is `noindex`. Note: public RPCs are still callable with the anon key (the gate closes the site, not the API).
+  Site is `noindex`.
+- Masked (0025): browsing needs a signed-in member (a code alone only opens /signup). Visitors lost EXECUTE on the
+  catalog RPCs / SELECT on offers & banners; PostgREST pre-request hook `gate_request()` (set on role authenticator)
+  refuses every anon / non-member API call except invite_only, check_invite, request_access (+ my_access,
+  redeem_invite, my_settings for accounts). Server pages read with `serverSupabase()` (the member's session).
+  `/api/health` reports `masked`.
 
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,

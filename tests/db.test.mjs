@@ -158,10 +158,10 @@ test("risk badge: 2+ returned/cancelled orders from the same phone", { skip }, a
 
 test("tracking by number + phone only", { skip }, async () => {
   const o = await placeOrder({ phone: "0551000000" });
-  const [ok] = await as("anon", () => q("select public.track_order($1,'+213551000000') t", [o.number.toLowerCase()]));
+  const [ok] = await as(B, () => q("select public.track_order($1,'+213551000000') t", [o.number.toLowerCase()]));
   assert.equal(ok.t.status, "new");
   assert.equal(ok.t.shop_name, "TEST Shop");
-  const [bad] = await as("anon", () => q("select public.track_order($1,'0551000001') t", [o.number]));
+  const [bad] = await as(B, () => q("select public.track_order($1,'0551000001') t", [o.number]));
   assert.equal(bad.t, null);
 });
 
@@ -235,7 +235,7 @@ test("reviews: only the buyer, only after delivery, one per product (edit)", { s
   await review(B, 4);
   const [{ n, rating, author }] = await q("select count(*)::int n, max(rating) rating, max(author) author from public.reviews where order_id=$1", [o.id]);
   assert.deepEqual([n, rating, author], [1, 4, "Karim T."]);
-  const [{ p }] = await as("anon", () => q("select public.public_product($1) p", [p1]));
+  const [{ p }] = await as(B, () => q("select public.public_product($1) p", [p1]));
   assert.equal(p.review_count, 1);
   assert.equal(Number(p.rating), 4);
   assert.equal(p.reviews[0].comment, "Très bien");
@@ -282,7 +282,7 @@ test("wilaya zones agree with src/lib/delivery.ts", { skip }, async () => {
 
 test("seller phone numbers stay private", { skip }, async () => {
   await q("update public.shops set phone='0770 11 22 33', whatsapp='0661998877' where id=$1", [shopA]);
-  const pub = await as("anon", () => q(
+  const pub = await as(B, () => q(
     `select public.get_public_shop('shop-a')::text a, public.public_product($1)::text b, public.public_home()::text c,
             public.public_products()::text d, public.public_cart(array[$1]::uuid[])::text e`, [p1]));
   const all = Object.values(pub[0]).join(" ");
@@ -381,9 +381,9 @@ test("subcategories: must belong to the category; filter; same list as src/lib/c
   await q("update public.products set category='food', subcategory='trad_cakes' where id=$1", [p1]);
   assert.equal(await code(q("update public.products set subcategory='rugs' where id=$1", [p1])), "23514");
   assert.equal(await code(q("update public.products set category='home' where id=$1", [p1])), "23514"); // trad_cakes is not a home subcategory
-  const [{ r }] = await as("anon", () => q("select public.public_products(p_category=>'food', p_sub=>'trad_cakes') r"));
+  const [{ r }] = await as(B, () => q("select public.public_products(p_category=>'food', p_sub=>'trad_cakes') r"));
   assert.ok(r.some((x) => x.id === p1 && x.subcategory === "trad_cakes"));
-  const [{ r: none }] = await as("anon", () => q("select public.public_products(p_category=>'food', p_sub=>'breads') r"));
+  const [{ r: none }] = await as(B, () => q("select public.public_products(p_category=>'food', p_sub=>'breads') r"));
   assert.ok(!none.some((x) => x.id === p1));
   const fs = await import("node:fs");
   const src = fs.readFileSync(new URL("../src/lib/categories.ts", import.meta.url), "utf8");
@@ -399,19 +399,19 @@ test("subcategories: must belong to the category; filter; same list as src/lib/c
 test("sellers by subcategory: shops with their matching products only", { skip }, async () => {
   await q("update public.products set category='food', subcategory='trad_cakes', active=true where id=$1", [p1]);
   await q("update public.products set category='food', subcategory='breads', active=true where id=$1", [p2]);
-  const [{ r }] = await as("anon", () => q("select public.public_sellers('food','trad_cakes') r"));
+  const [{ r }] = await as(B, () => q("select public.public_sellers('food','trad_cakes') r"));
   const mine = r.find((s) => s.slug === "shop-a");
   assert.ok(mine);
   assert.deepEqual(mine.products.map((p) => p.id), [p1]);
   assert.equal(mine.product_count, 1);
   assert.ok(!("phone" in mine) && !("whatsapp" in mine));
-  const [{ r: none }] = await as("anon", () => q("select public.public_sellers('food','chocolate') r"));
+  const [{ r: none }] = await as(B, () => q("select public.public_sellers('food','chocolate') r"));
   assert.ok(!none.some((s) => s.slug === "shop-a"));
   await q("update public.products set subcategory=null where id in ($1,$2)", [p1, p2]);
 });
 
 test("offers: shops propose, only the team approves; approved products appear on the offer", { skip }, async () => {
-  const onOffer = async () => (await as("anon", () => q("select public.public_products(p_tag=>'ramadan') r")))[0].r.some((x) => x.id === p1);
+  const onOffer = async () => (await as(B, () => q("select public.public_products(p_tag=>'ramadan') r")))[0].r.some((x) => x.id === p1);
   // shops cannot tag products themselves
   await as(A, () => q("update public.products set tags='{ramadan}' where id=$1", [p1]));
   assert.equal(await onOffer(), false);
@@ -485,7 +485,7 @@ test("admin console: moderation and admin functions", { skip }, async () => {
   const [sh] = await q("select suspended, commission_pct, is_demo from public.shops where id=$1", [shopA]);
   assert.deepEqual([sh.suspended, sh.commission_pct, sh.is_demo], [false, null, false]);
   await q("insert into public.admins (user_id) values ($1)", [B]);
-  const visible = async (id) => (await as("anon", () => q("select public.public_product($1) p", [id])))[0].p !== null;
+  const visible = async (id) => (await as(B, () => q("select public.public_product($1) p", [id])))[0].p !== null;
   // block a product: hidden, and the shop cannot bring it back
   await as(B, () => q("select public.admin_set_product_blocked($1, true, 'Produit importé')", [p1]));
   assert.equal(await visible(p1), false);
@@ -532,7 +532,7 @@ test("seller applications: new shops wait for approval, hidden until then", { sk
   const [s0] = await q("select status from public.shops where id=$1", [shopD]);
   assert.equal(s0.status, "pending"); // cannot approve itself
   const [{ id: pd }] = await as(D, () => q("insert into public.products (shop_id, name, price_dzd, active) values ($1, 'Makrout', 900, true) returning id", [shopD]));
-  const pub = async () => (await as("anon", () => q("select public.public_product($1) p, public.get_public_shop('atelier-d') s", [pd])))[0];
+  const pub = async () => (await as(B, () => q("select public.public_product($1) p, public.get_public_shop('atelier-d') s", [pd])))[0];
   let r = await pub();
   assert.equal(r.p, null); assert.equal(r.s, null);
   await q("insert into public.admins (user_id) values ($1)", [B]);
@@ -659,7 +659,7 @@ test("notifications, warnings, banners, email digest", { skip }, async () => {
   // home banners: live ones are public, the team manages them
   const id = (await as(B, () => q(`select public.admin_save_banner('{"title_fr":"Aïd","title_ar":"العيد","image":"/home/x.webp","href":"/explore?collection=aid"}') id`)))[0].id;
   await as(B, () => q(`select public.admin_save_banner('{"title_fr":"Plus tard","title_ar":"لاحقا","image":"/home/y.webp","starts_at":"2099-01-01"}')`));
-  const live = await as("anon", () => q("select title_fr from public.home_banners"));
+  const live = await as(B, () => q("select title_fr from public.home_banners"));
   assert.deepEqual(live.map((x) => x.title_fr), ["Aïd"]);
   assert.equal(await code(as(A, () => q("select public.admin_save_banner('{}')"))), "42501");
   assert.equal(await code(as(B, () => q(`select public.admin_save_banner('{"title_fr":"x","title_ar":"x","image":"javascript:x"}')`))), "23514");
@@ -687,15 +687,15 @@ test("geo: coordinates mirror src/lib/geo-coords.ts, distances, nearest shops fi
   await q("update public.shops set wilaya='31 - Oran', status='approved', suspended=false where id=$1", [shopA]);
   await q("update public.shops set wilaya='16 - Alger', status='approved', suspended=false where id=$1", [shopB]);
   const [{ id: pb }] = await q("insert into public.products (owner_id,shop_id,name,price_dzd) values ($1,$2,'Burnous',9000) returning id", [B, shopB]);
-  const [{ s }] = await as("anon", () => q("select public.public_nearby_shops(16) s"));
+  const [{ s }] = await as(B, () => q("select public.public_nearby_shops(16) s"));
   assert.deepEqual(s.slice(0, 2).map((x) => [x.slug, x.distance_km === 0]), [["shop-b", true], ["shop-a", false]]);
-  const [{ s: s2 }] = await as("anon", () => q("select public.public_nearby_shops(31) s"));
+  const [{ s: s2 }] = await as(B, () => q("select public.public_nearby_shops(31) s"));
   assert.equal(s2[0].slug, "shop-a");
-  const [{ pr }] = await as("anon", () => q("select public.public_products(p_near => 16) pr"));
+  const [{ pr }] = await as(B, () => q("select public.public_products(p_near => 16) pr"));
   assert.equal(pr[0].shop_slug, "shop-b");
-  const [{ pr: pr2 }] = await as("anon", () => q("select public.public_products(p_near => 31) pr"));
+  const [{ pr: pr2 }] = await as(B, () => q("select public.public_products(p_near => 31) pr"));
   assert.equal(pr2[0].shop_slug, "shop-a");
-  const [{ se }] = await as("anon", () => q("select public.public_sellers(p_near => 16) se"));
+  const [{ se }] = await as(B, () => q("select public.public_sellers(p_near => 16) se"));
   assert.equal(se[0].slug, "shop-b");
   await q("delete from public.products where id=$1", [pb]);
 });
@@ -782,4 +782,32 @@ test("invite-only: codes, joining, member quota, requests, team tools", { skip }
   await as(B, () => q("select public.admin_save_invite_settings(true, 5)"));
   await q("delete from public.admins");
   await q("delete from auth.users where id in ($1,$2)", [C, D]);
+});
+
+test("masked: visitors and accounts without an invitation get no data", { skip }, async () => {
+  const E = "00000000-0000-0000-0000-0000000000e1";
+  await q("insert into auth.users (id, email) values ($1,'e1@test.dz')", [E]);
+  // visitors cannot read the catalog at all
+  for (const sql of ["select public.public_home()", "select public.public_products()", "select public.get_public_shop('shop-a')",
+    "select * from public.offers", "select * from public.home_banners"]) {
+    assert.equal(await code(as("anon", () => q(sql))), "42501", sql);
+  }
+  // the pre-request gate (what the API runs first)
+  const gate = (who, path) => as(who, async () => {
+    await q("select set_config('request.path', $1, true)", [path]);
+    return q("select public.gate_request()");
+  });
+  assert.equal(await code(gate("anon", "/rpc/public_home")), "42501");
+  assert.equal(await code(gate("anon", "/products")), "42501");
+  assert.equal(await code(gate("anon", "/rpc/check_invite")), "ok");
+  assert.equal(await code(gate("anon", "/rpc/request_access")), "ok");
+  assert.equal(await code(gate(E, "/rpc/public_home")), "42501");     // account without invitation
+  assert.equal(await code(gate(E, "/rpc/redeem_invite")), "ok");
+  assert.equal(await code(gate(A, "/rpc/public_home")), "ok");       // member
+  assert.equal(await code(gate("service", "/rpc/place_order")), "ok");
+  // gate off → open
+  await q("update public.platform_settings set invite_only = false");
+  assert.equal(await code(gate(E, "/rpc/public_home")), "ok");
+  await q("update public.platform_settings set invite_only = true");
+  await q("delete from auth.users where id = $1", [E]);
 });

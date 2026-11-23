@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { anonSupabase } from "@/lib/supabase/server";
+import { serverSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { ShopView, type PublicShop } from "@/components/ShopView";
 import { paymentMode } from "@/lib/server/payments";
 
 const getShop = cache(async (slug: string): Promise<PublicShop | null> => {
   if (!isConfigured) return null;
-  const { data } = await anonSupabase().rpc("get_public_shop", { p_slug: slug });
+  const { data } = await (await serverSupabase()).rpc("get_public_shop", { p_slug: slug });
   return (data as PublicShop) ?? null;
 });
 

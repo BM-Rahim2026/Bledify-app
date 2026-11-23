@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { anonSupabase } from "@/lib/supabase/server";
+import { serverSupabase } from "@/lib/supabase/server";
 import { isConfigured } from "@/lib/env";
 import { getT } from "@/lib/i18n/server";
 import { CATEGORIES, SUBCATEGORIES, catKey, subKey, type Category, type ProductCardData } from "@/lib/categories";
@@ -38,13 +38,13 @@ export default async function Explore({ searchParams }: PageProps<"/explore">) {
   const nearW = near ? WILAYAS.find((x) => x.code === near) : undefined;
 
   const sellers: SellerResult[] = isConfigured && view === "shops"
-    ? ((await anonSupabase().rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null, p_near: near })).data ?? [])
+    ? ((await (await serverSupabase()).rpc("public_sellers", { p_category: category, p_sub: sub, p_tag: collection || null, p_q: q || null, p_near: near })).data ?? [])
     : [];
   const items: ProductCardData[] = isConfigured && view === "products"
-    ? ((await anonSupabase().rpc("public_products", { p_category: category || null, p_q: q || null, p_limit: limit + 1, p_offset: 0, p_tag: collection || null, p_sub: sub || null, p_near: near })).data ?? [])
+    ? ((await (await serverSupabase()).rpc("public_products", { p_category: category || null, p_q: q || null, p_limit: limit + 1, p_offset: 0, p_tag: collection || null, p_sub: sub || null, p_near: near })).data ?? [])
     : [];
   const counts: Record<string, number> = isConfigured && category
-    ? ((await anonSupabase().rpc("subcategory_counts", { p_category: category })).data ?? {}) : {};
+    ? ((await (await serverSupabase()).rpc("subcategory_counts", { p_category: category })).data ?? {}) : {};
   // subcategories with products first, then the others (still clickable)
   const subOrder = [...subs].sort((a, b) => Number(!counts[a]) - Number(!counts[b]));
   const more = items.length > limit;

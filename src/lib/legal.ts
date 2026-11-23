@@ -82,7 +82,7 @@ const fr: Docs = {
       "La boutique propose, au choix de l'acheteur : un échange, une réparation ou un remboursement. Les frais de retour d'un produit non conforme sont à la charge de la boutique. Le remboursement intervient au plus tard 15 jours après la réception du retour.",
     ] },
     { h: "3. Produits alimentaires et sur mesure", p: [
-      "Les gâteaux, plats cuisinés et produits frais ne sont ni repris ni échangés, sauf s'ils sont arrivés abîmés ou non conformes (signalement le jour de la réception, avec photos).",
+      "Les gâteaux et produits frais ne sont ni repris ni échangés, sauf s'ils sont arrivés abîmés ou non conformes (signalement le jour de la réception, avec photos).",
       "Les créations faites sur mesure (taille, prénom, couleur demandés) ne sont reprises qu'en cas de défaut ou de non-conformité à la demande.",
     ] },
     { h: "4. Changement d'avis", p: [
@@ -204,7 +204,7 @@ const ar: Docs = {
       "يقترح المتجر، حسب اختيار المشتري: استبدالًا أو تصليحًا أو استرجاع المبلغ. مصاريف إرجاع المنتوج غير المطابق على المتجر. يُسترجع المبلغ في أجل أقصاه 15 يومًا من استلام المنتوج المُرجع.",
     ] },
     { h: "3. المأكولات والمنتجات حسب الطلب", p: [
-      "الحلويات والأطباق والمنتجات الطازجة لا تُرجع ولا تُستبدل، إلا إذا وصلت متضررة أو غير مطابقة (الإبلاغ يوم الاستلام مع صور).",
+      "الحلويات والمنتجات الطازجة لا تُرجع ولا تُستبدل، إلا إذا وصلت متضررة أو غير مطابقة (الإبلاغ يوم الاستلام مع صور).",
       "المنتجات المصنوعة حسب الطلب (مقاس، اسم، لون) لا تُرجع إلا في حالة عيب أو عدم مطابقة للطلب.",
     ] },
     { h: "4. تغيير الرأي", p: [

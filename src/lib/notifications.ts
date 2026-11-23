@@ -26,7 +26,7 @@ export function notificationText(lang: Lang, n: Pick<Notification, "kind" | "par
 export function notificationIcon(kind: string): string {
   if (kind.startsWith("order_")) return kind === "order_new" ? "bag" : "truck";
   if (kind.startsWith("payout")) return "cash";
-  if (kind.startsWith("offer_")) return "gift";
+  if (kind.startsWith("offer_") || kind === "invite_used") return "gift";
   if (kind.startsWith("report_") || kind.startsWith("shop_warning") || kind === "shop_suspended" || kind === "product_blocked") return "shield";
   return "store";
 }

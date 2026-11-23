@@ -16,6 +16,11 @@ export async function POST(req: NextRequest) {
   // accounts blocked by the Bledify team cannot order
   const { data: blocked } = await db.from("blocked_users").select("user_id").eq("user_id", auth.user.id).maybeSingle();
   if (blocked) return NextResponse.json({ error: "account_blocked" }, { status: 403 });
+  // invite-only: the account must have joined with an invitation
+  const { data: access } = await (await serverSupabase()).rpc("my_access");
+  if (access && (access as { access: boolean; invite_only: boolean }).invite_only && !(access as { access: boolean }).access) {
+    return NextResponse.json({ error: "inv_no_access" }, { status: 403 });
+  }
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return NextResponse.json({ error: "error" }, { status: 400 }); }

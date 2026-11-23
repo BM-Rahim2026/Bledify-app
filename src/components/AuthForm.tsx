@@ -64,6 +64,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" | "forgot" | "rese
   return (
     <form onSubmit={submit} className="space-y-4">
       <h1 className="font-display text-3xl">{title}</h1>
+      {mode === "signup" && params.get("invited") ? (
+        <p className="flex items-center gap-2 rounded-xl bg-brand-soft p-3 text-sm font-semibold text-brand" role="status">
+          <Icon name="gift" className="h-5 w-5 shrink-0" />{t("inv_valid")}
+        </p>
+      ) : null}
       {!isConfigured ? <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">{t("not_configured")}</p> : null}
       {mode === "signup" ? (
         <>

@@ -10,7 +10,7 @@ import { Icon } from "@/components/Icon";
 import { Spinner } from "@/components/ui";
 import type { DictKey } from "@/lib/i18n/dict";
 
-type Counts = { applications: number; review_queue: number; reports: number; refunds: number; offers: number };
+type Counts = { applications: number; review_queue: number; reports: number; refunds: number; offers: number; access_requests: number };
 type Item = { href: string; key: DictKey; icon: string; badge?: keyof Counts };
 const GROUPS: { key: DictKey; items: Item[] }[] = [
   { key: "adm_g_overview", items: [{ href: "/admin", key: "adm_nav_dashboard", icon: "grid" }] },
@@ -25,6 +25,7 @@ const GROUPS: { key: DictKey; items: Item[] }[] = [
     { href: "/admin/reports", key: "adm_nav_reports", icon: "shield", badge: "reports" },
   ] },
   { key: "adm_g_buyers", items: [
+    { href: "/admin/invites", key: "adm_nav_invites", icon: "gift", badge: "access_requests" },
     { href: "/admin/customers", key: "adm_nav_customers", icon: "user" },
     { href: "/admin/reviews", key: "adm_nav_reviews", icon: "star" },
   ] },

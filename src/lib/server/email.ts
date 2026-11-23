@@ -72,7 +72,7 @@ export async function sendTeamDigest(d: { to: string[]; siteUrl: string; counts:
   const labels: [string, string, DictKey][] = [
     ["applications", "/admin/shops", "adm_nav_shops"], ["review_queue", "/admin/review", "adm_nav_review"],
     ["reports", "/admin/reports", "adm_nav_reports"], ["refunds", "/admin/payments", "adm_nav_payments"],
-    ["offers", "/admin/offers", "adm_nav_offers"],
+    ["offers", "/admin/offers", "adm_nav_offers"], ["access_requests", "/admin/invites", "adm_inv_requests"],
   ];
   const total = labels.reduce((a, [k]) => a + (Number(d.counts[k]) || 0), 0);
   if (!total) return false;

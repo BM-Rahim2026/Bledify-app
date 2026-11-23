@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://bledify.vercel.app"),
   openGraph: { siteName: "Bledify", images: ["/brand/icon-512.png"] },
   appleWebApp: { capable: true, title: "Bledify", statusBarStyle: "default" },
+  // invite-only: keep search engines out
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = { themeColor: "#1c4430", width: "device-width", initialScale: 1 };

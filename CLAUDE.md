@@ -120,6 +120,21 @@ https://claude.ai/artifact/27UBTGXDXnza87jbCa87r8
   (`ShopView`) lists them as cards (default pre-selected) or "new address" + "save for next orders".
 - Confirmations: `toast(text, "ok" | "error")` from `src/components/Toast.tsx` (`<Toaster />` in the root layout).
 
+## Invite-only access (0024)
+- `platform_settings.invite_only` (default on) + `member_invite_quota` (5). Access = row in `members` (joined with an
+  invitation; every account that existed before 0024 was added) or admin → `has_access()`, `my_access()`.
+- `invites` (8-char codes without look-alikes, shown "XXXX-XXXX"; team batches with several uses / expiry, members'
+  single-use 30-day codes via `create_my_invite`), `check_invite` (anon), `redeem_invite` (signed in; notifies the
+  inviter `invite_used`). `access_requests` from the invite page (`request_access`, anon); team handles them at
+  `/admin/invites` (`admin_invite_request` → code to send by WhatsApp, `admin_decline_request`, `admin_create_invites`,
+  `admin_revoke_invite`, `admin_save_invite_settings`); badge `access_requests` in `todo_counts`.
+- Gate = `src/proxy.ts` (all pages; open: /invite, /i/*, /login, /forgot, /reset, /auth/*, /legal, /confiance, /api/*).
+  Signed cookie `bl_pass` (`src/lib/server/pass.ts`, HMAC with ACCESS_COOKIE_SECRET or the service key): guest = entered
+  a valid code (`/i/<code>` link or `/api/invite/enter`, code kept in `bl_invite`), member = signed-in account with
+  access (the proxy redeems `bl_invite` on the first signed-in page). `/api/orders` refuses accounts without access
+  (`inv_no_access`); a trigger refuses new shops from them (NO_ACCESS). Members manage codes at `/invitations`.
+  Site is `noindex`. Note: public RPCs are still callable with the anon key (the gate closes the site, not the API).
+
 ## Payments (marketplace, 0010)
 - Bledify collects every payment (escrow), then pays the shop. Per product: `pay_cod`, `pay_card`,
   `deposit_pct` (online deposit for made-to-order items). `place_order(..., p_payment_method)` computes

@@ -52,6 +52,7 @@ before(async () => {
   await db.connect();
   await db.query("truncate public.orders, public.products, public.shops, public.order_attempts, auth.users cascade");
   await db.query("insert into auth.users (id, email) values ($1,'a@test.dz'),($2,'b@test.dz')", [A, B]);
+  await db.query("insert into public.members (user_id) values ($1),($2) on conflict do nothing", [A, B]);
   [{ id: shopA }] = await q(
     "insert into public.shops (owner_id,name,slug,delivery_home_dzd,delivery_desk_dzd,status) values ($1,'TEST Shop','shop-a',600,400,'approved') returning id", [A]);
   [{ id: shopB }] = await q("insert into public.shops (owner_id,name,slug,status) values ($1,'Other','shop-b','approved') returning id", [B]);
@@ -526,6 +527,7 @@ test("admin console: moderation and admin functions", { skip }, async () => {
 test("seller applications: new shops wait for approval, hidden until then", { skip }, async () => {
   const D = "00000000-0000-0000-0000-00000000000d";
   await q("insert into auth.users (id, email) values ($1, 'd@test.dz')", [D]);
+  await q("insert into public.members (user_id) values ($1)", [D]); // joined with an invitation
   const [{ id: shopD }] = await as(D, () => q("insert into public.shops (owner_id, name, slug, application_note, status) values ($1, 'Atelier D', 'atelier-d', 'Je fais du makrout', 'approved') returning id", [D]));
   const [s0] = await q("select status from public.shops where id=$1", [shopD]);
   assert.equal(s0.status, "pending"); // cannot approve itself
@@ -726,4 +728,58 @@ test("address book: own rows only, one default, limit", { skip }, async () => {
   for (let i = 0; i < 9; i++) await add(A);
   assert.equal(await code(add(A)), "P0429");
   await q("delete from public.addresses");
+});
+
+test("invite-only: codes, joining, member quota, requests, team tools", { skip }, async () => {
+  const C = "00000000-0000-0000-0000-0000000000c1", D = "00000000-0000-0000-0000-0000000000d1";
+  await q("insert into auth.users (id, email, raw_user_meta_data) values ($1,'c1@test.dz','{\"full_name\":\"Nadia C.\"}'),($2,'d1@test.dz','{}')", [C, D]);
+  await q("insert into public.admins (user_id) values ($1)", [B]);
+  // a newcomer has no access and cannot open a shop
+  assert.deepEqual((await as(C, () => q("select public.my_access() a")))[0].a, { access: false, invite_only: true });
+  assert.equal(await code(as(C, () => q("insert into public.shops (owner_id,name,slug) values ($1,'C shop','c-shop')", [C]))), "42501");
+  assert.equal(await code(as(C, () => q("select public.create_my_invite()"))), "42501");
+  // a member (A) creates an invitation; anyone can check it; C joins with it
+  const [{ c: codeA }] = await as(A, () => q("select public.create_my_invite() c"));
+  assert.match(codeA, /^[23456789A-HJ-NP-Z]{8}$/);
+  assert.equal((await as("anon", () => q("select public.check_invite($1) ok", [codeA.slice(0, 4).toLowerCase() + "-" + codeA.slice(4)])))[0].ok, true);
+  assert.equal((await as("anon", () => q("select public.check_invite('ZZZZZZZZ') ok")))[0].ok, false);
+  assert.equal(await code(as("anon", () => q("select public.redeem_invite($1)", [codeA]))), "42501");
+  await as(C, () => q("select public.redeem_invite($1)", [codeA]));
+  assert.equal((await as(C, () => q("select public.my_access() a")))[0].a.access, true);
+  // single use: D cannot reuse it
+  assert.equal(await code(as(D, () => q("select public.redeem_invite($1)", [codeA]))), "P0002");
+  const [{ mi }] = await as(A, () => q("select public.my_invites() mi"));
+  assert.equal(mi.created, 1);
+  assert.deepEqual(mi.invites[0].joined, ["Nadia C."]);
+  const [{ n }] = await as(A, () => q("select public.my_notifications() n"));
+  assert.ok(n.some((x) => x.kind === "invite_used" && x.params.name === "Nadia C."));
+  // quota
+  await q("update public.platform_settings set member_invite_quota = 2");
+  await as(A, () => q("select public.create_my_invite()"));
+  assert.equal(await code(as(A, () => q("select public.create_my_invite()"))), "P0429");
+  // the team: batch codes with several uses, revoke, settings
+  const [{ codes }] = await as(B, () => q("select public.admin_create_invites(3, 2, 'Salon Alger', 7) codes"));
+  assert.equal(codes.length, 3);
+  assert.equal(await code(as(A, () => q("select public.admin_create_invites(1)"))), "42501");
+  await as(D, () => q("select public.redeem_invite($1)", [codes[0]]));
+  const [{ list }] = await as(B, () => q("select public.admin_invites('', 'team') list"));
+  const row = list.find((x) => x.code === codes[0]);
+  assert.equal(row.uses, 1); assert.equal(row.usable, true);
+  await as(B, () => q("select public.admin_revoke_invite($1)", [list.find((x) => x.code === codes[1]).id]));
+  assert.equal((await as("anon", () => q("select public.check_invite($1) ok", [codes[1]])))[0].ok, false);
+  // access requests: deduplicated, the team turns one into a code
+  for (let i = 0; i < 2; i++) await as("anon", () => q("select public.request_access('Karim B.', '0661 11 22 33', '16 - Alger', 'seller', 'Couturier')"));
+  const [{ rq }] = await as(B, () => q("select public.admin_access_requests() rq"));
+  assert.equal(rq.length, 1);
+  const [{ cnt }] = await as(B, () => q("select public.admin_counts() cnt"));
+  assert.equal(cnt.access_requests, 1);
+  const [{ rc }] = await as(B, () => q("select public.admin_invite_request($1) rc", [rq[0].id]));
+  assert.equal((await as("anon", () => q("select public.check_invite($1) ok", [rc])))[0].ok, true);
+  assert.equal((await as(B, () => q("select public.admin_access_requests('pending') rq")))[0].rq.length, 0);
+  // switch the gate off
+  await as(B, () => q("select public.admin_save_invite_settings(false, 5)"));
+  assert.equal((await as("anon", () => q("select public.invite_only() v")))[0].v, false);
+  await as(B, () => q("select public.admin_save_invite_settings(true, 5)"));
+  await q("delete from public.admins");
+  await q("delete from auth.users where id in ($1,$2)", [C, D]);
 });
